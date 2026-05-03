@@ -1284,7 +1284,7 @@
                                 <span class="settings-row-value" id="settingsEmail" style="font-size:12px;">—</span>
                             </div>
                             <div class="settings-row">
-                                <span class="settings-row-label">角色</span>
+                                <span class="settings-row-label">職稱</span>
                                 <span class="settings-row-value" id="settingsRole">—</span>
                             </div>
                         </div>
@@ -1638,14 +1638,13 @@
 
     function updateProfileUI() {
         if (!currentProfile) return;
-        var roleLabels = { staff: '員工', manager: '主管', admin: '管理員' };
         var el;
         el = document.getElementById('settingsEmpName');
         if (el) el.textContent = currentProfile.empName || '—';
         el = document.getElementById('settingsEmail');
         if (el) el.textContent = currentProfile.email || '—';
         el = document.getElementById('settingsRole');
-        if (el) el.textContent = roleLabels[currentProfile.role] || currentProfile.role || '—';
+        if (el) el.textContent = currentProfile.title || '—';
         el = document.getElementById('settingsAdminGroup');
         if (el) el.classList.remove('hidden');
     }
