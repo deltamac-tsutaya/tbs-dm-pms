@@ -48,6 +48,78 @@
         .cloud-dot.connected { background: #22c55e; }
         .cloud-dot.error { background: #f87171; }
 
+        /* ===== AUTH OVERLAY ===== */
+        .auth-overlay {
+            position: fixed; inset: 0; background: #F8F7F2; z-index: 800;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem;
+        }
+        .auth-card {
+            background: white; border: 1px solid #e5e7eb; border-radius: 16px;
+            padding: 2rem; width: 100%; max-width: 360px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .auth-logo { text-align: center; margin-bottom: 1.5rem; }
+        .auth-logo-text { font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.3px; }
+        .auth-logo-sub { font-size: 12px; color: #94a3b8; margin-top: 0.2rem; }
+        .auth-tabs {
+            display: flex; border: 1px solid #e5e7eb; border-radius: 8px; padding: 3px;
+            margin-bottom: 1.25rem;
+        }
+        .auth-tab {
+            flex: 1; padding: 0.45rem; font-size: 13px; font-weight: 600;
+            border: none; background: transparent; border-radius: 6px; cursor: pointer;
+            color: #64748b; transition: all 0.15s;
+        }
+        .auth-tab.active { background: #0f172a; color: white; }
+        .auth-label { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 0.35rem; letter-spacing: 0.4px; display: block; }
+        .auth-input {
+            width: 100%; padding: 0.65rem 0.875rem; border: 1px solid #e5e7eb; border-radius: 8px;
+            font-size: 14px; margin-bottom: 0.75rem; transition: border-color 0.2s; box-sizing: border-box;
+        }
+        .auth-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
+        .auth-btn {
+            width: 100%; padding: 0.75rem; background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(37,99,235,0.3); margin-top: 0.25rem;
+        }
+        .auth-btn:active { transform: scale(0.98); }
+        .auth-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+        .auth-link { display: block; text-align: center; margin-top: 0.875rem; font-size: 13px; color: #64748b; cursor: pointer; text-decoration: underline; }
+        .auth-error { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; padding: 0.6rem 0.875rem; font-size: 13px; color: #991b1b; margin-bottom: 0.75rem; }
+        /* Setup overlay (first-login) */
+        .setup-overlay {
+            position: fixed; inset: 0; background: rgba(15,23,42,0.65); z-index: 900;
+            display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+        }
+        .setup-card {
+            background: white; border-radius: 16px; padding: 1.75rem;
+            width: 100%; max-width: 360px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+        .setup-title { font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 0.3rem; }
+        .setup-desc { font-size: 13px; color: #64748b; margin-bottom: 1.25rem; line-height: 1.5; }
+        /* Role switcher (admin only) */
+        .role-switcher-wrap { position: relative; }
+        .role-switcher-btn {
+            display: flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.65rem;
+            border-radius: 20px; border: 1.5px solid #e5e7eb; background: white;
+            font-size: 11px; font-weight: 600; color: #64748b; cursor: pointer;
+            transition: all 0.15s; white-space: nowrap;
+        }
+        .role-switcher-btn.rs-admin   { border-color: #6d28d9; color: #6d28d9; background: #ede9fe; }
+        .role-switcher-btn.rs-manager { border-color: #1d4ed8; color: #1d4ed8; background: #dbeafe; }
+        .role-switcher-btn.rs-staff   { border-color: #15803d; color: #15803d; background: #dcfce7; }
+        .role-switcher-panel {
+            position: absolute; top: calc(100% + 6px); right: 0; background: white;
+            border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 300; min-width: 170px; overflow: hidden;
+        }
+        .role-switcher-item {
+            display: block; width: 100%; text-align: left; padding: 0.6rem 0.875rem;
+            font-size: 13px; font-weight: 500; border: none; background: transparent;
+            cursor: pointer; color: #374151; transition: background 0.1s;
+        }
+        .role-switcher-item:hover { background: #f1f5f9; }
+        .role-switcher-item.rs-current { background: #f8fafc; font-weight: 700; color: #0f172a; }
+
         /* Content */
         .content { flex: 1; overflow-y: auto; padding: 1rem; padding-bottom: max(1.5rem, env(safe-area-inset-bottom)); background: #F8F7F2; }
 
@@ -933,6 +1005,55 @@
 <body>
     <div id="toastContainer" class="toast-container"></div>
 
+    <!-- Auth overlay -->
+    <div id="authOverlay" class="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <div class="auth-logo-text">得利蔦屋</div>
+                <div class="auth-logo-sub">營運管理系統</div>
+            </div>
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabFirstLogin" onclick="switchAuthTab('first')">首次登入</button>
+                <button class="auth-tab" id="tabEmailLogin" onclick="switchAuthTab('email')">帳號登入</button>
+            </div>
+            <div id="panelFirstLogin">
+                <label class="auth-label">工號</label>
+                <input type="text" class="auth-input" id="loginEmpId" placeholder="請輸入工號" autocomplete="username"
+                       onkeydown="if(event.key==='Enter') loginWithEmpId()" />
+                <div id="authError1" class="auth-error hidden"></div>
+                <button class="auth-btn" id="btnFirstLogin" onclick="loginWithEmpId()">首次登入</button>
+            </div>
+            <div id="panelEmailLogin" class="hidden">
+                <label class="auth-label">電子郵件</label>
+                <input type="email" class="auth-input" id="loginEmail" placeholder="user@example.com" autocomplete="email"
+                       onkeydown="if(event.key==='Enter') loginWithEmail()" />
+                <label class="auth-label">密碼</label>
+                <input type="password" class="auth-input" id="loginPassword" placeholder="••••••••" autocomplete="current-password"
+                       onkeydown="if(event.key==='Enter') loginWithEmail()" />
+                <div id="authError2" class="auth-error hidden"></div>
+                <button class="auth-btn" id="btnEmailLogin" onclick="loginWithEmail()">登入</button>
+                <span class="auth-link" onclick="handleForgotPassword()">忘記密碼？</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- First-login setup overlay -->
+    <div id="setupOverlay" class="setup-overlay hidden">
+        <div class="setup-card">
+            <div class="setup-title">👋 歡迎！請設定您的帳號</div>
+            <div class="setup-desc">首次登入需設定電子郵件與新密碼，日後將以此登入系統。</div>
+            <label class="auth-label">電子郵件</label>
+            <input type="email" class="auth-input" id="setupEmail" placeholder="your@email.com" autocomplete="email" />
+            <label class="auth-label">新密碼（至少 6 位）</label>
+            <input type="password" class="auth-input" id="setupPassword" placeholder="••••••••" autocomplete="new-password" />
+            <label class="auth-label">確認新密碼</label>
+            <input type="password" class="auth-input" id="setupPasswordConfirm" placeholder="••••••••" autocomplete="new-password"
+                   onkeydown="if(event.key==='Enter') completeSetup()" />
+            <div id="setupError" class="auth-error hidden"></div>
+            <button class="auth-btn" id="btnSetup" onclick="completeSetup()">確認設定</button>
+        </div>
+    </div>
+
     <!-- Splash screen -->
     <div id="splashScreen" class="splash-screen">
         <div class="splash-logo">
@@ -952,6 +1073,18 @@
         <div class="status-bar">
             <span class="status-bar-title">營運管理系統</span>
             <div style="display:flex;align-items:center;gap:0.75rem;">
+                <!-- Role switcher: admin only -->
+                <div class="role-switcher-wrap hidden" id="roleSwitcherWrap">
+                    <button class="role-switcher-btn rs-admin" id="roleSwitcherBtn" onclick="toggleRoleSwitcher()">
+                        <span>👤</span><span id="roleSwitcherLabel">管理員</span>
+                    </button>
+                    <div class="role-switcher-panel hidden" id="roleSwitcherPanel">
+                        <button class="role-switcher-item" onclick="setViewRole(null,'')">👤 管理員（預設）</button>
+                        <button class="role-switcher-item" onclick="setViewRole('manager','')">👥 主管（全門市）</button>
+                        <button class="role-switcher-item" onclick="setViewRole('staff','信義店')">🏪 員工 · 信義</button>
+                        <button class="role-switcher-item" onclick="setViewRole('staff','臺中市政店')">🏪 員工 · 市政</button>
+                    </div>
+                </div>
                 <div class="cloud-status">
                     <div class="cloud-dot" id="cloudDot"></div>
                     <span id="cloudStatusText">連線中</span>
@@ -1138,6 +1271,43 @@
             <div id="pageSettings" class="page hidden">
                 <div style="padding:1rem;">
 
+                    <!-- Account info -->
+                    <div class="settings-group">
+                        <div class="settings-section-title">帳號</div>
+                        <div class="settings-card">
+                            <div class="settings-row">
+                                <span class="settings-row-label">姓名</span>
+                                <span class="settings-row-value" id="settingsEmpName">—</span>
+                            </div>
+                            <div class="settings-row">
+                                <span class="settings-row-label">電子郵件</span>
+                                <span class="settings-row-value" id="settingsEmail" style="font-size:12px;">—</span>
+                            </div>
+                            <div class="settings-row">
+                                <span class="settings-row-label">角色</span>
+                                <span class="settings-row-value" id="settingsRole">—</span>
+                            </div>
+                        </div>
+                        <button class="settings-action-btn" style="margin-top:0.5rem;" onclick="showChangePassword()">
+                            🔑 &nbsp;更改密碼
+                        </button>
+                        <div id="changePwPanel" class="hidden" style="margin-top:0.5rem;">
+                            <div class="settings-card" style="padding:1rem;">
+                                <label class="auth-label">新密碼（至少 6 位）</label>
+                                <input type="password" class="auth-input" id="newPw1" placeholder="••••••••" style="margin-top:0.25rem;" />
+                                <label class="auth-label" style="margin-top:0.25rem;">確認新密碼</label>
+                                <input type="password" class="auth-input" id="newPw2" placeholder="••••••••" style="margin-top:0.25rem;margin-bottom:0.75rem;" />
+                                <div style="display:flex;gap:0.5rem;">
+                                    <button class="settings-action-btn" style="flex:1;" onclick="doChangePassword()">確認更改</button>
+                                    <button class="settings-action-btn" style="flex:1;background:#f8fafc;" onclick="hideChangePassword()">取消</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="settings-action-btn" style="margin-top:0.5rem;background:#fff5f5;color:#991b1b;border-color:#fca5a5;" onclick="handleLogout()">
+                            登出
+                        </button>
+                    </div>
+
                     <div class="settings-group">
                         <div class="settings-section-title">連線狀態</div>
                         <div class="settings-card">
@@ -1151,8 +1321,8 @@
                         </div>
                     </div>
 
-                    <div class="settings-group">
-                        <div class="settings-section-title">管理入口</div>
+                    <div class="settings-group hidden" id="settingsAdminGroup">
+                        <div class="settings-section-title">管理後台</div>
                         <a href="admin.html" class="settings-action-btn" style="display:block;text-decoration:none;text-align:center;">
                             前往後台管理
                         </a>
@@ -1291,14 +1461,19 @@
     <script src="firebase-config.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script>
     // ========== STATE ==========
-    let db = null;
-    let availableMonths = []; // [{ id: '2024-04', departments, dateRange, ... }]
-    let currentDayData = []; // records for selected date
-    let empTitles = {};       // { empId: title }
+    let db   = null;
+    let auth = null;
+    let currentProfile = null; // { empId, empName, dept, store, role, needsSetup, uid, email }
+    let viewRole  = null;      // admin role-switcher: null = use real role
+    let viewStore = null;      // admin role-switcher: null = use real store
+    let availableMonths = [];
+    let currentDayData  = [];
+    let empTitles = {};
     let deferredPrompt;
-    let currentCalendarDate = new Date(); // State for Calendar Dashboard
+    let currentCalendarDate = new Date();
 
     // 部門名稱已在後台上傳時直接轉換，前台直接顯示即可
     function deptLabel(dept) { return dept; }
@@ -1356,6 +1531,7 @@
         ['stateNotConfigured', 'stateNoData', 'stateError', 'stateMain'].forEach(function(s) {
             document.getElementById(s).classList.toggle('hidden', s !== id);
         });
+        if (!id) return; // null = hide all
     }
 
     function hideSplash() {
@@ -1406,13 +1582,30 @@
             showState('stateNotConfigured');
             return;
         }
-
         try {
             setCloud('', '連線中');
             firebase.initializeApp(FIREBASE_CONFIG);
-            db = firebase.firestore();
-            loadEmployeeTitles(); // fire-and-forget, non-blocking
-            await loadAvailableMonths();
+            db   = firebase.firestore();
+            auth = firebase.auth();
+
+            auth.onAuthStateChanged(async function(user) {
+                if (user) {
+                    await loadProfile(user);
+                    if (currentProfile && currentProfile.needsSetup) {
+                        hideSplash();
+                        document.getElementById('authOverlay').classList.add('hidden');
+                        document.getElementById('setupOverlay').classList.remove('hidden');
+                    } else {
+                        document.getElementById('authOverlay').classList.add('hidden');
+                        document.getElementById('setupOverlay').classList.add('hidden');
+                        if (!availableMonths.length) await initAppData();
+                    }
+                } else {
+                    hideSplash();
+                    currentProfile = null;
+                    document.getElementById('authOverlay').classList.remove('hidden');
+                }
+            });
         } catch(e) {
             hideSplash();
             setCloud('error', '失敗');
@@ -1420,6 +1613,195 @@
             showState('stateError');
         }
     }
+
+    async function initAppData() {
+        loadEmployeeTitles();
+        await loadAvailableMonths();
+    }
+
+    // ========== AUTH ==========
+    async function loadProfile(user) {
+        var empId = user.displayName;
+        if (!empId) return;
+        try {
+            var doc = await db.collection('employees').doc(empId).get();
+            if (doc.exists) {
+                currentProfile = Object.assign({ uid: user.uid, email: user.email }, doc.data());
+            } else {
+                currentProfile = { empId: empId, uid: user.uid, email: user.email, role: 'staff', needsSetup: false };
+            }
+            updateProfileUI();
+            var wrap = document.getElementById('roleSwitcherWrap');
+            if (wrap) wrap.classList.toggle('hidden', currentProfile.role !== 'admin');
+        } catch(e) { /* non-critical */ }
+    }
+
+    function updateProfileUI() {
+        if (!currentProfile) return;
+        var roleLabels = { staff: '員工', manager: '主管', admin: '管理員' };
+        var el;
+        el = document.getElementById('settingsEmpName');
+        if (el) el.textContent = currentProfile.empName || '—';
+        el = document.getElementById('settingsEmail');
+        if (el) el.textContent = currentProfile.email || '—';
+        el = document.getElementById('settingsRole');
+        if (el) el.textContent = roleLabels[currentProfile.role] || currentProfile.role || '—';
+        el = document.getElementById('settingsAdminGroup');
+        if (el) el.classList.toggle('hidden', currentProfile.role !== 'admin');
+    }
+
+    function switchAuthTab(tab) {
+        document.getElementById('tabFirstLogin').classList.toggle('active', tab === 'first');
+        document.getElementById('tabEmailLogin').classList.toggle('active', tab === 'email');
+        document.getElementById('panelFirstLogin').classList.toggle('hidden', tab !== 'first');
+        document.getElementById('panelEmailLogin').classList.toggle('hidden', tab !== 'email');
+        document.getElementById('authError1').classList.add('hidden');
+        document.getElementById('authError2').classList.add('hidden');
+    }
+
+    async function loginWithEmpId() {
+        var empId = (document.getElementById('loginEmpId').value || '').trim();
+        if (!empId) return;
+        var errEl = document.getElementById('authError1');
+        var btn   = document.getElementById('btnFirstLogin');
+        errEl.classList.add('hidden');
+        btn.disabled = true; btn.textContent = '登入中...';
+        try {
+            await auth.signInWithEmailAndPassword(empId + '@tsutaya.staff', empId);
+        } catch(e) {
+            errEl.textContent = '工號不存在或尚未建立帳號，請聯絡管理員';
+            errEl.classList.remove('hidden');
+            btn.disabled = false; btn.textContent = '首次登入';
+        }
+    }
+
+    async function loginWithEmail() {
+        var email    = (document.getElementById('loginEmail').value || '').trim();
+        var password = document.getElementById('loginPassword').value;
+        var errEl = document.getElementById('authError2');
+        var btn   = document.getElementById('btnEmailLogin');
+        errEl.classList.add('hidden');
+        btn.disabled = true; btn.textContent = '登入中...';
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+        } catch(e) {
+            var bad = ['auth/wrong-password','auth/user-not-found','auth/invalid-credential','auth/invalid-email'];
+            errEl.textContent = bad.includes(e.code) ? '電子郵件或密碼錯誤' : (e.message || '登入失敗');
+            errEl.classList.remove('hidden');
+            btn.disabled = false; btn.textContent = '登入';
+        }
+    }
+
+    async function handleForgotPassword() {
+        var email = (document.getElementById('loginEmail').value || '').trim();
+        if (!email) { showToast('請先輸入電子郵件地址', 'error'); return; }
+        try {
+            await auth.sendPasswordResetEmail(email);
+            showToast('重設密碼連結已寄出，請檢查信箱', 'success', 5000);
+        } catch(e) {
+            showToast('發送失敗：' + (e.message || '請確認電子郵件地址'), 'error');
+        }
+    }
+
+    async function completeSetup() {
+        var email = (document.getElementById('setupEmail').value || '').trim();
+        var pw1   = document.getElementById('setupPassword').value;
+        var pw2   = document.getElementById('setupPasswordConfirm').value;
+        var errEl = document.getElementById('setupError');
+        var btn   = document.getElementById('btnSetup');
+        errEl.classList.add('hidden');
+        if (!email || !email.includes('@')) { errEl.textContent = '請輸入有效的電子郵件'; errEl.classList.remove('hidden'); return; }
+        if (pw1.length < 6) { errEl.textContent = '密碼至少需要 6 位'; errEl.classList.remove('hidden'); return; }
+        if (pw1 !== pw2)    { errEl.textContent = '兩次密碼不一致';    errEl.classList.remove('hidden'); return; }
+        btn.disabled = true; btn.textContent = '設定中...';
+        try {
+            var user  = auth.currentUser;
+            await user.updateEmail(email);
+            await user.updatePassword(pw1);
+            var empId = user.displayName;
+            if (empId) await db.collection('employees').doc(empId).update({ needsSetup: false, email: email });
+            if (currentProfile) { currentProfile.needsSetup = false; currentProfile.email = email; }
+            document.getElementById('setupOverlay').classList.add('hidden');
+            await initAppData();
+        } catch(e) {
+            errEl.textContent = e.message || '設定失敗，請稍後再試';
+            errEl.classList.remove('hidden');
+            btn.disabled = false; btn.textContent = '確認設定';
+        }
+    }
+
+    async function handleLogout() {
+        if (!confirm('確定要登出嗎？')) return;
+        currentProfile = null; viewRole = null; viewStore = null;
+        availableMonths = []; currentDayData = [];
+        showState(null);
+        await auth.signOut();
+    }
+
+    function showChangePassword() { document.getElementById('changePwPanel').classList.remove('hidden'); }
+    function hideChangePassword() {
+        document.getElementById('changePwPanel').classList.add('hidden');
+        document.getElementById('newPw1').value = '';
+        document.getElementById('newPw2').value = '';
+    }
+    async function doChangePassword() {
+        var pw1 = document.getElementById('newPw1').value;
+        var pw2 = document.getElementById('newPw2').value;
+        if (pw1.length < 6) { showToast('密碼至少需要 6 位', 'error'); return; }
+        if (pw1 !== pw2)    { showToast('兩次密碼不一致', 'error'); return; }
+        try {
+            await auth.currentUser.updatePassword(pw1);
+            showToast('密碼已更新', 'success');
+            hideChangePassword();
+        } catch(e) {
+            showToast('更新失敗：' + (e.message || '請重新登入後再試'), 'error');
+        }
+    }
+
+    // ========== ROLE SWITCHER (admin only) ==========
+    function getEffectiveRole() {
+        if (!currentProfile) return 'staff';
+        if (currentProfile.role === 'admin' && viewRole !== null) return viewRole;
+        return currentProfile.role || 'staff';
+    }
+    function getEffectiveStore() {
+        var role = getEffectiveRole();
+        if (role === 'staff') {
+            return (currentProfile && currentProfile.role === 'admin' && viewStore !== null)
+                ? viewStore : (currentProfile ? currentProfile.store || '' : '');
+        }
+        return '';
+    }
+
+    function toggleRoleSwitcher() {
+        document.getElementById('roleSwitcherPanel').classList.toggle('hidden');
+    }
+    function setViewRole(role, store) {
+        viewRole  = role;
+        viewStore = store;
+        document.getElementById('roleSwitcherPanel').classList.add('hidden');
+        var btn   = document.getElementById('roleSwitcherBtn');
+        var label = document.getElementById('roleSwitcherLabel');
+        btn.className = 'role-switcher-btn';
+        if (role === null)        { btn.classList.add('rs-admin');   label.textContent = '管理員'; }
+        else if (role === 'manager') { btn.classList.add('rs-manager'); label.textContent = '主管'; }
+        else { btn.classList.add('rs-staff'); label.textContent = '員工 · ' + (store === '信義店' ? '信義' : '市政'); }
+        applyRoleToUI();
+        filterAndDisplay();
+    }
+    function applyRoleToUI() {
+        var eff  = getEffectiveRole();
+        var filterBar = document.querySelector('.filter-bar');
+        if (filterBar) filterBar.style.display = eff === 'staff' ? 'none' : '';
+    }
+    // Close role switcher panel when clicking outside
+    document.addEventListener('click', function(e) {
+        var wrap = document.getElementById('roleSwitcherWrap');
+        if (wrap && !wrap.contains(e.target)) {
+            var panel = document.getElementById('roleSwitcherPanel');
+            if (panel) panel.classList.add('hidden');
+        }
+    });
 
     // ========== DATA LOADING ==========
     async function loadAvailableMonths() {
@@ -1713,12 +2095,19 @@
             if (s === prev) o.selected = true;
             sel.appendChild(o);
         });
+
+        applyRoleToUI();
     }
 
     function filterAndDisplay() {
-        var store    = document.getElementById('queryStore').value;
-        var showAll  = document.getElementById('showVacationToggle').checked;
-        var isToday  = (document.getElementById('queryDate').value === localDateStr(new Date()));
+        var store   = document.getElementById('queryStore').value;
+        var showAll = document.getElementById('showVacationToggle').checked;
+        var isToday = (document.getElementById('queryDate').value === localDateStr(new Date()));
+
+        // Role-based store enforcement: staff is locked to their store
+        var effRole  = getEffectiveRole();
+        var effStore = getEffectiveStore();
+        if (effRole === 'staff' && effStore) store = effStore;
 
         var data = store
             ? currentDayData.filter(function(r) { return getStore(r.dept) === store; })
@@ -2169,9 +2558,10 @@
         try {
             if (!firebase.apps.length) {
                 firebase.initializeApp(FIREBASE_CONFIG);
-                db = firebase.firestore();
+                db   = firebase.firestore();
+                auth = firebase.auth();
             }
-            await loadAvailableMonths();
+            await initAppData();
         } catch(e) {
             setCloud('error', '失敗');
             document.getElementById('errorDesc').textContent = e.message || '請檢查網路連線後重新整理';
