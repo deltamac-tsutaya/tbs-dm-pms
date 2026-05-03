@@ -1284,7 +1284,7 @@
                                 <span class="settings-row-value" id="settingsEmail" style="font-size:12px;">—</span>
                             </div>
                             <div class="settings-row">
-                                <span class="settings-row-label">角色</span>
+                                <span class="settings-row-label">職稱</span>
                                 <span class="settings-row-value" id="settingsRole">—</span>
                             </div>
                         </div>
@@ -1621,14 +1621,22 @@
 
     // ========== AUTH ==========
     async function loadProfile(user) {
-        var empId = user.displayName;
-        if (!empId) return;
         try {
-            var doc = await db.collection('employees').doc(empId).get();
-            if (doc.exists) {
+            var empId = user.displayName;
+            var doc = null;
+            if (empId) {
+                var d = await db.collection('employees').doc(empId).get();
+                if (d.exists) doc = d;
+            }
+            if (!doc && user.email) {
+                // Fallback: account created outside the system — look up by email
+                var q = await db.collection('employees').where('email', '==', user.email).limit(1).get();
+                if (!q.empty) { doc = q.docs[0]; empId = doc.id; }
+            }
+            if (doc) {
                 currentProfile = Object.assign({ uid: user.uid, email: user.email }, doc.data());
             } else {
-                currentProfile = { empId: empId, uid: user.uid, email: user.email, role: 'staff', needsSetup: false };
+                currentProfile = { empId: empId || '', uid: user.uid, email: user.email, role: 'staff', needsSetup: false };
             }
             updateProfileUI();
             var wrap = document.getElementById('roleSwitcherWrap');
@@ -1638,16 +1646,15 @@
 
     function updateProfileUI() {
         if (!currentProfile) return;
-        var roleLabels = { staff: '員工', manager: '主管', admin: '管理員' };
         var el;
         el = document.getElementById('settingsEmpName');
         if (el) el.textContent = currentProfile.empName || '—';
         el = document.getElementById('settingsEmail');
         if (el) el.textContent = currentProfile.email || '—';
         el = document.getElementById('settingsRole');
-        if (el) el.textContent = roleLabels[currentProfile.role] || currentProfile.role || '—';
+        if (el) el.textContent = currentProfile.title || '—';
         el = document.getElementById('settingsAdminGroup');
-        if (el) el.classList.toggle('hidden', currentProfile.role !== 'admin');
+        if (el) el.classList.remove('hidden');
     }
 
     function switchAuthTab(tab) {

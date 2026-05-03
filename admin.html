@@ -326,6 +326,57 @@
         .loading-text { text-align: center; padding: 2rem; color: #94a3b8; font-size: 14px; }
         .empty-months { text-align: center; padding: 2rem 1rem; color: #94a3b8; font-size: 14px; }
 
+        /* Account creation dialog */
+        .acct-dialog-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 300;
+            display: flex; align-items: center; justify-content: center;
+            padding: 1rem;
+        }
+        .acct-dialog-backdrop.hidden { display: none; }
+        .acct-dialog {
+            background: #fff;
+            border-radius: 16px;
+            width: 100%; max-width: 380px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            overflow: hidden;
+        }
+        .acct-dialog-header {
+            padding: 1.25rem 1.25rem 0;
+        }
+        .acct-dialog-title {
+            font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 0.25rem;
+        }
+        .acct-dialog-sub {
+            font-size: 13px; color: #64748b;
+        }
+        .acct-dialog-body {
+            padding: 1rem 1.25rem;
+        }
+        .acct-dialog-label {
+            font-size: 12px; font-weight: 600; color: #64748b;
+            text-transform: uppercase; letter-spacing: 0.04em;
+            margin-bottom: 0.35rem; display: block;
+        }
+        .acct-dialog-input {
+            width: 100%; box-sizing: border-box;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px; color: #1f2937;
+            outline: none; transition: border-color 0.15s;
+        }
+        .acct-dialog-input:focus { border-color: #2563eb; }
+        .acct-dialog-hint {
+            margin-top: 0.5rem;
+            font-size: 12px; color: #64748b; line-height: 1.5;
+        }
+        .acct-dialog-footer {
+            display: flex; gap: 0.75rem;
+            padding: 0.75rem 1.25rem 1.25rem;
+        }
+
         /* Toast */
         .toast-container {
             position: fixed;
@@ -502,6 +553,15 @@
                 請編輯 firebase-config.js 填入您的 Firebase 專案設定後重新載入。
             </div>
 
+            <!-- Access denied banner -->
+            <div id="accessDeniedBanner" class="hidden" style="background:#fee2e2;border:1.5px solid #fca5a5;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:14px;color:#991b1b;">
+                <strong style="display:block;margin-bottom:0.25rem;">🔒 權限不足</strong>
+                您的帳號沒有管理員權限，無法使用後台功能。請聯絡系統管理員。
+                <div style="margin-top:0.75rem;">
+                    <a href="index.html" style="color:#991b1b;font-weight:600;">← 返回前台</a>
+                </div>
+            </div>
+
             <!-- Upload section -->
             <div class="section-card">
                 <div class="section-header">
@@ -659,12 +719,39 @@
         db = firebase.firestore();
         auth = firebase.auth();
 
-        auth.onAuthStateChanged(function(user) {
+        auth.onAuthStateChanged(async function(user) {
             if (user) {
                 currentUser = user;
-                showDashboard(user);
-                loadMonths();
-                loadEmployees();
+                var isAdmin = false;
+                try {
+                    var empId = user.displayName;
+                    if (empId) {
+                        // Fast path: displayName is empId
+                        var doc = await db.collection('employees').doc(empId).get();
+                        isAdmin = doc.exists && doc.data().role === 'admin';
+                    }
+                    if (!isAdmin && user.email) {
+                        // Fallback: look up by email (account created outside the system)
+                        var q = await db.collection('employees').where('email', '==', user.email).limit(1).get();
+                        if (!q.empty) isAdmin = q.docs[0].data().role === 'admin';
+                    }
+                    if (!isAdmin) {
+                        // Bootstrap: no employee records yet → allow first-time setup
+                        var boot = await db.collection('employees').limit(1).get();
+                        if (boot.empty) isAdmin = true;
+                    }
+                } catch(_) {}
+
+                if (isAdmin) {
+                    document.getElementById('accessDeniedBanner').classList.add('hidden');
+                    showDashboard(user);
+                    loadMonths();
+                    loadEmployees();
+                } else {
+                    document.getElementById('accessDeniedBanner').classList.remove('hidden');
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('dashboardSection').classList.remove('hidden');
+                }
             } else {
                 currentUser = null;
                 showLogin();
@@ -1290,18 +1377,47 @@
     }
 
     // ========== ACCOUNT CREATION ==========
-    async function createEmployeeAccount(btn) {
+    var _acctTarget = null; // { empId, btn }
+
+    function createEmployeeAccount(btn) {
         var empId = btn.dataset.empid;
         var emp   = allEmployees.find(function(e) { return e.empId === empId; });
         if (!emp) return;
+        _acctTarget = { empId: empId, btn: btn };
+        document.getElementById('acctDialogSub').textContent = emp.empName + '（' + empId + '）';
+        document.getElementById('acctDialogFakeEmail').textContent = empId + '@tsutaya.staff';
+        document.getElementById('acctDialogEmail').value = '';
+        document.getElementById('acctDialog').classList.remove('hidden');
+        document.getElementById('acctDialogEmail').focus();
+    }
 
+    function closeAcctDialog() {
+        document.getElementById('acctDialog').classList.add('hidden');
+        _acctTarget = null;
+    }
+
+    async function confirmCreateAccount() {
+        if (!_acctTarget) return;
+        var empId     = _acctTarget.empId;
+        var btn       = _acctTarget.btn;
+        var emp       = allEmployees.find(function(e) { return e.empId === empId; });
+        if (!emp) { closeAcctDialog(); return; }
+
+        var inputEmail = (document.getElementById('acctDialogEmail').value || '').trim().toLowerCase();
+        var useRealEmail = inputEmail.length > 0 && inputEmail.indexOf('@') > 0;
+        var email      = useRealEmail ? inputEmail : (empId + '@tsutaya.staff');
+        var needsSetup = !useRealEmail;
+
+        var confirmBtn = document.getElementById('acctDialogConfirm');
+        confirmBtn.disabled = true; confirmBtn.textContent = '建立中...';
+        closeAcctDialog();
         btn.disabled = true; btn.textContent = '建立中...';
-        var fakeEmail = empId + '@tsutaya.staff';
+
         var secondary;
         try {
             secondary = firebase.initializeApp(FIREBASE_CONFIG, 'acct_' + empId);
             var secAuth = secondary.auth();
-            var cred    = await secAuth.createUserWithEmailAndPassword(fakeEmail, empId);
+            var cred    = await secAuth.createUserWithEmailAndPassword(email, empId);
             var uid     = cred.user.uid;
             await cred.user.updateProfile({ displayName: empId });
             await secAuth.signOut();
@@ -1309,21 +1425,24 @@
             var store = getStoreFromDept(emp.dept || '');
             var role  = emp.role || autoRoleFromTitle(emp.title || '');
             await db.collection('employees').doc(empId).update({
-                uid: uid, email: fakeEmail, store: store, role: role, needsSetup: true
+                uid: uid, email: email, store: store, role: role, needsSetup: needsSetup
             });
-            // Sync in-memory
-            emp.uid = uid; emp.email = fakeEmail; emp.store = store; emp.role = role; emp.needsSetup = true;
-            showToast(emp.empName + ' 帳號已建立，初始密碼：工號', 'success', 6000);
+            emp.uid = uid; emp.email = email; emp.store = store; emp.role = role; emp.needsSetup = needsSetup;
+            var msg = useRealEmail
+                ? emp.empName + ' 帳號已建立，初始密碼：工號'
+                : emp.empName + ' 帳號已建立，員工首次登入時完成設定';
+            showToast(msg, 'success', 6000);
             filterEmployeeList();
         } catch(e) {
             if (e.code === 'auth/email-already-in-use') {
-                showToast('此工號帳號已存在', 'info');
+                showToast('此信箱已被使用', 'info');
             } else {
                 showToast('建立失敗：' + e.message, 'error');
             }
             btn.disabled = false; btn.textContent = '建立帳號';
         } finally {
             if (secondary) try { await secondary.delete(); } catch(_) {}
+            confirmBtn.disabled = false; confirmBtn.textContent = '確認建立';
         }
     }
 
@@ -1447,5 +1566,28 @@
     // ========== BOOT ==========
     initAdmin();
     </script>
+
+    <!-- Account creation dialog -->
+    <div id="acctDialog" class="acct-dialog-backdrop hidden">
+        <div class="acct-dialog">
+            <div class="acct-dialog-header">
+                <div class="acct-dialog-title">建立員工帳號</div>
+                <div class="acct-dialog-sub" id="acctDialogSub"></div>
+            </div>
+            <div class="acct-dialog-body">
+                <label class="acct-dialog-label">電子信箱（選填）</label>
+                <input id="acctDialogEmail" class="acct-dialog-input" type="email"
+                    placeholder="留空則使用工號暫時信箱" autocomplete="off" />
+                <div class="acct-dialog-hint">
+                    填入真實信箱：帳號直接啟用，無需初始設定。<br>
+                    留空：初始信箱為 <span id="acctDialogFakeEmail" style="font-family:monospace"></span>，員工首次登入時自行完成設定。
+                </div>
+            </div>
+            <div class="acct-dialog-footer">
+                <button class="cancel-btn" onclick="closeAcctDialog()">取消</button>
+                <button class="confirm-btn" id="acctDialogConfirm" onclick="confirmCreateAccount()">確認建立</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
