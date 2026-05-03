@@ -1647,7 +1647,7 @@
         el = document.getElementById('settingsRole');
         if (el) el.textContent = roleLabels[currentProfile.role] || currentProfile.role || '—';
         el = document.getElementById('settingsAdminGroup');
-        if (el) el.classList.toggle('hidden', currentProfile.role !== 'admin');
+        if (el) el.classList.remove('hidden');
     }
 
     function switchAuthTab(tab) {

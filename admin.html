@@ -553,6 +553,15 @@
                 請編輯 firebase-config.js 填入您的 Firebase 專案設定後重新載入。
             </div>
 
+            <!-- Access denied banner -->
+            <div id="accessDeniedBanner" class="hidden" style="background:#fee2e2;border:1.5px solid #fca5a5;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:14px;color:#991b1b;">
+                <strong style="display:block;margin-bottom:0.25rem;">🔒 權限不足</strong>
+                您的帳號沒有管理員權限，無法使用後台功能。請聯絡系統管理員。
+                <div style="margin-top:0.75rem;">
+                    <a href="index.html" style="color:#991b1b;font-weight:600;">← 返回前台</a>
+                </div>
+            </div>
+
             <!-- Upload section -->
             <div class="section-card">
                 <div class="section-header">
@@ -710,12 +719,28 @@
         db = firebase.firestore();
         auth = firebase.auth();
 
-        auth.onAuthStateChanged(function(user) {
+        auth.onAuthStateChanged(async function(user) {
             if (user) {
                 currentUser = user;
-                showDashboard(user);
-                loadMonths();
-                loadEmployees();
+                // Check admin role via Firestore employee doc
+                var empId = user.displayName;
+                var isAdmin = false;
+                if (empId) {
+                    try {
+                        var snap = await db.collection('employees').doc(empId).get();
+                        isAdmin = snap.exists && snap.data().role === 'admin';
+                    } catch(_) {}
+                }
+                if (isAdmin) {
+                    document.getElementById('accessDeniedBanner').classList.add('hidden');
+                    showDashboard(user);
+                    loadMonths();
+                    loadEmployees();
+                } else {
+                    document.getElementById('accessDeniedBanner').classList.remove('hidden');
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('dashboardSection').classList.remove('hidden');
+                }
             } else {
                 currentUser = null;
                 showLogin();
