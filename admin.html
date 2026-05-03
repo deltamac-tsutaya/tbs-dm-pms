@@ -402,6 +402,23 @@
         }
         .save-titles-btn:active { transform: scale(0.98); }
 
+        /* Employee account & role */
+        .emp-title-row { flex-wrap: wrap; }
+        .emp-row-meta { display: flex; align-items: center; gap: 0.4rem; width: 100%; margin-top: 0.4rem; flex-wrap: wrap; }
+        .emp-role-select {
+            padding: 0.25rem 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px;
+            font-size: 12px; background: white; cursor: pointer; color: #374151;
+        }
+        .emp-account-btn {
+            padding: 0.25rem 0.65rem; font-size: 12px; font-weight: 600;
+            border: 1.5px solid #2563eb; border-radius: 6px; background: white;
+            color: #2563eb; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+        }
+        .emp-account-btn:hover { background: #eff6ff; }
+        .emp-account-btn:disabled { opacity: 0.5; cursor: default; }
+        .emp-account-ok { font-size: 12px; color: #15803d; font-weight: 600; }
+        .emp-account-pending { font-size: 12px; color: #92400e; font-weight: 500; }
+
         /* Title roster upload */
         .title-upload-zone {
             display: flex;
@@ -1098,7 +1115,18 @@
     // ========== EMPLOYEE TITLE MANAGEMENT ==========
     var allEmployees = []; // [{empId, empName, dept, title}]
 
-    // After upload: extract unique employees, write to employees/{empId} preserving existing titles
+    var MANAGER_TITLES = ['店長', '組長', '領班', '副主廚'];
+    function autoRoleFromTitle(title) {
+        return MANAGER_TITLES.indexOf(title) >= 0 ? 'manager' : 'staff';
+    }
+    function getStoreFromDept(dept) {
+        if (!dept) return '';
+        if (dept.indexOf('信義') >= 0) return '信義店';
+        if (dept.indexOf('台中') >= 0 || dept.indexOf('臺中') >= 0) return '臺中市政店';
+        return '';
+    }
+
+    // After upload: extract unique employees, preserving uid / role / store / title
     async function syncEmployees(records) {
         var empMap = {};
         records.forEach(function(r) {
@@ -1109,13 +1137,10 @@
         var empIds = Object.keys(empMap);
         if (empIds.length === 0) return;
 
-        // Fetch existing titles so we don't overwrite them
-        var existingTitles = {};
+        var existing = {};
         try {
             var snap = await db.collection('employees').get();
-            snap.forEach(function(doc) {
-                existingTitles[doc.id] = doc.data().title || '';
-            });
+            snap.forEach(function(doc) { existing[doc.id] = doc.data(); });
         } catch(e) {}
 
         var BATCH_LIMIT = 480;
@@ -1123,13 +1148,19 @@
         var opCount = 0;
         for (var i = 0; i < empIds.length; i++) {
             var empId = empIds[i];
-            var emp = empMap[empId];
-            var ref = db.collection('employees').doc(empId);
+            var emp   = empMap[empId];
+            var prev  = existing[empId] || {};
+            var ref   = db.collection('employees').doc(empId);
             batch.set(ref, {
-                empId:   empId,
-                empName: emp.empName,
-                dept:    emp.dept,
-                title:   existingTitles[empId] !== undefined ? existingTitles[empId] : ''
+                empId:      empId,
+                empName:    emp.empName,
+                dept:       emp.dept,
+                store:      getStoreFromDept(emp.dept),
+                title:      prev.title      !== undefined ? prev.title      : '',
+                role:       prev.role       !== undefined ? prev.role       : autoRoleFromTitle(prev.title || ''),
+                uid:        prev.uid        !== undefined ? prev.uid        : '',
+                email:      prev.email      !== undefined ? prev.email      : '',
+                needsSetup: prev.needsSetup !== undefined ? prev.needsSetup : true
             });
             opCount++;
             if (opCount >= BATCH_LIMIT) {
@@ -1165,14 +1196,40 @@
         employees.forEach(function(emp) {
             var row = document.createElement('div');
             row.className = 'emp-title-row';
+
+            var role    = emp.role || autoRoleFromTitle(emp.title || '');
+            var hasAcct = !!emp.uid;
+
+            // Role label options
+            var roleOpts = [
+                { value: 'staff',   label: '員工' },
+                { value: 'manager', label: '主管' },
+                { value: 'admin',   label: '管理員' }
+            ].map(function(o) {
+                return '<option value="' + o.value + '"' + (role === o.value ? ' selected' : '') + '>' + o.label + '</option>';
+            }).join('');
+
+            // Account status
+            var acctHtml = hasAcct
+                ? '<span class="emp-account-ok">✓ 帳號已建立</span>' +
+                  (emp.needsSetup ? '<span class="emp-account-pending">（待初始化）</span>' : '')
+                : '<button class="emp-account-btn" data-empid="' + esc(emp.empId) + '" onclick="createEmployeeAccount(this)">建立帳號</button>';
+
             row.innerHTML =
                 '<div class="emp-title-info">' +
-                '<div class="emp-title-name">' + esc(emp.empName) + '</div>' +
-                '<div class="emp-title-id">' + esc(emp.empId) +
-                (emp.dept ? ' · ' + esc(emp.dept) : '') + '</div>' +
+                    '<div class="emp-title-name">' + esc(emp.empName) + '</div>' +
+                    '<div class="emp-title-id">' + esc(emp.empId) +
+                        (emp.dept ? ' · ' + esc(emp.dept) : '') + '</div>' +
                 '</div>' +
-                '<input type="text" class="emp-title-input" placeholder="職稱（空白表示不顯示）" ' +
-                'data-empid="' + esc(emp.empId) + '" value="' + esc(emp.title || '') + '" />';
+                '<input type="text" class="emp-title-input" placeholder="職稱" ' +
+                    'data-empid="' + esc(emp.empId) + '" value="' + esc(emp.title || '') + '" />' +
+                '<div class="emp-row-meta">' +
+                    '<select class="emp-role-select" data-empid="' + esc(emp.empId) + '" onchange="updateEmpRole(this)">' +
+                        roleOpts +
+                    '</select>' +
+                    acctHtml +
+                '</div>';
+
             frag.appendChild(row);
         });
         container.innerHTML = '';
@@ -1229,6 +1286,58 @@
             showToast('儲存失敗：' + e.message, 'error');
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = '儲存所有職稱'; }
+        }
+    }
+
+    // ========== ACCOUNT CREATION ==========
+    async function createEmployeeAccount(btn) {
+        var empId = btn.dataset.empid;
+        var emp   = allEmployees.find(function(e) { return e.empId === empId; });
+        if (!emp) return;
+
+        btn.disabled = true; btn.textContent = '建立中...';
+        var fakeEmail = empId + '@tsutaya.staff';
+        var secondary;
+        try {
+            secondary = firebase.initializeApp(FIREBASE_CONFIG, 'acct_' + empId);
+            var secAuth = secondary.auth();
+            var cred    = await secAuth.createUserWithEmailAndPassword(fakeEmail, empId);
+            var uid     = cred.user.uid;
+            await cred.user.updateProfile({ displayName: empId });
+            await secAuth.signOut();
+
+            var store = getStoreFromDept(emp.dept || '');
+            var role  = emp.role || autoRoleFromTitle(emp.title || '');
+            await db.collection('employees').doc(empId).update({
+                uid: uid, email: fakeEmail, store: store, role: role, needsSetup: true
+            });
+            // Sync in-memory
+            emp.uid = uid; emp.email = fakeEmail; emp.store = store; emp.role = role; emp.needsSetup = true;
+            showToast(emp.empName + ' 帳號已建立，初始密碼：工號', 'success', 6000);
+            filterEmployeeList();
+        } catch(e) {
+            if (e.code === 'auth/email-already-in-use') {
+                showToast('此工號帳號已存在', 'info');
+            } else {
+                showToast('建立失敗：' + e.message, 'error');
+            }
+            btn.disabled = false; btn.textContent = '建立帳號';
+        } finally {
+            if (secondary) try { await secondary.delete(); } catch(_) {}
+        }
+    }
+
+    async function updateEmpRole(select) {
+        var empId = select.dataset.empid;
+        var role  = select.value;
+        try {
+            await db.collection('employees').doc(empId).update({ role: role });
+            var emp = allEmployees.find(function(e) { return e.empId === empId; });
+            if (emp) emp.role = role;
+            showToast('角色已更新', 'success');
+        } catch(e) {
+            showToast('更新失敗：' + e.message, 'error');
+            filterEmployeeList(); // revert UI
         }
     }
 
