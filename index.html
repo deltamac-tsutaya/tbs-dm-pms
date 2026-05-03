@@ -1621,14 +1621,22 @@
 
     // ========== AUTH ==========
     async function loadProfile(user) {
-        var empId = user.displayName;
-        if (!empId) return;
         try {
-            var doc = await db.collection('employees').doc(empId).get();
-            if (doc.exists) {
+            var empId = user.displayName;
+            var doc = null;
+            if (empId) {
+                var d = await db.collection('employees').doc(empId).get();
+                if (d.exists) doc = d;
+            }
+            if (!doc && user.email) {
+                // Fallback: account created outside the system — look up by email
+                var q = await db.collection('employees').where('email', '==', user.email).limit(1).get();
+                if (!q.empty) { doc = q.docs[0]; empId = doc.id; }
+            }
+            if (doc) {
                 currentProfile = Object.assign({ uid: user.uid, email: user.email }, doc.data());
             } else {
-                currentProfile = { empId: empId, uid: user.uid, email: user.email, role: 'staff', needsSetup: false };
+                currentProfile = { empId: empId || '', uid: user.uid, email: user.email, role: 'staff', needsSetup: false };
             }
             updateProfileUI();
             var wrap = document.getElementById('roleSwitcherWrap');
