@@ -6,14 +6,32 @@
  * rules_version = '2';
  * service cloud.firestore {
  *   match /databases/{database}/documents {
+ *
+ *     // request.auth.token.name = Firebase Auth displayName = empId（員工工號）
+ *     function isAuthenticated() {
+ *       return request.auth != null;
+ *     }
+ *
+ *     function isAdmin() {
+ *       return isAuthenticated()
+ *         && exists(/databases/$(database)/documents/employees/$(request.auth.token.name))
+ *         && get(/databases/$(database)/documents/employees/$(request.auth.token.name)).data.role == 'admin';
+ *     }
+ *
+ *     function isSelf(empId) {
+ *       return isAuthenticated() && request.auth.token.name == empId;
+ *     }
+ *
  *     match /schedules/{document=**} {
- *       allow read: if true;
- *       allow write: if request.auth != null;
+ *       allow read: if isAuthenticated();
+ *       allow write: if isAdmin();
  *     }
+ *
  *     match /employees/{empId} {
- *       allow read: if true;
- *       allow write: if request.auth != null;
+ *       allow read: if isAuthenticated();
+ *       allow write: if isAdmin() || isSelf(empId);
  *     }
+ *
  *   }
  * }
  */
