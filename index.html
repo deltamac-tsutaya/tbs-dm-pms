@@ -1259,6 +1259,32 @@
                 </div>
             </div>
 
+            <!-- ===== PAGE: 員工名冊 ===== -->
+            <div id="pageEmployees" class="page hidden">
+                <div style="padding:1rem">
+
+                    <!-- Search and filter -->
+                    <div style="display:flex; gap:0.75rem; margin-bottom:1rem; flex-wrap:wrap">
+                        <input type="text" id="empDirSearch" class="emp-dir-search"
+                               placeholder="搜尋姓名或工號..."
+                               oninput="filterEmpDir()"
+                               style="flex:1; min-width:200px; padding:0.65rem 0.875rem; border:1px solid #e5e7eb; border-radius:8px; font-size:14px; transition:border-color 0.2s" />
+                        <select id="empDirStoreFilter" onchange="filterEmpDir()"
+                                style="padding:0.65rem 0.875rem; border:1px solid #e5e7eb; border-radius:8px; font-size:14px; background:white; cursor:pointer">
+                            <option value="">全部門市</option>
+                            <option value="信義店">信義店</option>
+                            <option value="臺中市政店">臺中市政店</option>
+                        </select>
+                    </div>
+
+                    <!-- Employee list -->
+                    <div id="empDirList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1rem">
+                        <div style="text-align:center; padding:2rem; color:#94a3b8; grid-column:1/-1">載入中...</div>
+                    </div>
+
+                </div>
+            </div>
+
             <!-- ===== PAGE: 公告 ===== -->
             <div id="pageAnnouncements" class="page hidden">
                 <div class="announce-empty">
@@ -1430,6 +1456,17 @@
             </span>
             <span class="nav-tab-label">行銷活動</span>
         </button>
+        <button class="nav-tab" id="navEmployees" onclick="switchTab('employees')">
+            <span class="nav-tab-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+            </span>
+            <span class="nav-tab-label">員工</span>
+        </button>
         <button class="nav-tab" id="navAnnouncements" onclick="switchTab('announcements')">
             <span class="nav-tab-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -1544,6 +1581,7 @@
     var TABS = {
         dashboard:     { page: 'pageDashboard',     btn: 'navDashboard' },
         marketing:     { page: 'pageMarketing',     btn: 'navMarketing' },
+        employees:     { page: 'pageEmployees',     btn: 'navEmployees' },
         announcements: { page: 'pageAnnouncements', btn: 'navAnnouncements' },
         settings:      { page: 'pageSettings',      btn: 'navSettings' }
     };
@@ -1573,6 +1611,115 @@
                 if (d.title) empTitles[doc.id] = d.title;
             });
         } catch(e) { /* non-critical, titles are optional */ }
+    }
+
+    // ========== EMPLOYEE DIRECTORY ==========
+    var allEmployeesDir = [];
+
+    async function loadEmployeeDirectory() {
+        try {
+            var snap = await db.collection('employees').orderBy('empName').get();
+            allEmployeesDir = snap.docs.map(function(doc) {
+                return Object.assign({ id: doc.id }, doc.data());
+            });
+            filterEmpDir();
+        } catch(e) { console.error('Failed to load employee directory:', e); }
+    }
+
+    function filterEmpDir() {
+        var query = (document.getElementById('empDirSearch').value || '').trim().toLowerCase();
+        var store = (document.getElementById('empDirStoreFilter').value || '').trim();
+
+        var filtered = allEmployeesDir.filter(function(emp) {
+            var matchSearch = !query ||
+                emp.empName.toLowerCase().indexOf(query) >= 0 ||
+                emp.empId.toLowerCase().indexOf(query) >= 0;
+
+            var matchStore = !store || (emp.departments && emp.departments.some(function(d) {
+                return d.indexOf(store) >= 0;
+            })) || (emp.dept && emp.dept.indexOf(store) >= 0);
+
+            return matchSearch && matchStore;
+        });
+
+        renderEmpDir(filtered);
+    }
+
+    function renderEmpDir(employees) {
+        var container = document.getElementById('empDirList');
+        if (employees.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:2rem; color:#94a3b8; grid-column:1/-1">沒有找到員工</div>';
+            return;
+        }
+
+        var html = employees.map(function(emp) {
+            var dept = emp.dept || (emp.departments && emp.departments[0]) || '未分類';
+            var deptDisplay = dept;
+            if (deptDisplay.indexOf('信義') >= 0) {
+                deptDisplay = deptDisplay.replace(/信義.*/, '信義店');
+            } else if (deptDisplay.indexOf('台中') >= 0 || deptDisplay.indexOf('臺中') >= 0) {
+                deptDisplay = deptDisplay.replace(/(?:台|臺)中.*/, '臺中市政店');
+            }
+
+            return '<div style="background:white; border:1px solid #e5e7eb; border-radius:12px; padding:1rem; cursor:pointer; transition:all 0.2s; hover:box-shadow 0 4px 12px rgba(0,0,0,0.1)" onclick="viewEmpDetail(\'' + esc(emp.empId) + '\')">' +
+                '<div style="font-size:15px; font-weight:600; color:#1f2937; margin-bottom:0.5rem">' + esc(emp.empName) + '</div>' +
+                '<div style="font-size:13px; color:#64748b; margin-bottom:0.75rem">' + esc(emp.empId) + '</div>' +
+                (emp.title ? '<div style="font-size:12px; color:#2563eb; font-weight:600; margin-bottom:0.5rem">📌 ' + esc(emp.title) + '</div>' : '') +
+                '<div style="font-size:12px; color:#64748b; margin-bottom:0.5rem">' + esc(deptDisplay) + '</div>' +
+                (emp.phone ? '<div style="font-size:12px; color:#64748b; margin-bottom:0.5rem">📞 ' + esc(emp.phone) + '</div>' : '') +
+                (emp.email ? '<div style="font-size:12px; color:#64748b">📧 ' + esc(emp.email) + '</div>' : '') +
+                '</div>';
+        }).join('');
+
+        container.innerHTML = html;
+    }
+
+    function viewEmpDetail(empId) {
+        var emp = allEmployeesDir.find(function(e) { return e.empId === empId; });
+        if (!emp) return;
+
+        var emergency = emp.emergencyContact || {};
+        var detailHtml = '<div style="padding:1.5rem; max-height:70vh; overflow-y:auto">' +
+            '<div style="font-size:18px; font-weight:700; color:#1f2937; margin-bottom:0.5rem">' + esc(emp.empName) + '</div>' +
+            '<div style="font-size:13px; color:#64748b; margin-bottom:1.5rem">' + esc(emp.empId) + '</div>' +
+            '<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; font-size:13px">' +
+                '<div>' +
+                    '<div style="color:#64748b; margin-bottom:0.25rem">職稱</div>' +
+                    '<div style="color:#1f2937; font-weight:600">' + esc(emp.title || '—') + '</div>' +
+                '</div>' +
+                '<div>' +
+                    '<div style="color:#64748b; margin-bottom:0.25rem">合約類型</div>' +
+                    '<div style="color:#1f2937; font-weight:600">' + esc(emp.contractType || '—') + '</div>' +
+                '</div>' +
+                '<div>' +
+                    '<div style="color:#64748b; margin-bottom:0.25rem">電話</div>' +
+                    '<div style="color:#1f2937; font-weight:600">' + esc(emp.phone || '—') + '</div>' +
+                '</div>' +
+                '<div>' +
+                    '<div style="color:#64748b; margin-bottom:0.25rem">電子郵件</div>' +
+                    '<div style="color:#1f2937; font-weight:600" style="word-break:break-all">' + esc(emp.email || '—') + '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div style="border-top:1px solid #e5e7eb; margin:1.5rem 0; padding-top:1rem">' +
+                '<div style="color:#64748b; margin-bottom:0.5rem; font-size:12px; font-weight:600">地址</div>' +
+                '<div style="color:#1f2937; font-size:13px">' + esc(emp.address || '未填寫') + '</div>' +
+            '</div>' +
+            (emergency.name ? '<div style="border-top:1px solid #e5e7eb; margin:1.5rem 0; padding-top:1rem">' +
+                '<div style="color:#64748b; margin-bottom:0.75rem; font-size:12px; font-weight:600">緊急聯絡人</div>' +
+                '<div style="display:grid; gap:0.5rem; font-size:13px">' +
+                    '<div><span style="color:#64748b">姓名：</span><span style="color:#1f2937">' + esc(emergency.name) + '</span></div>' +
+                    '<div><span style="color:#64748b">電話：</span><span style="color:#1f2937">' + esc(emergency.phone) + '</span></div>' +
+                    '<div><span style="color:#64748b">關係：</span><span style="color:#1f2937">' + esc(emergency.relationship) + '</span></div>' +
+                '</div>' +
+            '</div>' : '') +
+            '</div>';
+
+        alert(emp.empName + '的完整資料如下：\n\n' +
+              '工號：' + emp.empId + '\n' +
+              '職稱：' + (emp.title || '—') + '\n' +
+              '電話：' + (emp.phone || '—') + '\n' +
+              '郵件：' + (emp.email || '—') + '\n' +
+              '地址：' + (emp.address || '—'));
     }
 
     async function initApp() {
@@ -1617,6 +1764,7 @@
     async function initAppData() {
         loadEmployeeTitles();
         await loadAvailableMonths();
+        await loadEmployeeDirectory();
     }
 
     // ========== AUTH ==========
