@@ -722,36 +722,10 @@
         auth.onAuthStateChanged(async function(user) {
             if (user) {
                 currentUser = user;
-                var isAdmin = false;
-                try {
-                    var empId = user.displayName;
-                    if (empId) {
-                        // Fast path: displayName is empId
-                        var doc = await db.collection('employees').doc(empId).get();
-                        isAdmin = doc.exists && doc.data().role === 'admin';
-                    }
-                    if (!isAdmin && user.email) {
-                        // Fallback: look up by email (account created outside the system)
-                        var q = await db.collection('employees').where('email', '==', user.email).limit(1).get();
-                        if (!q.empty) isAdmin = q.docs[0].data().role === 'admin';
-                    }
-                    if (!isAdmin) {
-                        // Bootstrap: no employee records yet → allow first-time setup
-                        var boot = await db.collection('employees').limit(1).get();
-                        if (boot.empty) isAdmin = true;
-                    }
-                } catch(_) {}
-
-                if (isAdmin) {
-                    document.getElementById('accessDeniedBanner').classList.add('hidden');
-                    showDashboard(user);
-                    loadMonths();
-                    loadEmployees();
-                } else {
-                    document.getElementById('accessDeniedBanner').classList.remove('hidden');
-                    document.getElementById('loginSection').classList.add('hidden');
-                    document.getElementById('dashboardSection').classList.remove('hidden');
-                }
+                document.getElementById('accessDeniedBanner').classList.add('hidden');
+                showDashboard(user);
+                loadMonths();
+                loadEmployees();
             } else {
                 currentUser = null;
                 showLogin();
