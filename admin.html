@@ -617,13 +617,13 @@
                 <div id="monthsList"><div class="loading-text">載入中...</div></div>
             </div>
 
-            <!-- Employee title management -->
+            <!-- Employee data management -->
             <div class="section-card">
                 <div class="section-header">
-                    <div class="section-title">👤 職稱管理</div>
+                    <div class="section-title">👤 員工資料管理</div>
                     <button class="refresh-btn" onclick="loadEmployees()">重新整理</button>
                 </div>
-                <p style="font-size:13px;color:#64748b;margin-bottom:0.875rem;">上傳班表後系統會自動同步員工名單。可手動輸入職稱，或直接上傳職位清冊 Excel 批次套用。</p>
+                <p style="font-size:13px;color:#64748b;margin-bottom:0.875rem;">管理完整的員工資料（姓名、聯絡方式、緊急聯絡人等）。批量上傳或逐筆編輯。</p>
 
                 <!-- Title roster upload -->
                 <div class="title-upload-zone" id="titleDropZone"
@@ -1282,8 +1282,7 @@
                     '<div class="emp-title-id">' + esc(emp.empId) +
                         (emp.dept ? ' · ' + esc(emp.dept) : '') + '</div>' +
                 '</div>' +
-                '<input type="text" class="emp-title-input" placeholder="職稱" ' +
-                    'data-empid="' + esc(emp.empId) + '" value="' + esc(emp.title || '') + '" />' +
+                '<button class="emp-account-btn" style="padding:0.35rem 0.75rem;font-size:12px" data-empid="' + esc(emp.empId) + '" onclick="openEmpEditDialog(this)">編輯資料</button>' +
                 '<div class="emp-row-meta">' +
                     '<select class="emp-role-select" data-empid="' + esc(emp.empId) + '" onchange="updateEmpRole(this)">' +
                         roleOpts +
@@ -1434,6 +1433,115 @@
         }
     }
 
+    // ========== EMPLOYEE DATA EDIT ==========
+    var _editingEmp = null;
+
+    function openEmpEditDialog(btn) {
+        var empId = btn.dataset.empid;
+        var emp = allEmployees.find(function(e) { return e.empId === empId; });
+        if (!emp) return;
+
+        _editingEmp = emp;
+        document.getElementById('empEditDialogSub').textContent = emp.empName + '（' + empId + '）';
+        document.getElementById('empEditName').value = emp.empName || '';
+        document.getElementById('empEditDepts').value = (emp.departments || []).join(', ') || emp.dept || '';
+        document.getElementById('empEditTitle').value = emp.title || '';
+        document.getElementById('empEditPhone').value = emp.phone || '';
+        document.getElementById('empEditEmail').value = emp.email || '';
+        document.getElementById('empEditAddress').value = emp.address || '';
+        document.getElementById('empEditHireDate').value = emp.hireDate || '';
+        document.getElementById('empEditContractType').value = emp.contractType || '';
+        document.getElementById('empEditEmergencyName').value = (emp.emergencyContact && emp.emergencyContact.name) || '';
+        document.getElementById('empEditEmergencyPhone').value = (emp.emergencyContact && emp.emergencyContact.phone) || '';
+        document.getElementById('empEditEmergencyRelationship').value = (emp.emergencyContact && emp.emergencyContact.relationship) || '';
+        document.getElementById('empEditRole').value = emp.role || 'staff';
+        document.getElementById('empEditStatus').value = emp.accountStatus || 'active';
+        document.getElementById('empEditDialogBackdrop').classList.remove('hidden');
+    }
+
+    function closeEmpEditDialog() {
+        document.getElementById('empEditDialogBackdrop').classList.add('hidden');
+        _editingEmp = null;
+    }
+
+    async function confirmEmpEdit() {
+        if (!_editingEmp) return;
+        var empId = _editingEmp.empId;
+        var deptStr = (document.getElementById('empEditDepts').value || '').trim();
+        var departments = deptStr ? deptStr.split(',').map(function(s) { return s.trim(); }) : [deptStr];
+
+        var btn = document.getElementById('empEditConfirm');
+        btn.disabled = true;
+        btn.textContent = '儲存中...';
+
+        try {
+            var emergencyContact = {
+                name: (document.getElementById('empEditEmergencyName').value || '').trim(),
+                phone: (document.getElementById('empEditEmergencyPhone').value || '').trim(),
+                relationship: (document.getElementById('empEditEmergencyRelationship').value || '').trim()
+            };
+
+            await db.collection('employees').doc(empId).update({
+                empName: (document.getElementById('empEditName').value || '').trim(),
+                departments: departments,
+                title: (document.getElementById('empEditTitle').value || '').trim(),
+                phone: (document.getElementById('empEditPhone').value || '').trim(),
+                email: (document.getElementById('empEditEmail').value || '').trim(),
+                address: (document.getElementById('empEditAddress').value || '').trim(),
+                hireDate: document.getElementById('empEditHireDate').value || '',
+                contractType: (document.getElementById('empEditContractType').value || '').trim(),
+                emergencyContact: emergencyContact,
+                role: document.getElementById('empEditRole').value,
+                accountStatus: document.getElementById('empEditStatus').value,
+                updatedAt: new Date()
+            });
+
+            // Update in-memory
+            var emp = allEmployees.find(function(e) { return e.empId === empId; });
+            if (emp) {
+                emp.empName = document.getElementById('empEditName').value;
+                emp.departments = departments;
+                emp.title = document.getElementById('empEditTitle').value;
+                emp.phone = document.getElementById('empEditPhone').value;
+                emp.email = document.getElementById('empEditEmail').value;
+                emp.address = document.getElementById('empEditAddress').value;
+                emp.hireDate = document.getElementById('empEditHireDate').value;
+                emp.contractType = document.getElementById('empEditContractType').value;
+                emp.emergencyContact = emergencyContact;
+                emp.role = document.getElementById('empEditRole').value;
+                emp.accountStatus = document.getElementById('empEditStatus').value;
+            }
+
+            showToast('員工資料已儲存', 'success');
+            closeEmpEditDialog();
+            filterEmployeeList();
+        } catch(e) {
+            showToast('儲存失敗：' + e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '儲存';
+        }
+    }
+
+    async function deleteEmployee() {
+        if (!_editingEmp) return;
+        if (!confirm('確定要刪除 ' + _editingEmp.empName + ' 的資料嗎？此操作無法復原。')) return;
+
+        var btn = document.getElementById('empEditDelete');
+        btn.disabled = true;
+        closeEmpEditDialog();
+
+        try {
+            await db.collection('employees').doc(_editingEmp.empId).delete();
+            allEmployees = allEmployees.filter(function(e) { return e.empId !== _editingEmp.empId; });
+            showToast(_editingEmp.empName + ' 已刪除', 'success');
+            filterEmployeeList();
+        } catch(e) {
+            showToast('刪除失敗：' + e.message, 'error');
+            btn.disabled = false;
+        }
+    }
+
     // ========== TITLE ROSTER UPLOAD ==========
     var pendingTitleUpload = null; // [{empId, title}]
 
@@ -1540,6 +1648,70 @@
     // ========== BOOT ==========
     initAdmin();
     </script>
+
+    <!-- Employee data edit dialog -->
+    <div id="empEditDialogBackdrop" class="acct-dialog-backdrop hidden">
+        <div class="acct-dialog" style="max-width:520px">
+            <div class="acct-dialog-header">
+                <div class="acct-dialog-title">編輯員工資料</div>
+                <div class="acct-dialog-sub" id="empEditDialogSub"></div>
+            </div>
+            <div class="acct-dialog-body" style="max-height:60vh;overflow-y:auto">
+                <label class="acct-dialog-label">姓名</label>
+                <input id="empEditName" class="acct-dialog-input" type="text" placeholder="員工姓名" />
+
+                <label class="acct-dialog-label">部門（多個用逗號分隔）</label>
+                <input id="empEditDepts" class="acct-dialog-input" type="text" placeholder="例：TSUTAYA BOOKSTORE 信義店, WIRED TOKYO 信義店 外場" />
+
+                <label class="acct-dialog-label">職稱</label>
+                <input id="empEditTitle" class="acct-dialog-input" type="text" placeholder="例：店長" />
+
+                <label class="acct-dialog-label">電話</label>
+                <input id="empEditPhone" class="acct-dialog-input" type="tel" placeholder="0912-345-678" />
+
+                <label class="acct-dialog-label">電子郵件</label>
+                <input id="empEditEmail" class="acct-dialog-input" type="email" placeholder="employee@example.com" />
+
+                <label class="acct-dialog-label">地址</label>
+                <input id="empEditAddress" class="acct-dialog-input" type="text" placeholder="台北市..." />
+
+                <label class="acct-dialog-label">聘僱日期</label>
+                <input id="empEditHireDate" class="acct-dialog-input" type="date" />
+
+                <label class="acct-dialog-label">合約類型</label>
+                <select id="empEditContractType" class="acct-dialog-input" style="padding:0.6rem 0.75rem">
+                    <option value="">-- 選擇 --</option>
+                    <option value="正職">正職</option>
+                    <option value="兼職">兼職</option>
+                    <option value="派遣">派遣</option>
+                </select>
+
+                <label class="acct-dialog-label">緊急聯絡人</label>
+                <input id="empEditEmergencyName" class="acct-dialog-input" type="text" placeholder="姓名" />
+                <input id="empEditEmergencyPhone" class="acct-dialog-input" type="tel" placeholder="電話" style="margin-top:0.5rem" />
+                <input id="empEditEmergencyRelationship" class="acct-dialog-input" type="text" placeholder="關係（例：母親）" style="margin-top:0.5rem" />
+
+                <label class="acct-dialog-label">角色</label>
+                <select id="empEditRole" class="acct-dialog-input" style="padding:0.6rem 0.75rem">
+                    <option value="staff">員工</option>
+                    <option value="manager">主管</option>
+                    <option value="admin">管理員</option>
+                </select>
+
+                <label class="acct-dialog-label">帳號狀態</label>
+                <select id="empEditStatus" class="acct-dialog-input" style="padding:0.6rem 0.75rem">
+                    <option value="active">啟用中</option>
+                    <option value="pending">待設定</option>
+                    <option value="disabled">已停用</option>
+                </select>
+            </div>
+            <div class="acct-dialog-footer">
+                <button class="cancel-btn" onclick="closeEmpEditDialog()">取消</button>
+                <button class="confirm-btn" id="empEditConfirm" onclick="confirmEmpEdit()">儲存</button>
+                <button class="delete-btn" style="padding:0.7rem 1.25rem;margin-left:auto" id="empEditDelete" onclick="deleteEmployee()">刪除</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Account creation dialog -->
     <div id="acctDialog" class="acct-dialog-backdrop hidden">
