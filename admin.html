@@ -625,6 +625,31 @@
                 </div>
                 <p style="font-size:13px;color:#64748b;margin-bottom:0.875rem;">管理完整的員工資料（姓名、聯絡方式、緊急聯絡人等）。批量上傳或逐筆編輯。</p>
 
+                <!-- Bulk employee data upload -->
+                <div style="margin-bottom:1.5rem;padding:1rem;border:1px dashed #cbd5e1;border-radius:10px;background:#f8fafc">
+                    <div style="font-size:14px;font-weight:600;color:#334155;margin-bottom:0.75rem">📋 批量上傳員工資料</div>
+                    <p style="font-size:13px;color:#64748b;margin-bottom:0.875rem">上傳包含以下欄位的 Excel：工號、姓名、部門、職稱、電話、電子郵件、地址、聘僱日期、合約類型、緊急聯絡人姓名、緊急聯絡人電話、緊急聯絡人關係</p>
+                    <div class="title-upload-zone" id="empDataDropZone"
+                         onclick="document.getElementById('empDataFileInput').click()"
+                         ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                         ondragleave="this.classList.remove('drag-over')"
+                         ondrop="event.preventDefault(); this.classList.remove('drag-over'); handleEmpDataFileDrop(event)">
+                        <span>📤</span>
+                        <span class="title-upload-text">拖曳員工資料 Excel 至此，或點擊上傳</span>
+                        <span class="title-upload-hint">.xlsx / .xls</span>
+                        <button class="browse-btn-sm" type="button" onclick="event.stopPropagation(); document.getElementById('empDataFileInput').click()">選擇檔案</button>
+                    </div>
+                    <input type="file" id="empDataFileInput" accept=".xlsx,.xls" style="display:none"
+                           onchange="handleEmpDataFileSelect(this)" />
+                    <div id="empDataUploadPreview" class="title-upload-preview hidden">
+                        <span id="empDataPreviewText"></span>
+                        <div style="display:flex;gap:0.5rem;flex-shrink:0">
+                            <button class="browse-btn-sm" type="button" onclick="cancelEmpDataUpload()">取消</button>
+                            <button class="save-titles-btn" id="applyEmpDataBtn" style="padding:0.45rem 1rem;font-size:13px" type="button" onclick="applyEmpDataUpload()">套用</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Title roster upload -->
                 <div class="title-upload-zone" id="titleDropZone"
                      onclick="document.getElementById('titleFileInput').click()"
@@ -1639,6 +1664,145 @@
 
             showToast('已套用 ' + pendingTitleUpload.length + ' 筆職稱', 'success');
             cancelTitleUpload();
+        } catch(err) {
+            showToast('套用失敗：' + err.message, 'error');
+            if (btn) { btn.disabled = false; btn.textContent = '套用'; }
+        }
+    }
+
+    // ========== EMPLOYEE DATA BULK UPLOAD ==========
+    var pendingEmpDataUpload = null; // [{empId, ...full data}]
+
+    function handleEmpDataFileDrop(e) {
+        var file = e.dataTransfer.files[0];
+        if (file) processEmpDataFile(file);
+    }
+
+    function handleEmpDataFileSelect(input) {
+        var file = input.files[0];
+        if (file) processEmpDataFile(file);
+        input.value = '';
+    }
+
+    function processEmpDataFile(file) {
+        var ext = file.name.split('.').pop().toLowerCase();
+        if (ext !== 'xlsx' && ext !== 'xls') {
+            showToast('請上傳 Excel 檔案（.xlsx 或 .xls）', 'error');
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                var wb = XLSX.read(e.target.result, { type: 'array' });
+                var ws = wb.Sheets[wb.SheetNames[0]];
+                var rows = XLSX.utils.sheet_to_json(ws);
+
+                if (rows.length === 0) { showToast('檔案內沒有資料', 'error'); return; }
+
+                var parsed = [];
+                rows.forEach(function(row) {
+                    var empId = String(row['工號'] || '').trim();
+                    if (!empId) return;
+
+                    var deptStr = String(row['部門'] || '').trim();
+                    var departments = deptStr ? deptStr.split(/[,，]/).map(function(s) { return s.trim(); }) : [];
+
+                    var emergencyName = String(row['緊急聯絡人姓名'] || '').trim();
+                    var emergencyPhone = String(row['緊急聯絡人電話'] || '').trim();
+                    var emergencyRelationship = String(row['緊急聯絡人關係'] || '').trim();
+
+                    parsed.push({
+                        empId: empId,
+                        empName: String(row['姓名'] || '').trim(),
+                        departments: departments.length > 0 ? departments : [deptStr],
+                        title: String(row['職稱'] || '').trim(),
+                        phone: String(row['電話'] || '').trim(),
+                        email: String(row['電子郵件'] || '').trim(),
+                        address: String(row['地址'] || '').trim(),
+                        hireDate: row['聘僱日期'] ? String(row['聘僱日期']).trim() : '',
+                        contractType: String(row['合約類型'] || '').trim(),
+                        emergencyContact: {
+                            name: emergencyName,
+                            phone: emergencyPhone,
+                            relationship: emergencyRelationship
+                        }
+                    });
+                });
+
+                if (parsed.length === 0) { showToast('沒有找到有效資料', 'error'); return; }
+
+                pendingEmpDataUpload = parsed;
+                document.getElementById('empDataPreviewText').textContent =
+                    '解析到 ' + parsed.length + ' 筆員工資料，套用後將更新或新增記錄';
+                document.getElementById('empDataUploadPreview').classList.remove('hidden');
+            } catch(err) {
+                showToast('解析失敗：' + err.message, 'error');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function cancelEmpDataUpload() {
+        pendingEmpDataUpload = null;
+        document.getElementById('empDataUploadPreview').classList.add('hidden');
+    }
+
+    async function applyEmpDataUpload() {
+        if (!pendingEmpDataUpload || pendingEmpDataUpload.length === 0) return;
+        var btn = document.getElementById('applyEmpDataBtn');
+        if (btn) { btn.disabled = true; btn.textContent = '套用中...'; }
+
+        try {
+            var BATCH_LIMIT = 480;
+            var batch = db.batch();
+            var opCount = 0;
+
+            for (var i = 0; i < pendingEmpDataUpload.length; i++) {
+                var item = pendingEmpDataUpload[i];
+                var ref = db.collection('employees').doc(item.empId);
+                batch.set(ref, {
+                    empId: item.empId,
+                    empName: item.empName,
+                    departments: item.departments,
+                    title: item.title,
+                    phone: item.phone,
+                    email: item.email,
+                    address: item.address,
+                    hireDate: item.hireDate,
+                    contractType: item.contractType,
+                    emergencyContact: item.emergencyContact,
+                    updatedAt: new Date()
+                }, { merge: true });
+                opCount++;
+                if (opCount >= BATCH_LIMIT) {
+                    await batch.commit();
+                    batch = db.batch();
+                    opCount = 0;
+                }
+            }
+            if (opCount > 0) await batch.commit();
+
+            // Update in-memory state
+            pendingEmpDataUpload.forEach(function(item) {
+                var existing = allEmployees.find(function(e) { return e.empId === item.empId; });
+                if (existing) {
+                    existing.empName = item.empName;
+                    existing.departments = item.departments;
+                    existing.title = item.title;
+                    existing.phone = item.phone;
+                    existing.email = item.email;
+                    existing.address = item.address;
+                    existing.hireDate = item.hireDate;
+                    existing.contractType = item.contractType;
+                    existing.emergencyContact = item.emergencyContact;
+                } else {
+                    allEmployees.push(item);
+                }
+            });
+
+            showToast('已套用 ' + pendingEmpDataUpload.length + ' 筆員工資料', 'success');
+            cancelEmpDataUpload();
+            filterEmployeeList();
         } catch(err) {
             showToast('套用失敗：' + err.message, 'error');
             if (btn) { btn.disabled = false; btn.textContent = '套用'; }
