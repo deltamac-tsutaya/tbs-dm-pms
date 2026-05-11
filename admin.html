@@ -401,6 +401,26 @@
             box-shadow: 0 2px 4px rgba(37,99,235,0.25);
         }
         .save-titles-btn:active { transform: scale(0.98); }
+        
+        /* New management styles */
+        .management-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .m-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; position: relative; }
+        .m-item-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 0.25rem; }
+        .m-item-sub { font-size: 12px; color: #64748b; margin-bottom: 0.75rem; }
+        .m-item-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
+        .btn-sm { padding: 0.35rem 0.75rem; font-size: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; border: 1px solid #e2e8f0; background: white; color: #64748b; transition: all 0.2s; }
+        .btn-sm:hover { background: #f1f5f9; }
+        .btn-sm.danger { color: #ef4444; border-color: #fca5a5; }
+        .btn-sm.primary { background: #2563eb; color: white; border-color: #2563eb; }
+        
+        .form-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+        .form-card { background: white; border-radius: 16px; padding: 1.5rem; width: 100%; max-width: 480px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .form-title { font-size: 18px; font-weight: 700; margin-bottom: 1.25rem; color: #1e293b; }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 0.4rem; display: block; }
+        .form-input { width: 100%; padding: 0.65rem 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; }
+        .form-input:focus { outline: none; border-color: #2563eb; }
+        .form-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
     </style>
 </head>
 <body>
@@ -417,10 +437,10 @@
     <!-- Login -->
     <div id="loginSection">
         <div class="login-card">
-            <div class="login-title">管理員登入</div>
-            <div class="login-subtitle">請使用管理員帳號登入後台</div>
-            <label class="field-label">電子郵件</label>
-            <input id="loginEmail" type="email" class="field-input" placeholder="admin@example.com"
+            <div class="login-title">系統登入</div>
+            <div class="login-subtitle">請輸入您的工號與密碼 (管理員請輸入 admin)</div>
+            <label class="field-label">工號 / 帳號</label>
+            <input id="loginEmail" type="text" class="field-input" placeholder="例如: 12345 或 admin"
                    onkeydown="if(event.key==='Enter') login()" />
             <label class="field-label">密碼</label>
             <input id="loginPassword" type="password" class="field-input" placeholder="••••••••"
@@ -495,6 +515,45 @@
                 <div id="monthsList"><div class="loading-text">載入中...</div></div>
             </div>
 
+            <!-- Operational Metrics -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">📈 營運指標管理</div>
+                    <button class="refresh-btn" onclick="loadMetrics()">重新整理</button>
+                </div>
+                <p style="font-size:13px;color:#64748b;margin-bottom:0.875rem;">設定每日業績目標與達成情況，將同步顯示於前台儀表板。</p>
+                <div id="metricsList" class="management-grid"><div class="loading-text">載入中...</div></div>
+                <div style="margin-top:1rem;display:flex;justify-content:flex-end;">
+                    <button class="save-titles-btn" onclick="showMetricForm()">新增指標</button>
+                </div>
+            </div>
+
+            <!-- Activities & Tasks -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">🎯 活動與任務管理</div>
+                    <button class="refresh-btn" onclick="loadActivities()">重新整理</button>
+                </div>
+                <p style="font-size:13px;color:#64748b;margin-bottom:0.875rem;">管理行銷活動、商品上市或店內任務。</p>
+                <div id="activitiesList" class="management-grid"><div class="loading-text">載入中...</div></div>
+                <div style="margin-top:1rem;display:flex;justify-content:flex-end;">
+                    <button class="save-titles-btn" onclick="showActivityForm()">新增活動</button>
+                </div>
+            </div>
+
+            <!-- Venue Scheduling -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">🏛️ 場地排班管理</div>
+                    <button class="refresh-btn" onclick="loadVenues()">重新整理</button>
+                </div>
+                <p style="font-size:13px;color:#64748b;margin-bottom:0.875rem;">管理空間場地預約與相關課程排程。</p>
+                <div id="venuesList" class="management-grid"><div class="loading-text">載入中...</div></div>
+                <div style="margin-top:1rem;display:flex;justify-content:flex-end;">
+                    <button class="save-titles-btn" onclick="showVenueForm()">新增預約</button>
+                </div>
+            </div>
+
             <!-- Employee title management -->
             <div class="section-card">
                 <div class="section-header">
@@ -513,6 +572,10 @@
             </div>
 
         </div>
+    </div>
+    <!-- Form Overlay -->
+    <div id="formOverlay" class="form-overlay hidden">
+        <div id="formContainer"></div>
     </div>
 
     <script src="firebase-config.js"></script>
@@ -579,8 +642,9 @@
             if (user) {
                 currentUser = user;
                 showDashboard(user);
-                loadMonths();
-                loadEmployees();
+                // All data loading is now inside showDashboard or handled here
+                // We already moved them to showDashboard in the previous step,
+                // so we can remove the redundant calls here.
             } else {
                 currentUser = null;
                 showLogin();
@@ -601,16 +665,22 @@
         document.getElementById('adminEmail').textContent = user.email;
         document.getElementById('adminEmail').classList.remove('hidden');
         document.getElementById('logoutBtn').classList.remove('hidden');
+        
+        loadMonths();
+        loadEmployees();
+        loadMetrics();
+        loadActivities();
+        loadVenues();
     }
 
     async function login() {
-        var email = document.getElementById('loginEmail').value.trim();
+        var loginId = document.getElementById('loginEmail').value.trim();
         var password = document.getElementById('loginPassword').value;
         var btn = document.getElementById('loginBtn');
         var errEl = document.getElementById('loginError');
 
-        if (!email || !password) {
-            errEl.textContent = '請填入電子郵件與密碼';
+        if (!loginId || !password) {
+            errEl.textContent = '請填入工號與密碼';
             errEl.classList.remove('hidden');
             return;
         }
@@ -619,15 +689,29 @@
         btn.textContent = '登入中...';
         errEl.classList.add('hidden');
 
+        // 如果沒有輸入 @，自動補上網域 (為了相容 Firebase Auth Email 格式)
+        var email = loginId.includes('@') ? loginId : loginId + '@schedule.app';
+
         try {
             await auth.signInWithEmailAndPassword(email, password);
         } catch(e) {
+            // 如果是首次登入 (帳號不存在)，自動註冊
+            if (e.code === 'auth/user-not-found') {
+                try {
+                    await auth.createUserWithEmailAndPassword(email, password);
+                    return; // 註冊成功，會自動觸發 onAuthStateChanged 進入系統
+                } catch(regErr) {
+                    e = regErr; // 註冊失敗，將錯誤交給下方處理
+                }
+            }
+
             var msgs = {
-                'auth/user-not-found': '帳號不存在',
                 'auth/wrong-password': '密碼錯誤',
-                'auth/invalid-email': '電子郵件格式錯誤',
+                'auth/invalid-email': '帳號格式錯誤',
                 'auth/too-many-requests': '嘗試次數過多，請稍後再試',
-                'auth/invalid-credential': '帳號或密碼錯誤'
+                'auth/invalid-credential': '帳號或密碼錯誤',
+                'auth/weak-password': '密碼長度必須至少 6 個字元',
+                'auth/email-already-in-use': '此帳號已被使用'
             };
             errEl.textContent = msgs[e.code] || ('登入失敗：' + e.message);
             errEl.classList.remove('hidden');
@@ -1163,6 +1247,242 @@
         } finally {
             if (btn) { btn.disabled = false; btn.textContent = '儲存所有職稱'; }
         }
+    }
+
+    // ========== CORE MANAGEMENT MODULES ==========
+    
+    // --- Metrics ---
+    async function loadMetrics() {
+        var container = document.getElementById('metricsList');
+        container.innerHTML = '<div class="loading-text">載入中...</div>';
+        try {
+            var snap = await db.collection('metrics').orderBy('date', 'desc').limit(10).get();
+            var frag = document.createDocumentFragment();
+            snap.forEach(doc => {
+                var d = doc.data();
+                var item = document.createElement('div');
+                item.className = 'm-item';
+                item.innerHTML = `
+                    <div class="m-item-title">${esc(d.date)} 指標</div>
+                    <div class="m-item-sub">達成率: ${esc(d.achievement)}% | 客數: ${esc(d.guests)}</div>
+                    <div class="m-item-actions">
+                        <button class="btn-sm danger" onclick="deleteDoc('metrics', '${doc.id}', loadMetrics)">刪除</button>
+                        <button class="btn-sm primary" onclick="showMetricForm('${doc.id}', ${JSON.stringify(d).replace(/"/g, '&quot;')})">編輯</button>
+                    </div>
+                `;
+                frag.appendChild(item);
+            });
+            container.innerHTML = '';
+            if (snap.empty) container.innerHTML = '<div class="loading-text">尚無資料</div>';
+            else container.appendChild(frag);
+        } catch(e) { container.innerHTML = '<div class="loading-text">載入失敗</div>'; }
+    }
+
+    function showMetricForm(id, data) {
+        var isEdit = !!id;
+        var today = new Date().toISOString().split('T')[0];
+        var d = data || { date: today, achievement: '', guests: '' };
+        var container = document.getElementById('formContainer');
+        container.innerHTML = `
+            <div class="form-card">
+                <div class="form-title">${isEdit ? '編輯' : '新增'} 營運指標</div>
+                <div class="form-group">
+                    <label class="form-label">日期</label>
+                    <input type="date" id="m_date" class="form-input" value="${esc(d.date)}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">業績達成率 (%)</label>
+                    <input type="number" id="m_ach" class="form-input" value="${esc(d.achievement)}" placeholder="例如: 85">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">本日來客數</label>
+                    <input type="number" id="m_guests" class="form-input" value="${esc(d.guests)}" placeholder="例如: 1200">
+                </div>
+                <div class="form-actions">
+                    <button class="confirm-btn" onclick="saveMetric('${id || ''}')">儲存</button>
+                    <button class="cancel-btn" onclick="hideForm()">取消</button>
+                </div>
+            </div>
+        `;
+        document.getElementById('formOverlay').classList.remove('hidden');
+    }
+
+    async function saveMetric(id) {
+        var date = document.getElementById('m_date').value;
+        var ach = document.getElementById('m_ach').value;
+        var guests = document.getElementById('m_guests').value;
+        if (!date || !ach || !guests) { showToast('請填寫完整資訊', 'error'); return; }
+        
+        try {
+            var data = { date: date, achievement: ach, guests: guests, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+            if (id) await db.collection('metrics').doc(id).update(data);
+            else await db.collection('metrics').add(data);
+            showToast('指標已儲存', 'success');
+            hideForm();
+            loadMetrics();
+        } catch(e) { showToast('儲存失敗', 'error'); }
+    }
+
+    // --- Activities ---
+    async function loadActivities() {
+        var container = document.getElementById('activitiesList');
+        container.innerHTML = '<div class="loading-text">載入中...</div>';
+        try {
+            var snap = await db.collection('activities').orderBy('date', 'desc').get();
+            var frag = document.createDocumentFragment();
+            snap.forEach(doc => {
+                var d = doc.data();
+                var item = document.createElement('div');
+                item.className = 'm-item';
+                item.innerHTML = `
+                    <div class="m-item-title">${esc(d.title)}</div>
+                    <div class="m-item-sub">${esc(d.date)} | ${esc(d.type)}</div>
+                    <div class="m-item-actions">
+                        <button class="btn-sm danger" onclick="deleteDoc('activities', '${doc.id}', loadActivities)">刪除</button>
+                        <button class="btn-sm primary" onclick="showActivityForm('${doc.id}', ${JSON.stringify(d).replace(/"/g, '&quot;')})">編輯</button>
+                    </div>
+                `;
+                frag.appendChild(item);
+            });
+            container.innerHTML = '';
+            if (snap.empty) container.innerHTML = '<div class="loading-text">尚無活動</div>';
+            else container.appendChild(frag);
+        } catch(e) { container.innerHTML = '<div class="loading-text">載入失敗</div>'; }
+    }
+
+    function showActivityForm(id, data) {
+        var isEdit = !!id;
+        var d = data || { title: '', date: '', type: '主題展覽' };
+        var container = document.getElementById('formContainer');
+        container.innerHTML = `
+            <div class="form-card">
+                <div class="form-title">${isEdit ? '編輯' : '新增'} 活動任務</div>
+                <div class="form-group">
+                    <label class="form-label">標題</label>
+                    <input type="text" id="a_title" class="form-input" value="${esc(d.title)}" placeholder="活動名稱">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">日期</label>
+                    <input type="date" id="a_date" class="form-input" value="${esc(d.date)}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">類型</label>
+                    <select id="a_type" class="form-input">
+                        <option value="主題展覽" ${d.type==='主題展覽'?'selected':''}>主題展覽</option>
+                        <option value="商品上市" ${d.type==='商品上市'?'selected':''}>商品上市</option>
+                        <option value="會員優惠" ${d.type==='會員優惠'?'selected':''}>會員優惠</option>
+                        <option value="店內任務" ${d.type==='店內任務'?'selected':''}>店內任務</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button class="confirm-btn" onclick="saveActivity('${id || ''}')">儲存</button>
+                    <button class="cancel-btn" onclick="hideForm()">取消</button>
+                </div>
+            </div>
+        `;
+        document.getElementById('formOverlay').classList.remove('hidden');
+    }
+
+    async function saveActivity(id) {
+        var title = document.getElementById('a_title').value.trim();
+        var date = document.getElementById('a_date').value;
+        var type = document.getElementById('a_type').value;
+        if (!title || !date) { showToast('請填寫完整資訊', 'error'); return; }
+        
+        try {
+            var data = { title: title, date: date, type: type, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+            if (id) await db.collection('activities').doc(id).update(data);
+            else await db.collection('activities').add(data);
+            showToast('活動已儲存', 'success');
+            hideForm();
+            loadActivities();
+        } catch(e) { showToast('儲存失敗', 'error'); }
+    }
+
+    // --- Venues ---
+    async function loadVenues() {
+        var container = document.getElementById('venuesList');
+        container.innerHTML = '<div class="loading-text">載入中...</div>';
+        try {
+            var snap = await db.collection('venues').orderBy('date', 'desc').get();
+            var frag = document.createDocumentFragment();
+            snap.forEach(doc => {
+                var d = doc.data();
+                var item = document.createElement('div');
+                item.className = 'm-item';
+                item.innerHTML = `
+                    <div class="m-item-title">${esc(d.title)}</div>
+                    <div class="m-item-sub">${esc(d.date)} | ${esc(d.time)}</div>
+                    <div class="m-item-actions">
+                        <button class="btn-sm danger" onclick="deleteDoc('venues', '${doc.id}', loadVenues)">刪除</button>
+                        <button class="btn-sm primary" onclick="showVenueForm('${doc.id}', ${JSON.stringify(d).replace(/"/g, '&quot;')})">編輯</button>
+                    </div>
+                `;
+                frag.appendChild(item);
+            });
+            container.innerHTML = '';
+            if (snap.empty) container.innerHTML = '<div class="loading-text">尚無預約</div>';
+            else container.appendChild(frag);
+        } catch(e) { container.innerHTML = '<div class="loading-text">載入失敗</div>'; }
+    }
+
+    function showVenueForm(id, data) {
+        var isEdit = !!id;
+        var d = data || { title: '', date: '', time: '14:00 - 16:00' };
+        var container = document.getElementById('formContainer');
+        container.innerHTML = `
+            <div class="form-card">
+                <div class="form-title">${isEdit ? '編輯' : '新增'} 場地預約</div>
+                <div class="form-group">
+                    <label class="form-label">預約名稱 / 課程</label>
+                    <input type="text" id="v_title" class="form-input" value="${esc(d.title)}" placeholder="例如: 咖啡沖煮入門">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">日期</label>
+                    <input type="date" id="v_date" class="form-input" value="${esc(d.date)}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">時間範圍</label>
+                    <input type="text" id="v_time" class="form-input" value="${esc(d.time)}" placeholder="例如: 14:00 - 16:00">
+                </div>
+                <div class="form-actions">
+                    <button class="confirm-btn" onclick="saveVenue('${id || ''}')">儲存</button>
+                    <button class="cancel-btn" onclick="hideForm()">取消</button>
+                </div>
+            </div>
+        `;
+        document.getElementById('formOverlay').classList.remove('hidden');
+    }
+
+    async function saveVenue(id) {
+        var title = document.getElementById('v_title').value.trim();
+        var date = document.getElementById('v_date').value;
+        var time = document.getElementById('v_time').value.trim();
+        if (!title || !date || !time) { showToast('請填寫完整資訊', 'error'); return; }
+        
+        try {
+            var data = { title: title, date: date, time: time, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+            if (id) await db.collection('venues').doc(id).update(data);
+            else await db.collection('venues').add(data);
+            showToast('預約已儲存', 'success');
+            hideForm();
+            loadVenues();
+        } catch(e) { showToast('儲存失敗', 'error'); }
+    }
+
+    // --- Helpers ---
+    function hideForm() {
+        document.getElementById('formOverlay').classList.add('hidden');
+        document.getElementById('formContainer').innerHTML = '';
+    }
+
+    async function deleteDoc(col, id, refreshFn) {
+        if (!confirm('確定要刪除此筆資料嗎？')) return;
+        try {
+            await db.collection(col).doc(id).delete();
+            showToast('已刪除', 'success');
+            refreshFn();
+        } catch(e) { showToast('刪除失敗', 'error'); }
     }
 
     // ========== BOOT ==========

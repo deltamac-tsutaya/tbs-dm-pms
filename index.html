@@ -928,10 +928,50 @@
                 bottom: 0;
             }
         }
+        
+        /* Login Overlay */
+        .login-overlay {
+            position: fixed; inset: 0; background: #F8F7F2; z-index: 999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 1.5rem;
+        }
+        .login-box {
+            background: white; width: 100%; max-width: 360px;
+            padding: 2.5rem 2rem; border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .login-box-title { font-size: 24px; font-weight: 800; color: #1e293b; margin-bottom: 0.5rem; }
+        .login-box-sub { font-size: 13px; color: #64748b; margin-bottom: 2rem; }
+        .login-input {
+            width: 100%; padding: 1rem; margin-bottom: 1rem;
+            border: 1.5px solid #e2e8f0; border-radius: 12px;
+            font-size: 15px; background: #f8fafc; transition: all 0.2s; box-sizing: border-box;
+        }
+        .login-input:focus { outline: none; border-color: #2563eb; background: white; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
+        .login-btn {
+            width: 100%; padding: 1rem; background: #0f172a; color: white;
+            border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+            cursor: pointer; transition: all 0.2s; margin-top: 0.5rem;
+        }
+        .login-btn:active { transform: scale(0.98); }
+        .login-error { color: #ef4444; font-size: 13px; margin-top: 1rem; font-weight: 500; }
     </style>
 </head>
 <body>
     <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Login Overlay -->
+    <div id="loginOverlay" class="login-overlay hidden">
+        <div class="login-box">
+            <div class="login-box-title">系統登入</div>
+            <div class="login-box-sub">請輸入您的工號與密碼</div>
+            <input type="text" id="loginId" class="login-input" placeholder="工號 / 帳號" onkeydown="if(event.key==='Enter') doLogin()">
+            <input type="password" id="loginPwd" class="login-input" placeholder="密碼" onkeydown="if(event.key==='Enter') doLogin()">
+            <button class="login-btn" id="loginBtn" onclick="doLogin()">登入</button>
+            <div id="loginError" class="login-error hidden"></div>
+        </div>
+    </div>
 
     <!-- Splash screen -->
     <div id="splashScreen" class="splash-screen">
@@ -1013,44 +1053,25 @@
                     <div class="dashboard-body" style="padding: 0 1rem 1.5rem;">
                         <!-- 營運指標 -->
                         <div class="dashboard-section">
-                            <div class="dash-section-title">營運指標 <span class="badge">Mockup</span></div>
-                            <div class="metrics-grid">
-                                <div class="metric-card">
-                                    <div class="metric-label">業績達成率</div>
-                                    <div class="metric-val">85<span style="font-size:14px;color:#64748b;">%</span></div>
-                                    <div class="metric-sub up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg> 較昨日 +2.4%</div>
-                                </div>
-                                <div class="metric-card">
-                                    <div class="metric-label">本日來客數</div>
-                                    <div class="metric-val">1,240</div>
-                                    <div class="metric-sub up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg> 預估 1,200</div>
-                                </div>
+                            <div class="dash-section-title">營運指標</div>
+                            <div id="metricsContainer" class="metrics-grid">
+                                <div class="loading-text">載入中...</div>
                             </div>
                         </div>
 
                         <!-- 活動任務 -->
                         <div class="dashboard-section">
-                            <div class="dash-section-title">活動與任務 <span class="badge">Notion</span></div>
-                            <div class="events-list">
-                                <div class="event-card">
-                                    <div class="event-title">春季閱讀展覽佈置</div>
-                                    <div class="event-type">主題展覽</div>
-                                </div>
-                                <div class="event-card product">
-                                    <div class="event-title">全新咖啡豆系列上市</div>
-                                    <div class="event-type">商品上市</div>
-                                </div>
+                            <div class="dash-section-title">活動與任務</div>
+                            <div id="activitiesContainer" class="events-list">
+                                <div class="loading-text">載入中...</div>
                             </div>
                         </div>
 
                         <!-- 空間場地 -->
                         <div class="dashboard-section">
-                            <div class="dash-section-title">場地與課程 <span class="badge">Notion</span></div>
-                            <div class="venues-list">
-                                <div class="venue-card">
-                                    <div class="venue-time">14:00 - 16:00</div>
-                                    <div class="venue-title">生活美學講座：咖啡沖煮入門</div>
-                                </div>
+                            <div class="dash-section-title">場地與課程</div>
+                            <div id="venuesContainer" class="venues-list">
+                                <div class="loading-text">載入中...</div>
                             </div>
                         </div>
 
@@ -1095,34 +1116,29 @@
                 </div>
             </div>
 
-            <!-- ===== PAGE: 行銷商品活動 ===== -->
+            <!-- ===== PAGE: 活動任務 ===== -->
             <div id="pageMarketing" class="page hidden">
                 <div style="padding:1rem;">
-
                     <div class="placeholder-hero">
-                        <div class="placeholder-title">行銷商品活動</div>
-                        <div class="placeholder-desc">查閱各期商品促銷與行銷活動資訊<br>功能開發中，敬請期待</div>
+                        <div class="placeholder-title">活動與任務</div>
+                        <div class="placeholder-desc">查閱各期商品促銷與店內任務資訊</div>
                     </div>
-
-                    <div class="placeholder-list">
-                        <div class="placeholder-list-item">
-                            <div class="placeholder-list-dot"></div>
-                            <div class="placeholder-list-text">商品促銷活動</div>
-                        </div>
-                        <div class="placeholder-list-item">
-                            <div class="placeholder-list-dot"></div>
-                            <div class="placeholder-list-text">限時特賣資訊</div>
-                        </div>
-                        <div class="placeholder-list-item">
-                            <div class="placeholder-list-dot"></div>
-                            <div class="placeholder-list-text">主題展覽活動</div>
-                        </div>
-                        <div class="placeholder-list-item">
-                            <div class="placeholder-list-dot"></div>
-                            <div class="placeholder-list-text">會員優惠方案</div>
-                        </div>
+                    <div id="activitiesListPage" class="events-list">
+                        <!-- JS Generated -->
                     </div>
+                </div>
+            </div>
 
+            <!-- ===== PAGE: 場地排班 ===== -->
+            <div id="pageVenues" class="page hidden">
+                <div style="padding:1rem;">
+                    <div class="placeholder-hero">
+                        <div class="placeholder-title">場地預約狀況</div>
+                        <div class="placeholder-desc">查閱各空間場地預約與課程情形</div>
+                    </div>
+                    <div id="venuesListPage" class="venues-list">
+                        <!-- JS Generated -->
+                    </div>
                 </div>
             </div>
 
@@ -1160,8 +1176,11 @@
 
                     <div class="settings-group">
                         <div class="settings-section-title">系統維護</div>
-                        <button class="settings-action-btn" onclick="clearCacheAndReload()">
+                        <button class="settings-action-btn" onclick="clearCacheAndReload()" style="margin-bottom: 0.5rem;">
                             ↺ &nbsp;清除快取並重新載入
+                        </button>
+                        <button class="settings-action-btn danger" onclick="if(auth) auth.signOut();">
+                            登出帳號
                         </button>
                     </div>
 
@@ -1249,7 +1268,7 @@
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
             </span>
-            <span class="nav-tab-label">首頁</span>
+            <span class="nav-tab-label">營運指標</span>
         </button>
         <button class="nav-tab" id="navMarketing" onclick="switchTab('marketing')">
             <span class="nav-tab-icon">
@@ -1258,7 +1277,16 @@
                     <circle cx="7" cy="7" r="1" fill="currentColor"/>
                 </svg>
             </span>
-            <span class="nav-tab-label">行銷活動</span>
+            <span class="nav-tab-label">活動任務</span>
+        </button>
+        <button class="nav-tab" id="navVenues" onclick="switchTab('venues')">
+            <span class="nav-tab-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </span>
+            <span class="nav-tab-label">場地排班</span>
         </button>
         <button class="nav-tab" id="navAnnouncements" onclick="switchTab('announcements')">
             <span class="nav-tab-icon">
@@ -1291,6 +1319,7 @@
     <script src="firebase-config.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script>
     // ========== STATE ==========
     let db = null;
@@ -1368,6 +1397,7 @@
     var TABS = {
         dashboard:     { page: 'pageDashboard',     btn: 'navDashboard' },
         marketing:     { page: 'pageMarketing',     btn: 'navMarketing' },
+        venues:        { page: 'pageVenues',        btn: 'navVenues' },
         announcements: { page: 'pageAnnouncements', btn: 'navAnnouncements' },
         settings:      { page: 'pageSettings',      btn: 'navSettings' }
     };
@@ -1399,6 +1429,9 @@
         } catch(e) { /* non-critical, titles are optional */ }
     }
 
+    let auth = null;
+    let currentUser = null;
+
     async function initApp() {
         if (!isConfigured()) {
             hideSplash();
@@ -1411,14 +1444,70 @@
             setCloud('', '連線中');
             firebase.initializeApp(FIREBASE_CONFIG);
             db = firebase.firestore();
-            loadEmployeeTitles(); // fire-and-forget, non-blocking
-            await loadAvailableMonths();
+            auth = firebase.auth();
+            
+            auth.onAuthStateChanged(async function(user) {
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('loginOverlay').classList.add('hidden');
+                    loadEmployeeTitles(); // fire-and-forget, non-blocking
+                    await loadAvailableMonths();
+                } else {
+                    currentUser = null;
+                    hideSplash();
+                    document.getElementById('loginOverlay').classList.remove('hidden');
+                }
+            });
         } catch(e) {
             hideSplash();
             setCloud('error', '失敗');
             document.getElementById('errorDesc').textContent = e.message || '請檢查網路連線後重新整理';
             showState('stateError');
         }
+    }
+
+    async function doLogin() {
+        var loginId = document.getElementById('loginId').value.trim();
+        var password = document.getElementById('loginPwd').value;
+        var btn = document.getElementById('loginBtn');
+        var errEl = document.getElementById('loginError');
+
+        if (!loginId || !password) {
+            errEl.textContent = '請輸入工號與密碼';
+            errEl.classList.remove('hidden');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = '登入中...';
+        errEl.classList.add('hidden');
+
+        var email = loginId.includes('@') ? loginId : loginId + '@schedule.app';
+
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+        } catch(e) {
+            if (e.code === 'auth/user-not-found') {
+                try {
+                    await auth.createUserWithEmailAndPassword(email, password);
+                    return; // 註冊成功，會觸發 onAuthStateChanged
+                } catch(regErr) {
+                    e = regErr;
+                }
+            }
+            var msgs = {
+                'auth/wrong-password': '密碼錯誤',
+                'auth/invalid-email': '帳號格式錯誤',
+                'auth/too-many-requests': '嘗試次數過多，請稍後再試',
+                'auth/invalid-credential': '帳號或密碼錯誤',
+                'auth/weak-password': '密碼長度必須至少 6 個字元',
+                'auth/email-already-in-use': '此帳號已被使用'
+            };
+            errEl.textContent = msgs[e.code] || ('登入失敗：' + e.message);
+            errEl.classList.remove('hidden');
+        }
+        btn.disabled = false;
+        btn.textContent = '登入';
     }
 
     // ========== DATA LOADING ==========
@@ -1560,6 +1649,10 @@
             document.getElementById('statsContainer').innerHTML = '';
             document.getElementById('resultsContainer').innerHTML = '';
             document.getElementById('emptyState').classList.remove('hidden');
+            // Still load other day-specific data
+            loadMetrics(date);
+            loadActivities(date);
+            loadVenues(date);
             return;
         }
 
@@ -1580,6 +1673,93 @@
         document.getElementById('dayLoading').classList.add('hidden');
         updateStoreSelector();
         filterAndDisplay();
+        
+        // Load operational data
+        loadMetrics(date);
+        loadActivities(date);
+        loadVenues(date);
+    }
+
+    // --- New Operational Modules ---
+    async function loadMetrics(date) {
+        var container = document.getElementById('metricsContainer');
+        try {
+            var snap = await db.collection('metrics').where('date', '==', date).get();
+            if (snap.empty) {
+                container.innerHTML = '<div class="empty-desc">今日尚無營運指標</div>';
+                return;
+            }
+            var d = snap.docs[0].data();
+            container.innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-label">業績達成率</div>
+                    <div class="metric-val">${esc(d.achievement)}<span style="font-size:14px;color:#64748b;">%</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">本日來客數</div>
+                    <div class="metric-val">${esc(d.guests)}</div>
+                </div>
+            `;
+        } catch(e) { container.innerHTML = '<div class="empty-desc">載入失敗</div>'; }
+    }
+
+    async function loadActivities(date) {
+        var dashboardContainer = document.getElementById('activitiesContainer');
+        var pageContainer = document.getElementById('activitiesListPage');
+        try {
+            var snap = await db.collection('activities').where('date', '==', date).get();
+            if (snap.empty) {
+                var emptyMsg = '<div class="empty-desc">今日尚無活動任務</div>';
+                if (dashboardContainer) dashboardContainer.innerHTML = emptyMsg;
+                if (pageContainer) pageContainer.innerHTML = emptyMsg;
+                return;
+            }
+            var html = snap.docs.map(doc => {
+                var d = doc.data();
+                var cls = d.type === '商品上市' ? 'product' : '';
+                return `
+                    <div class="event-card ${cls}">
+                        <div class="event-title">${esc(d.title)}</div>
+                        <div class="event-type">${esc(d.type)}</div>
+                    </div>
+                `;
+            }).join('');
+            if (dashboardContainer) dashboardContainer.innerHTML = html;
+            if (pageContainer) pageContainer.innerHTML = html;
+        } catch(e) { 
+            var errMsg = '<div class="empty-desc">載入失敗</div>';
+            if (dashboardContainer) dashboardContainer.innerHTML = errMsg;
+            if (pageContainer) pageContainer.innerHTML = errMsg;
+        }
+    }
+
+    async function loadVenues(date) {
+        var dashboardContainer = document.getElementById('venuesContainer');
+        var pageContainer = document.getElementById('venuesListPage');
+        try {
+            var snap = await db.collection('venues').where('date', '==', date).get();
+            if (snap.empty) {
+                var emptyMsg = '<div class="empty-desc">今日尚無場地預約</div>';
+                if (dashboardContainer) dashboardContainer.innerHTML = emptyMsg;
+                if (pageContainer) pageContainer.innerHTML = emptyMsg;
+                return;
+            }
+            var html = snap.docs.map(doc => {
+                var d = doc.data();
+                return `
+                    <div class="venue-card">
+                        <div class="venue-time">${esc(d.time)}</div>
+                        <div class="venue-title">${esc(d.title)}</div>
+                    </div>
+                `;
+            }).join('');
+            if (dashboardContainer) dashboardContainer.innerHTML = html;
+            if (pageContainer) pageContainer.innerHTML = html;
+        } catch(e) { 
+            var errMsg = '<div class="empty-desc">載入失敗</div>';
+            if (dashboardContainer) dashboardContainer.innerHTML = errMsg;
+            if (pageContainer) pageContainer.innerHTML = errMsg;
+        }
     }
 
     // ========== CALENDAR ==========

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Nexus Life - TSUTAYA BOOKSTORE 8週年</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script>window.react = React; window.ReactDOM = ReactDOM;</script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide-react@0.263.0/dist/umd/lucide-react.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { CalendarCheck, LayoutGrid, Sparkles, Plus, X, ChevronRight, QrCode } = LucideReact;
+
+        /* --- Mock Data --- */
+        const PRIZE = {
+          id: 1,
+          title: "日本和牛牛排雙人套餐 (限量 8 套)",
+          brand: "WIRED TOKYO",
+          value: "NT$ 2,300",
+          desc: "嚴選頂級日本和牛，油花分布均勻、入口即化。搭配 WIRED TOKYO 主廚特製配菜與專屬飲品。（本獎項共抽出 8 名幸運得主）",
+          redeem: "中獎後自動發送電子票券至帳戶。需提前 3 天致電 WIRED TOKYO 預約。",
+          img: "https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&q=80&w=400&h=300"
+        };
+
+        function App() {
+          const [activeTab, setActiveTab] = useState('checkin');
+          const [selectedPrize, setSelectedPrize] = useState(null);
+
+          const getCardStyle = () => {
+            switch(activeTab) {
+              case 'infinity': return 'bg-[#0E1A33] text-[#F6F1E7] border-[#E8C77A]/30 shadow-[0_20px_60px_rgba(14,26,51,0.25)]';
+              case 'checkin': return 'bg-[#FDFBF7] text-[#0E1A33] border-[#0E1A33]/10 shadow-[0_20px_60px_rgba(0,0,0,0.06)]';
+              case 'stamp': return 'bg-[#EAE5DB] text-[#0E1A33] border-[#0E1A33]/10 shadow-[0_20px_60px_rgba(0,0,0,0.08)]';
+              default: return 'bg-[#0E1A33]';
+            }
+          };
+
+          return (
+            <>
+              <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+                
+                .font-serif-en { font-family: 'Cormorant Garamond', serif; }
+                .font-serif-tc { font-family: 'Noto Serif TC', serif; }
+                .font-sans-en { font-family: 'Inter', sans-serif; }
+                .font-sans-tc { font-family: 'Noto Sans TC', sans-serif; }
+
+                .gold-text {
+                  background: linear-gradient(135deg, #C9A24A 0%, #E8C77A 50%, #C9A24A 100%);
+                  -webkit-background-clip: text;
+                  -webkit-text-fill-color: transparent;
+                }
+
+                .passport-stamp {
+                  color: #BA3B28;
+                  border-color: #BA3B28;
+                  mix-blend-mode: multiply;
+                  box-shadow: inset 0 0 2px rgba(186,59,40,0.2);
+                }
+
+                .perforated-edge {
+                  background-image: linear-gradient(to right, #0E1A33 50%, transparent 50%);
+                  background-size: 8px 1px;
+                  background-repeat: repeat-x;
+                }
+
+                .no-scrollbar::-webkit-scrollbar { display: none; }
+                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+                
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                .animate-fade-in { animation: fadeIn 0.7s ease-out forwards; }
+              `}</style>
+
+              <div className="h-[100dvh] w-full flex flex-col overflow-hidden relative bg-[#FDFBF7] text-[#0E1A33]">
+                
+                <header className="shrink-0 px-6 pt-5 pb-3 z-40 relative flex justify-center border-b border-[#0E1A33]/5">
+                  <div className="w-full max-w-[360px]">
+                    {/* 文字版雙品牌 Logo */}
+                    <div className="flex justify-between items-center mb-4 opacity-70">
+                      <span className="font-sans-en text-[11px] font-bold tracking-[0.15em] text-[#0E1A33]">TSUTAYA BOOKSTORE</span>
+                      <span className="font-serif-en text-[13px] font-bold italic text-[#0E1A33]">WIRED TOKYO</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <h1 className="text-3xl font-serif-en tracking-tight leading-none mb-1 text-[#0E1A33] font-bold">Nexus Life</h1>
+                        <p className="text-[9px] tracking-[0.2em] font-serif-tc uppercase text-[#0E1A33]/50">無限日常 · 台中市政店 8 週年</p>
+                      </div>
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center border border-[#0E1A33]/10 text-[10px] font-serif-en text-[#0E1A33]/60 bg-white/50 backdrop-blur-md shadow-sm">
+                        M
+                      </div>
+                    </div>
+                  </div>
+                </header>
+
+                <main className="flex-1 min-h-0 w-full px-4 pt-4 pb-24 flex justify-center items-center overflow-hidden relative z-10">
+                  <div className={`w-full max-w-[360px] h-full max-h-[580px] rounded-2xl border flex flex-col relative transition-all duration-700 ease-in-out overflow-hidden ${getCardStyle()}`}>
+                    {activeTab === 'infinity' && <TabInfinity onPrizeClick={setSelectedPrize} />}
+                    {activeTab === 'checkin' && <TabRitual />}
+                    {activeTab === 'stamp' && <TabPassport />}
+                  </div>
+                </main>
+
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto">
+                  <nav className="bg-white/90 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-full p-1.5 flex gap-1 border border-[#0E1A33]/5">
+                    <NavItem icon={<CalendarCheck size={14} strokeWidth={2} />} label="儀式" active={activeTab === 'checkin'} onClick={() => setActiveTab('checkin')} />
+                    <NavItem icon={<LayoutGrid size={14} strokeWidth={2} />} label="護照" active={activeTab === 'stamp'} onClick={() => setActiveTab('stamp')} />
+                    <NavItem icon={<Sparkles size={14} strokeWidth={2} />} label="邀請" active={activeTab === 'infinity'} onClick={() => setActiveTab('infinity')} />
+                  </nav>
+                </div>
+
+                <div className="absolute bottom-8 right-5 z-40 pointer-events-auto">
+                  <button className="w-11 h-11 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(14,26,51,0.15)] transition-transform active:scale-95 bg-[#0E1A33] text-[#E8C77A]">
+                    <Plus size={20} strokeWidth={2} />
+                  </button>
+                </div>
+
+                <PrizeSheet prize={selectedPrize} onClose={() => setSelectedPrize(null)} />
+              </div>
+            </>
+          );
+        }
+
+        function NavItem({ icon, label, active, onClick }) {
+          return (
+            <button 
+              onClick={onClick} 
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-500 ease-out
+                ${active ? 'bg-[#0E1A33] text-[#F6F1E7] shadow-md scale-100' : 'text-[#0E1A33]/40 hover:text-[#0E1A33]/70 hover:bg-[#0E1A33]/5 scale-95'}`}
+            >
+              {icon}
+              <span className="text-[10px] tracking-[0.25em] font-serif-tc font-bold">{label}</span>
+            </button>
+          );
+        }
+
+        function TabInfinity({ onPrizeClick }) {
+          const countdownLabels = ['DAYS', 'HRS', 'MINS', 'SECS'];
+          const countdownValues = [14, 18, 46, 16]; 
+
+          return (
+            <div className="h-full p-5 flex flex-col animate-fade-in relative">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[200px] font-serif-en opacity-[0.03] text-[#E8C77A] pointer-events-none select-none leading-none">∞</div>
+              
+              <div className="text-center z-10 w-full mb-4 relative flex flex-col items-center">
+                <div className="border-y border-[#E8C77A]/20 py-1.5 mb-4 mx-8 w-full max-w-[200px]">
+                  <p className="text-[8px] tracking-[0.4em] text-[#E8C77A] font-sans-en uppercase">Exclusive Invitation</p>
+                </div>
+                
+                <h2 className="text-4xl font-serif-en gold-text mb-1 tracking-tight">Infinity Day</h2>
+                <p className="text-[9px] font-serif-tc tracking-[0.3em] text-[#F6F1E7]/50 mt-1">無限日・加碼抽獎</p>
+              </div>
+
+              <div className="w-full z-10 mb-4 shrink-0">
+                <button onClick={() => onPrizeClick(PRIZE)} className="w-full group text-left relative block">
+                  <div className="aspect-[2.5/1] w-full rounded-xl overflow-hidden border border-[#E8C77A]/30 relative shadow-[0_8px_24px_rgba(0,0,0,0.3)] bg-[#0E1A33]">
+                    <img src={PRIZE.img} alt={PRIZE.title} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0E1A33]/90 via-[#0E1A33]/20 to-transparent"></div>
+                    <div className="absolute bottom-2 left-3 right-3 flex justify-between items-end">
+                      <div>
+                        <span className="block text-[7px] text-[#E8C77A] tracking-[0.2em] font-sans-en mb-0.5 uppercase">{PRIZE.brand}</span>
+                        <h3 className="text-xs font-serif-tc text-[#F6F1E7] tracking-wide">{PRIZE.title}</h3>
+                      </div>
+                      <ChevronRight size={14} className="text-[#E8C77A]/60 group-hover:text-[#E8C77A] transition-colors" />
+                    </div>
+                  </div>
+                </button>
+              </div>
+
+              <div className="w-full z-10 mb-auto bg-black/20 rounded-xl border border-white/10 shadow-[inset_0_2px_8px_rgba(0,0,0,0.3)] p-2.5">
+                <div className="grid grid-cols-4 gap-1">
+                  {countdownLabels.map((label, idx, arr) => (
+                    <div key={label} className={`flex flex-col items-center justify-center py-1 ${idx !== arr.length - 1 ? 'border-r border-white/10' : ''}`}>
+                      <span className="text-xl font-serif-en text-[#E8C77A] leading-none mb-1">{countdownValues[idx]}</span>
+                      <span className="text-[7px] text-[#F6F1E7]/40 tracking-[0.2em] font-sans-en">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3 w-full z-10 mt-5 shrink-0">
+                <div className="flex-1 border-t border-[#E8C77A]/20 pt-2.5">
+                  <p className="text-[8px] text-[#F6F1E7]/40 tracking-[0.2em] mb-0.5 font-sans-en uppercase">ENTRIES</p>
+                  <p className="text-xl font-serif-en text-[#E8C77A] leading-none">20 <span className="text-[8px] font-sans-tc text-[#F6F1E7]/30">張</span></p>
+                </div>
+                <div className="flex-1 border-t border-[#E8C77A]/20 pt-2.5 text-right">
+                  <p className="text-[8px] text-[#F6F1E7]/40 tracking-[0.2em] mb-0.5 font-sans-en uppercase">WIN RATE</p>
+                  <p className="text-xl font-serif-en text-[#E8C77A] leading-none">12.6<span className="text-[9px] font-sans-en text-[#F6F1E7]/30">%</span></p>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        function TabRitual() {
+          const [isCheckedIn, setIsCheckedIn] = useState(false);
+          const currentDay = 7;
+          const totalDays = 8;
+          const [animatedProgress, setAnimatedProgress] = useState(0);
+
+          const radius = 64;
+          const circumference = 2 * Math.PI * radius;
+          const targetDay = isCheckedIn ? currentDay : currentDay - 1;
+          const progressOffset = circumference - (animatedProgress / totalDays) * circumference;
+
+          useEffect(() => {
+            const timer = setTimeout(() => setAnimatedProgress(targetDay), 100);
+            return () => clearTimeout(timer);
+          }, [targetDay]);
+
+          const handleCheckIn = () => setIsCheckedIn(true);
+
+          return (
+            <div className="h-full p-6 flex flex-col items-center animate-fade-in">
+              
+              <div className="mb-4 mt-1 text-center w-full flex flex-col items-center">
+                <h2 className="text-[38px] font-serif-en text-[#0E1A33] leading-[0.9] tracking-tighter mb-2">Daily<br/>Ritual.</h2>
+                <div className="w-6 h-px bg-[#0E1A33]/20 mx-auto mb-2"></div>
+                <p className="text-[8px] text-[#0E1A33]/50 font-serif-tc tracking-[0.3em] uppercase">8 日生活儀式</p>
+              </div>
+
+              <div className="relative w-40 h-40 flex items-center justify-center mb-6 shrink-0">
+                <svg className="absolute inset-0 w-full h-full transform -rotate-90 pointer-events-none">
+                  <circle cx="80" cy="80" r={radius} fill="transparent" stroke="#0E1A33" strokeWidth="1" strokeOpacity="0.05" />
+                  <circle
+                    cx="80" cy="80" r={radius} fill="transparent" stroke="#C9A24A" strokeWidth="2.5"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={progressOffset}
+                    strokeLinecap="round"
+                    className="transition-all duration-1000 ease-out"
+                  />
+                  {[...Array(totalDays)].map((_, i) => {
+                    const angle = (i / totalDays) * 360 - 90;
+                    const rad = (angle * Math.PI) / 180;
+                    const x1 = 80 + (radius - 4) * Math.cos(rad);
+                    const y1 = 80 + (radius - 4) * Math.sin(rad);
+                    const x2 = 80 + (radius + 4) * Math.cos(rad);
+                    const y2 = 80 + (radius + 4) * Math.sin(rad);
+                    const isPast = i + 1 <= targetDay;
+                    return (
+                      <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={isPast ? "#C9A24A" : "#0E1A33"} strokeOpacity={isPast ? "1" : "0.1"} strokeWidth="1.5" strokeLinecap="round" className="transition-colors duration-1000" />
+                    )
+                  })}
+                </svg>
+                <div className="flex flex-col items-center justify-center pt-2">
+                  <span className="text-[8px] text-[#0E1A33]/40 tracking-[0.4em] font-sans-en uppercase mb-0.5">Day</span>
+                  <span className="text-[52px] font-serif-en text-[#0E1A33] leading-none tracking-tighter">0{currentDay}</span>
+                  <span className={`text-[22px] font-serif-en mt-1 transition-colors duration-1000 ${isCheckedIn ? 'text-[#C9A24A]' : 'text-[#0E1A33]/10'}`}>∞</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center text-center mb-auto w-full">
+                <p className="text-[8px] font-bold tracking-[0.2em] text-[#C9A24A] mb-1.5 font-sans-en uppercase">TODAY'S REWARD</p>
+                <p className="text-sm font-serif-tc text-[#0E1A33] font-bold leading-snug">Infinity Day<br/>專屬抽獎券 × 8</p>
+              </div>
+
+              <div className="w-full shrink-0 mt-6 border-t border-[#0E1A33]/10 pt-4">
+                <p className="text-[9px] text-[#0E1A33]/50 mb-4 font-serif-tc leading-relaxed tracking-wide text-center px-4">
+                  完成今日儀式，獎券將自動存入您的帳戶，為 Infinity Day 累積幸運。
+                </p>
+                <button 
+                  onClick={handleCheckIn}
+                  disabled={isCheckedIn}
+                  className={`w-full text-left flex items-center justify-between pb-2.5 transition-all duration-500 relative group
+                    ${isCheckedIn ? 'text-[#0E1A33]/30 cursor-default' : 'text-[#0E1A33]'}`}
+                >
+                  <span className="font-serif-en text-sm tracking-[0.15em] uppercase">
+                    {isCheckedIn ? 'Ritual Completed' : 'Complete Ritual'}
+                  </span>
+                  <ChevronRight size={16} className={`transition-transform duration-300 ${isCheckedIn ? 'opacity-0' : 'opacity-100 group-hover:translate-x-1'}`} strokeWidth={1.5} />
+                  <div className={`absolute bottom-0 left-0 h-px bg-[#0E1A33] transition-all duration-700
+                    ${isCheckedIn ? 'w-full opacity-10' : 'w-full opacity-100'}`}></div>
+                </button>
+              </div>
+            </div>
+          );
+        }
+
+        function TabPassport() {
+          const completed = 4;
+          const totalStamps = 8;
+          const [animatedProgress, setAnimatedProgress] = useState(0);
+
+          const svgSize = 260;
+          const center = svgSize / 2;
+          const radius = 95;
+          const circumference = 2 * Math.PI * radius;
+          const progressOffset = circumference - (animatedProgress / totalStamps) * circumference;
+
+          useEffect(() => {
+            const timer = setTimeout(() => setAnimatedProgress(completed), 100);
+            return () => clearTimeout(timer);
+          }, [completed]);
+
+          return (
+            <div className="h-full p-5 flex flex-col animate-fade-in relative overflow-hidden">
+              
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] border border-[#0E1A33]/5 rounded-full flex items-center justify-center pointer-events-none z-0">
+                <div className="text-[140px] font-serif-en text-[#0E1A33]/5 leading-none">TB</div>
+              </div>
+
+              <div className="flex justify-between items-end mb-2 pt-1 relative z-10 shrink-0">
+                <div className="flex flex-col items-start">
+                  <p className="text-[7px] text-[#0E1A33]/40 tracking-[0.4em] uppercase font-sans-en mb-2">Nexus Life</p>
+                  <h2 className="text-3xl font-serif-en text-[#0E1A33] leading-none mb-1 tracking-tight">Passport</h2>
+                  <p className="text-[8px] text-[#0E1A33]/50 font-serif-tc tracking-[0.3em] uppercase">復古探索護照</p>
+                </div>
+                <div className="text-right pb-1">
+                  <p className="text-[6px] font-bold text-[#0E1A33]/30 tracking-[0.2em] mb-0.5 font-sans-en uppercase">Pass No.</p>
+                  <p className="text-xs font-sans-en text-[#0E1A33]/60 tracking-widest">TB8-7729</p>
+                </div>
+              </div>
+
+              <div className="flex-1 w-full relative flex items-center justify-center mt-2 mb-4 shrink-0">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[120px] font-serif-en text-[#0E1A33] opacity-[0.03] leading-none pointer-events-none select-none">∞</div>
+
+                <div className="relative w-[260px] h-[260px]">
+                  <svg className="absolute inset-0 w-full h-full transform -rotate-90 pointer-events-none">
+                    <circle 
+                      cx={center} cy={center} r={radius} 
+                      fill="transparent" stroke="#0E1A33" strokeWidth="1" strokeOpacity="0.1" 
+                      strokeDasharray="4 4" 
+                    />
+                    <circle
+                      cx={center} cy={center} r={radius} 
+                      fill="transparent" stroke="#BA3B28" strokeWidth="1.5" strokeOpacity="0.6"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={progressOffset}
+                      strokeLinecap="round"
+                      className="transition-all duration-1000 ease-out mix-blend-multiply"
+                    />
+                  </svg>
+
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center">
+                    <span className="text-[7px] text-[#BA3B28]/60 tracking-[0.4em] font-sans-en uppercase mb-1">Destination</span>
+                    <span className="text-[54px] font-serif-en text-[#BA3B28] opacity-80 leading-none mix-blend-multiply drop-shadow-sm">∞</span>
+                  </div>
+
+                  {[...Array(totalStamps)].map((_, idx) => {
+                    const num = idx + 1;
+                    const isStamp = num <= completed;
+                    const angle = (idx / totalStamps) * 360 - 90;
+                    const rad = (angle * Math.PI) / 180;
+                    const left = center + radius * Math.cos(rad);
+                    const top = center + radius * Math.sin(rad);
+                    const rotation = isStamp ? `rotate(${((num * 13) % 40) - 20}deg)` : 'none';
+
+                    return (
+                      <div 
+                        key={num} 
+                        className="absolute flex items-center justify-center -translate-x-1/2 -translate-y-1/2 bg-[#EAE5DB] rounded-full z-10"
+                        style={{ left: `${left}px`, top: `${top}px`, width: '48px', height: '48px' }}
+                      >
+                        {isStamp ? (
+                          <div 
+                            className="w-full h-full rounded-full border-[2px] passport-stamp flex items-center justify-center transition-transform duration-700"
+                            style={{ transform: rotation }}
+                          >
+                            <div className="w-[38px] h-[38px] rounded-full border border-[#BA3B28] flex flex-col items-center justify-center">
+                               <span className="text-[4px] font-sans-en tracking-widest uppercase mb-0.5 border-b border-[#BA3B28]/30 pb-[1px] leading-tight">Entered</span>
+                               <span className="font-serif-en text-[16px] font-bold leading-none mt-0.5">TS</span>
+                               <span className="text-[4px] font-sans-en tracking-widest uppercase mt-0.5 leading-tight">Taichung</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-[40px] h-[40px] rounded-full border border-dashed border-[#0E1A33]/20 flex flex-col items-center justify-center opacity-70 bg-[#EAE5DB]">
+                            <span className="text-[6px] font-sans-en text-[#0E1A33]/30 tracking-widest leading-none mb-0.5 uppercase">VISA</span>
+                            <span className="text-[5px] font-sans-en text-[#0E1A33]/20 leading-none">0{num}</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="w-full shrink-0 relative pt-2 z-10">
+                <div className="absolute top-0 left-2 right-2 h-px perforated-edge opacity-30"></div>
+                <button className="w-full bg-[#0E1A33] text-[#EAE5DB] rounded-md py-3.5 flex justify-center items-center gap-2 active:scale-[0.98] transition-transform shadow-[0_8px_20px_rgba(14,26,51,0.2)]">
+                  <QrCode size={14} strokeWidth={1.5} className="opacity-80" />
+                  <span className="text-[10px] tracking-[0.2em] font-serif-tc font-bold">開啟相機蓋章</span>
+                </button>
+              </div>
+
+            </div>
+          );
+        }
+
+        function PrizeSheet({ prize, onClose }) {
+          if (!prize) return null;
+
+          return (
+            <div className="fixed inset-0 z-[100] flex flex-col justify-end px-4 pb-4 animate-fade-in">
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
+              
+              <div className="relative h-[70dvh] w-full max-w-[360px] mx-auto bg-[#FDFBF7] rounded-xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden">
+                <div className="shrink-0 flex justify-center items-center pt-3 pb-2 relative z-10 bg-white/80 backdrop-blur-md border-b border-[#0E1A33]/5">
+                  <div className="w-10 h-1 bg-[#0E1A33]/15 rounded-full"></div>
+                  <button onClick={onClose} className="absolute right-3 top-3 text-[#0E1A33]/40 hover:text-[#0E1A33] p-1.5 bg-black/5 rounded-md transition-colors"><X size={16} /></button>
+                </div>
+                <div className="flex-1 overflow-y-auto no-scrollbar pb-10">
+                  <div className="relative aspect-[4/3] w-full border-b border-[#0E1A33]/10 bg-[#0E1A33]">
+                    <img src={prize.img} alt={prize.title} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="p-5">
+                    <div className="flex justify-between items-start mb-2">
+                      <p className="text-[8px] font-sans-en tracking-[0.2em] text-[#C9A24A] font-bold uppercase">{prize.brand}</p>
+                      <p className="text-[11px] font-serif-en text-[#0E1A33]/80 font-bold">{prize.value}</p>
+                    </div>
+                    <h2 className="text-xl font-serif-tc text-[#0E1A33] font-bold mb-5 leading-snug tracking-wide">{prize.title}</h2>
+                    <div className="space-y-5">
+                      <div>
+                        <h4 className="text-[8px] font-bold text-[#0E1A33]/40 font-sans-en tracking-[0.2em] uppercase mb-1.5">Item Details</h4>
+                        <p className="text-[11px] text-[#0E1A33]/80 leading-relaxed font-serif-tc text-justify">{prize.desc}</p>
+                      </div>
+                      <div className="h-px w-8 bg-[#0E1A33]/20"></div>
+                      <div>
+                        <h4 className="text-[8px] font-bold text-[#0E1A33]/40 font-sans-en tracking-[0.2em] uppercase mb-1.5">Redemption</h4>
+                        <p className="text-[10px] text-[#0E1A33]/60 leading-relaxed font-serif-tc text-justify">{prize.redeem}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        try {
+            if (typeof LucideReact === 'undefined') {
+                throw new Error("LucideReact library failed to load. Check your internet connection or CDN links.");
+            }
+            const root = ReactDOM.createRoot(document.getElementById('root'));
+            root.render(<App />);
+        } catch (err) {
+            console.error("Render error:", err);
+            document.getElementById('root').innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; text-align:center; padding:20px;">
+                    <h1 style="color:#BA3B28;">渲染失敗 (Render Failed)</h1>
+                    <p style="color:#0E1A33; opacity:0.7;">${err.message}</p>
+                    <pre style="background:#f4f4f4; padding:10px; border-radius:4px; font-size:12px; margin-top:20px; max-width:100%; overflow:auto;">${err.stack}</pre>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -7,11 +7,23 @@
  * service cloud.firestore {
  *   match /databases/{database}/documents {
  *     match /schedules/{document=**} {
- *       allow read: if true;
+ *       allow read: if request.auth != null;
  *       allow write: if request.auth != null;
  *     }
  *     match /employees/{empId} {
- *       allow read: if true;
+ *       allow read: if request.auth != null;
+ *       allow write: if request.auth != null;
+ *     }
+ *     match /metrics/{docId} {
+ *       allow read: if request.auth != null;
+ *       allow write: if request.auth != null;
+ *     }
+ *     match /activities/{docId} {
+ *       allow read: if request.auth != null;
+ *       allow write: if request.auth != null;
+ *     }
+ *     match /venues/{docId} {
+ *       allow read: if request.auth != null;
  *       allow write: if request.auth != null;
  *     }
  *   }
