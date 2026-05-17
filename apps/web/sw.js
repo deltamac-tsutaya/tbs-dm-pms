@@ -1,4 +1,4 @@
-const CACHE_NAME = 'schedule-v8';
+const CACHE_NAME = 'schedule-v9';
 
 const SKIP_HOSTS = [
   'gstatic.com',
@@ -9,13 +9,12 @@ const SKIP_HOSTS = [
 
 // Files to pre-cache on install
 const SHELL_URLS = [
-  '/index.html',
-  '/admin.html',
-  '/manifest.json',
-  '/firebase-config.js'
+  'index.html',
+  'manifest.json',
+  '../../packages/firebase-config/firebase-config.js'
 ].map(p => {
   const base = self.location.pathname.replace(/sw\.js$/, '');
-  return base + p.replace(/^\//, '');
+  return new URL(p, new URL(base, self.location.origin)).pathname;
 });
 
 self.addEventListener('install', (event) => {

@@ -1,0 +1,12 @@
+{
+  "name": "@schedule-app/admin",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'Static HTML — no build step'"
+  },
+  "dependencies": {
+    "@schedule-app/firebase-config": "workspace:*"
+  }
+}

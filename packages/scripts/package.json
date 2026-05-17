@@ -1,0 +1,8 @@
+{
+  "name": "@schedule-app/scripts",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "create-admin": "node create-admin.js"
+  }
+}
