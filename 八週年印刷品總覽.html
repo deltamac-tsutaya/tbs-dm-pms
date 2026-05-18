@@ -100,11 +100,41 @@
       font-size: 10px; font-weight: 700; letter-spacing: 0.1em; font-family: 'Noto Sans TC', sans-serif;
       padding: 4px 8px; border-radius: 4px; pointer-events: none;
     }
+
+    /* Download button */
+    .dc-dl-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(196,162,74,0.12); border: 1px solid rgba(196,162,74,0.4);
+      color: #c4a24a; font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      padding: 5px 14px; border-radius: 999px; cursor: pointer;
+      font-family: 'Noto Sans TC', sans-serif; text-transform: uppercase;
+      transition: background 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .dc-dl-btn:hover:not(:disabled) { background: rgba(196,162,74,0.22); border-color: rgba(196,162,74,0.65); }
+    .dc-dl-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .dc-dl-progress {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #1a1410; border: 1px solid rgba(196,162,74,0.35);
+      color: #c4a24a; font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+      padding: 10px 22px; border-radius: 999px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      z-index: 9999; font-family: 'Noto Sans TC', sans-serif;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .dc-dl-spinner {
+      width: 14px; height: 14px; border: 2px solid rgba(196,162,74,0.25);
+      border-top-color: #c4a24a; border-radius: 50%;
+      animation: dlspin 0.7s linear infinite;
+    }
+    @keyframes dlspin { to { transform: rotate(360deg); } }
   </style>
 
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -1229,6 +1259,51 @@ function DCArtboard({ label, dims, children, scale }) {
 ═══════════════════════════════════════════════ */
 function PrintApp() {
   const totalPieces = 19;
+  const [dlState, setDlState] = useState({ running: false, current: 0, total: 0 });
+
+  const downloadAll = useCallback(async () => {
+    const artboards = document.querySelectorAll('.dc-artboard');
+    const total = artboards.length;
+    setDlState({ running: true, current: 0, total });
+
+    const zip = new JSZip();
+
+    for (let i = 0; i < artboards.length; i++) {
+      const ab = artboards[i];
+      const labelEl = ab.querySelector('.dc-artboard-label');
+      const frameEl = ab.querySelector('.dc-artboard-frame');
+      const label = labelEl ? labelEl.textContent.trim() : `artboard-${i + 1}`;
+      const filename = `${String(i + 1).padStart(2, '0')}_${label.replace(/[\/\\:*?"<>|·‧]/g, '_').replace(/\s+/g, '_')}.png`;
+
+      setDlState({ running: true, current: i + 1, total });
+
+      try {
+        const canvas = await html2canvas(frameEl, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: null,
+        });
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+        if (blob) zip.file(filename, blob);
+      } catch (e) {
+        console.warn(`Skip ${filename}:`, e);
+      }
+    }
+
+    const content = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(content);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '8TH_印刷品總覽.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    setDlState({ running: false, current: 0, total: 0 });
+  }, []);
 
   return (
     <div>
@@ -1241,9 +1316,24 @@ function PrintApp() {
         <div className="dc-toolbar-right">
           <div className="dc-toolbar-badge">19 件印刷物</div>
           <div className="dc-toolbar-badge">Mark Journal</div>
+          <button
+            className="dc-dl-btn"
+            disabled={dlState.running}
+            onClick={downloadAll}
+          >
+            ↓ 下載全部 PNG
+          </button>
           <div style={{ color: 'rgba(196,162,74,0.5)', fontSize: 10, letterSpacing: '0.08em' }}>點擊任一印件可放大</div>
         </div>
       </div>
+
+      {/* Progress toast */}
+      {dlState.running && (
+        <div className="dc-dl-progress">
+          <div className="dc-dl-spinner" />
+          正在截圖 {dlState.current} / {dlState.total} · 請稍候
+        </div>
+      )}
 
       {/* Canvas */}
       <div className="dc-canvas">
