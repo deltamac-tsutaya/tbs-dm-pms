@@ -1056,104 +1056,68 @@ function TableCard({ letter, line }) {
 }
 
 /* ═══════════════════════════════════════════════
-   19 · 主視覺海報 · B2 515 × 728 mm
-       (scaled to 40% for screen display)
+   19 · 主視覺海報 · A4 210 × 297 mm
 ═══════════════════════════════════════════════ */
 function MainPoster() {
   return (
-    <PPage wMm={515} hMm={728}>
+    <PPage wMm={210} hMm={297}>
       {/* Gigantic 8 watermark */}
-      <div style={{ position: 'absolute', left: '50%', top: '40%', transform: 'translate(-50%, -50%)', fontFamily: "'Noto Serif TC',serif", fontWeight: 500, fontSize: '2200pt', lineHeight: 0.78, color: 'rgba(232,201,125,0.04)', letterSpacing: '-0.06em', pointerEvents: 'none', userSelect: 'none' }}>8</div>
+      <div style={{ position: 'absolute', left: '50%', top: '40%', transform: 'translate(-50%, -50%)', fontFamily: "'Noto Serif TC',serif", fontWeight: 500, fontSize: '900pt', lineHeight: 0.78, color: 'rgba(232,201,125,0.04)', letterSpacing: '-0.06em', pointerEvents: 'none', userSelect: 'none' }}>8</div>
 
       {/* Vignette */}
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 35%, rgba(201,168,76,0.1) 0%, transparent 55%), linear-gradient(180deg, rgba(11,20,36,0) 60%, rgba(8,15,28,0.6) 100%)', pointerEvents: 'none' }} />
 
       {/* Outer frame */}
-      <div style={{ position: 'absolute', inset: '14mm', border: '0.8pt solid rgba(232,201,125,0.28)' }} />
-      <div style={{ position: 'absolute', inset: '18mm', border: '0.5pt solid rgba(232,201,125,0.1)' }} />
-      <PTick pos={{ top: '14mm', left: '14mm' }} len={22} weight={0.8} />
-      <PTick pos={{ top: '14mm', right: '14mm' }} flipX len={22} weight={0.8} />
-      <PTick pos={{ bottom: '14mm', left: '14mm' }} flipY len={22} weight={0.8} />
-      <PTick pos={{ bottom: '14mm', right: '14mm' }} flipX flipY len={22} weight={0.8} />
+      <div style={{ position: 'absolute', inset: '6mm', border: '0.8pt solid rgba(232,201,125,0.28)' }} />
+      <div style={{ position: 'absolute', inset: '8mm', border: '0.5pt solid rgba(232,201,125,0.1)' }} />
+      <PTick pos={{ top: '6mm', left: '6mm' }} len={9} weight={0.5} />
+      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={9} weight={0.5} />
+      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={9} weight={0.5} />
+      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={9} weight={0.5} />
 
       {/* Header */}
-      <div style={{ position: 'absolute', top: '26mm', left: '28mm', right: '28mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <PCoBrand height={20} gap={16} />
+      <div style={{ position: 'absolute', top: '11mm', left: '12mm', right: '12mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <PCoBrand height={8} gap={6} />
         <div style={{ textAlign: 'right' }}>
-          <PMono size={11} color={PRINT.gold} track="0.36em" weight={700}>2026.04.25 — 05.31</PMono>
-          <div style={{ marginTop: 3 }}><PMono size={9} color={PRINT.creamFaint} track="0.4em" weight={500}>TAICHUNG CITYHALL · 4F</PMono></div>
+          <PMono size={5} color={PRINT.gold} track="0.36em" weight={700}>2026.04.25 — 05.31</PMono>
+          <div style={{ marginTop: 1 }}><PMono size={4} color={PRINT.creamFaint} track="0.4em" weight={500}>TAICHUNG CITYHALL · 4F</PMono></div>
         </div>
       </div>
-      <div style={{ position: 'absolute', top: '42mm', left: '28mm', right: '28mm', height: 0.8, background: 'rgba(232,201,125,0.25)' }} />
+      <div style={{ position: 'absolute', top: '17mm', left: '12mm', right: '12mm', height: 0.5, background: 'rgba(232,201,125,0.25)' }} />
 
       {/* Eyebrow */}
-      <div style={{ position: 'absolute', top: '52mm', left: 0, right: 0, textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 14 }}>
-          <PRule width="22mm" color={PRINT.gold} height={1.2} />
-          <PMono size={13} color={PRINT.gold} track="0.46em" weight={700}>8TH ANNIVERSARY · 八週年紀念</PMono>
-          <PRule width="22mm" color={PRINT.gold} height={1.2} />
+      <div style={{ position: 'absolute', top: '21mm', left: 0, right: 0, textAlign: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <PRule width="9mm" color={PRINT.gold} height={0.6} />
+          <PMono size={6} color={PRINT.gold} track="0.46em" weight={700}>8TH ANNIVERSARY · 八週年紀念</PMono>
+          <PRule width="9mm" color={PRINT.gold} height={0.6} />
         </div>
       </div>
 
       {/* Nexus Life mark */}
-      <div style={{ position: 'absolute', top: '74mm', left: 0, right: 0, textAlign: 'center' }}>
-        <PNexusMark size={5.0} />
+      <div style={{ position: 'absolute', top: '28mm', left: 0, right: 0, textAlign: 'center' }}>
+        <PNexusMark size={2.0} />
       </div>
 
       {/* Tagline */}
-      <div style={{ position: 'absolute', top: '156mm', left: 0, right: 0, textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16 }}>
-          <PRule width="14mm" color={PRINT.goldDim} height={0.8} />
-          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '22pt', fontWeight: 300, color: PRINT.creamDim, letterSpacing: '0.32em' }}>無限日常　∞　連結生活</span>
-          <PRule width="14mm" color={PRINT.goldDim} height={0.8} />
+      <div style={{ position: 'absolute', top: '58mm', left: 0, right: 0, textAlign: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <PRule width="6mm" color={PRINT.goldDim} height={0.4} />
+          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '9pt', fontWeight: 300, color: PRINT.creamDim, letterSpacing: '0.32em' }}>無限日常　∞　連結生活</span>
+          <PRule width="6mm" color={PRINT.goldDim} height={0.4} />
         </div>
       </div>
 
       {/* Hero copy */}
-      <div style={{ position: 'absolute', top: '188mm', left: 0, right: 0, textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '56pt', lineHeight: 1.32, letterSpacing: '0.08em', color: PRINT.cream, fontWeight: 400 }}>
+      <div style={{ position: 'absolute', top: '72mm', left: 0, right: 0, textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '23pt', lineHeight: 1.32, letterSpacing: '0.08em', color: PRINT.cream, fontWeight: 400 }}>
           用 <GoldText style={{ fontWeight: 700 }}>8 天</GoldText>，把一個紀念日<br/>
           <span style={{ fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif", color: PRINT.gold, fontWeight: 500 }}>過完整</span>。
         </p>
       </div>
 
-      {/* 11 station map */}
-      <div style={{ position: 'absolute', top: '316mm', left: '28mm', right: '28mm' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-          <PMono size={11} color={PRINT.gold} track="0.4em" weight={700}>MARK JOURNAL · 集印探索 · 11 STATIONS</PMono>
-          <PRule width="auto" style={{ flex: 1 }} color={PRINT.goldFaint} height={0.6} />
-          <PMono size={11} color={PRINT.creamFaint} track="0.3em" weight={600}>MAIN&nbsp;01–08&nbsp;·&nbsp;EGG&nbsp;A–C</PMono>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 10, marginTop: 18 }}>
-          {STAMP_POINTS.map(s => (
-            <div key={s.n} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, position: 'relative' }}>
-              <div style={{ width: '100%', aspectRatio: '1', borderRadius: '50%', border: '0.8pt solid rgba(232,201,125,0.42)', background: 'rgba(232,201,125,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                <PMaskIcon src={s.icon} size="60%" color={PRINT.gold} opacity={0.85} style={{ width: '58%', height: '58%' }} />
-                <div style={{ position: 'absolute', bottom: -3, right: -3, background: PRINT.gold, color: PRINT.bg, fontFamily: "'Noto Sans TC',sans-serif", fontSize: '9pt', fontWeight: 700, width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{s.n}</div>
-              </div>
-              <div style={{ textAlign: 'center', lineHeight: 1.25 }}>
-                <PMono size={7} color={PRINT.gold} track="0.22em" weight={700}>{s.element}</PMono>
-                <div style={{ marginTop: 2 }}><PSans size={8} color={PRINT.creamDim} weight={400} track="0.04em">{s.area}</PSans></div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Eggs row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginTop: 22, justifyContent: 'center' }}>
-          <PMono size={10} color={PRINT.creamFaint} track="0.32em" weight={700}>HIDDEN EGGS&nbsp;·</PMono>
-          {HIDDEN_EGGS.map(e => (
-            <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-              <div style={{ width: 30, height: 30, borderRadius: '50%', border: '0.6pt dashed rgba(232,201,125,0.55)', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Sans TC',sans-serif", fontWeight: 700, fontSize: '11pt', color: PRINT.gold }}>{e.id}</div>
-              <PSans size={9} color={PRINT.creamDim} weight={500} track="0.04em">{e.element}</PSans>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* 3 modules block */}
-      <div style={{ position: 'absolute', top: '472mm', left: '28mm', right: '28mm', borderTop: '0.8pt solid rgba(232,201,125,0.28)', borderBottom: '0.8pt solid rgba(232,201,125,0.28)', padding: '14mm 0', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+      <div style={{ position: 'absolute', top: '130mm', left: '12mm', right: '12mm', borderTop: '0.5pt solid rgba(232,201,125,0.28)', borderBottom: '0.5pt solid rgba(232,201,125,0.28)', padding: '6mm 0', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
         {[
           { n: '01', en: 'Daily Ritual',  zh: '每日專屬儀式', desc: '每日完成儀式 · 累積抽獎券' },
           { n: '02', en: 'Mark Journal',  zh: '集印探索',     desc: '館內掃描 8 個主路印章' },
@@ -1161,44 +1125,156 @@ function MainPoster() {
         ].map((m, i, arr) => (
           <React.Fragment key={m.en}>
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '36pt', fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em' }}>
+              <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '15pt', fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em' }}>
                 <GoldText>{m.n}</GoldText>
               </div>
-              <div style={{ marginTop: 6 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '20pt', fontStyle: 'italic', color: PRINT.gold, fontWeight: 500, letterSpacing: '0.04em' }}>{m.en}</span></div>
-              <div style={{ marginTop: 3 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '17pt', color: PRINT.cream, letterSpacing: '0.2em' }}>{m.zh}</span></div>
-              <div style={{ marginTop: 4 }}><PSans size={10} color={PRINT.creamMute} weight={300} track="0.06em">{m.desc}</PSans></div>
+              <div style={{ marginTop: 2 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '8pt', fontStyle: 'italic', color: PRINT.gold, fontWeight: 500, letterSpacing: '0.04em' }}>{m.en}</span></div>
+              <div style={{ marginTop: 1 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '7pt', color: PRINT.cream, letterSpacing: '0.2em' }}>{m.zh}</span></div>
+              <div style={{ marginTop: 2 }}><PSans size={4} color={PRINT.creamMute} weight={300} track="0.06em">{m.desc}</PSans></div>
             </div>
-            {i < arr.length - 1 && <div style={{ width: 0.6, alignSelf: 'stretch', background: 'rgba(232,201,125,0.22)' }} />}
+            {i < arr.length - 1 && <div style={{ width: 0.4, alignSelf: 'stretch', background: 'rgba(232,201,125,0.22)' }} />}
           </React.Fragment>
         ))}
       </div>
 
       {/* Grand prize callout */}
-      <div style={{ position: 'absolute', top: '562mm', left: '28mm', right: '28mm', background: 'linear-gradient(160deg, #0e1a33 0%, #050a18 100%)', border: '0.6pt solid rgba(232,201,125,0.4)', padding: '12mm 14mm', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: 16, top: 4, fontFamily: "'Noto Serif TC',serif", fontSize: '170pt', color: 'rgba(232,201,125,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
-        <div style={{ display: 'flex', position: 'relative', alignItems: 'center', gap: 14 }}>
+      <div style={{ position: 'absolute', top: '175mm', left: '12mm', right: '12mm', background: 'linear-gradient(160deg, #0e1a33 0%, #050a18 100%)', border: '0.6pt solid rgba(232,201,125,0.4)', padding: '5mm 6mm', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', right: 6, top: 2, fontFamily: "'Noto Serif TC',serif", fontSize: '70pt', color: 'rgba(232,201,125,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
+        <div style={{ display: 'flex', position: 'relative', alignItems: 'center', gap: 6 }}>
           <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '24pt', color: PRINT.gold, lineHeight: 1, fontStyle: 'italic' }}>∞</span>
-              <PMono size={11} color={PRINT.goldDim} track="0.4em" weight={700}>GRAND PRIZE WEEK · 大獎</PMono>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '10pt', color: PRINT.gold, lineHeight: 1, fontStyle: 'italic' }}>∞</span>
+              <PMono size={5} color={PRINT.goldDim} track="0.4em" weight={700}>GRAND PRIZE WEEK · 大獎</PMono>
             </div>
-            <div style={{ marginTop: 6 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '34pt', color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排雙人套餐</span></div>
-            <div style={{ marginTop: 2 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontStyle: 'italic', fontSize: '13pt', color: PRINT.creamMute, letterSpacing: '0.04em' }}>日本和牛ステーキ ペアセット · WIRED TOKYO</span></div>
-            <div style={{ marginTop: 6 }}><PMono size={11} color={PRINT.gold} track="0.3em" weight={500}>5 / 24 — 5 / 31 ‧ 每日 20:00 抽出 1 位 ‧ 共 8 份 ‧ NT$ 2,300</PMono></div>
+            <div style={{ marginTop: 2 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '14pt', color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排雙人套餐</span></div>
+            <div style={{ marginTop: 1 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontStyle: 'italic', fontSize: '5pt', color: PRINT.creamMute, letterSpacing: '0.04em' }}>日本和牛ステーキ ペアセット · WIRED TOKYO</span></div>
+            <div style={{ marginTop: 2 }}><PMono size={4} color={PRINT.gold} track="0.3em" weight={500}>5 / 24 — 5 / 31 ‧ 每日 20:00 抽出 1 位 ‧ 共 8 份 ‧ NT$ 2,300</PMono></div>
           </div>
-          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-            <PBigQR size="40mm" seed={2026} />
-            <PMono size={7} color={PRINT.goldDim} track="0.32em">立即參加 · JOIN</PMono>
+          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <PBigQR size="16mm" seed={2026} />
+            <PMono size={3} color={PRINT.goldDim} track="0.32em">立即參加 · JOIN</PMono>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <div style={{ position: 'absolute', bottom: '22mm', left: '28mm', right: '28mm', borderTop: '0.5pt solid rgba(232,201,125,0.22)', paddingTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <PMono size={9} color={PRINT.creamFaint} track="0.34em" weight={600}>TSUTAYA BOOKSTORE × WIRED TOKYO · 台中市政店</PMono>
-        <PMono size={9} color={PRINT.gold} track="0.34em" weight={700}>NEXUS.LIFE / 8TH</PMono>
+      <div style={{ position: 'absolute', bottom: '9mm', left: '12mm', right: '12mm', borderTop: '0.5pt solid rgba(232,201,125,0.22)', paddingTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <PMono size={4} color={PRINT.creamFaint} track="0.34em" weight={600}>TSUTAYA BOOKSTORE × WIRED TOKYO · 台中市政店</PMono>
+        <PMono size={4} color={PRINT.gold} track="0.34em" weight={700}>NEXUS.LIFE / 8TH</PMono>
       </div>
     </PPage>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   20 · 電子海報 · 1080 × 1920 px (9:16)
+═══════════════════════════════════════════════ */
+function DigitalPoster() {
+  return (
+    <div style={{
+      width: 1080, height: 1920,
+      background: `linear-gradient(165deg, ${PRINT.bgWarm} 0%, ${PRINT.bg} 50%, ${PRINT.bgDeep} 100%)`,
+      color: PRINT.cream,
+      position: 'relative', overflow: 'hidden',
+      fontFamily: "'Noto Sans TC',sans-serif",
+    }}>
+      <PaperGrain opacity={0.35} />
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 35%, rgba(201,168,76,0.08) 0%, transparent 55%), linear-gradient(180deg, rgba(11,20,36,0) 60%, rgba(8,15,28,0.5) 100%)', pointerEvents: 'none' }} />
+
+      {/* Gigantic 8 watermark */}
+      <div style={{ position: 'absolute', left: '50%', top: '42%', transform: 'translate(-50%, -50%)', fontFamily: "'Noto Serif TC',serif", fontWeight: 500, fontSize: '1800px', lineHeight: 0.78, color: 'rgba(232,201,125,0.04)', letterSpacing: '-0.06em', pointerEvents: 'none', userSelect: 'none' }}>8</div>
+
+      {/* Outer frame */}
+      <div style={{ position: 'absolute', inset: 60, border: '1px solid rgba(232,201,125,0.28)' }} />
+
+      {/* Header */}
+      <div style={{ position: 'absolute', top: 96, left: 90, right: 90, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <PCoBrand height={28} gap={18} />
+        <div style={{ textAlign: 'right' }}>
+          <PMono size={14} color={PRINT.gold} track="0.36em" weight={700}>2026.04.25 — 05.31</PMono>
+          <div style={{ marginTop: 4 }}><PMono size={11} color={PRINT.creamFaint} track="0.4em" weight={500}>TAICHUNG CITYHALL · 4F</PMono></div>
+        </div>
+      </div>
+      <div style={{ position: 'absolute', top: 164, left: 90, right: 90, height: 1, background: 'rgba(232,201,125,0.25)' }} />
+
+      {/* Eyebrow */}
+      <div style={{ position: 'absolute', top: 196, left: 0, right: 0, textAlign: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ width: 80, height: 1.5, background: PRINT.gold }} />
+          <PMono size={15} color={PRINT.gold} track="0.46em" weight={700}>8TH ANNIVERSARY · 八週年紀念</PMono>
+          <div style={{ width: 80, height: 1.5, background: PRINT.gold }} />
+        </div>
+      </div>
+
+      {/* Nexus Life mark */}
+      <div style={{ position: 'absolute', top: 270, left: 0, right: 0, textAlign: 'center' }}>
+        <PNexusMark size={6.5} />
+      </div>
+
+      {/* Tagline */}
+      <div style={{ position: 'absolute', top: 680, left: 0, right: 0, textAlign: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
+          <div style={{ width: 50, height: 1, background: PRINT.goldDim }} />
+          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '32pt', fontWeight: 300, color: PRINT.creamDim, letterSpacing: '0.32em' }}>無限日常　∞　連結生活</span>
+          <div style={{ width: 50, height: 1, background: PRINT.goldDim }} />
+        </div>
+      </div>
+
+      {/* Hero copy */}
+      <div style={{ position: 'absolute', top: 780, left: 0, right: 0, textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '72pt', lineHeight: 1.32, letterSpacing: '0.08em', color: PRINT.cream, fontWeight: 400 }}>
+          用 <GoldText style={{ fontWeight: 700 }}>8 天</GoldText>，把一個紀念日<br/>
+          <span style={{ fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif", color: PRINT.gold, fontWeight: 500 }}>過完整</span>。
+        </p>
+      </div>
+
+      {/* 3 modules */}
+      <div style={{ position: 'absolute', top: 1160, left: 90, right: 90, borderTop: '1px solid rgba(232,201,125,0.28)', borderBottom: '1px solid rgba(232,201,125,0.28)', padding: '50px 0', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+        {[
+          { n: '01', en: 'Daily Ritual',  zh: '每日專屬儀式', desc: '每日完成儀式 · 累積抽獎券' },
+          { n: '02', en: 'Mark Journal',  zh: '集印探索',     desc: '館內掃描 8 個主路印章' },
+          { n: '03', en: 'Infinity Day',  zh: '加碼抽獎',     desc: '每日抽 1 次 · 券多機率高' },
+        ].map((m, i, arr) => (
+          <React.Fragment key={m.en}>
+            <div style={{ flex: 1, textAlign: 'center' }}>
+              <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '48pt', fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em' }}>
+                <GoldText>{m.n}</GoldText>
+              </div>
+              <div style={{ marginTop: 8 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '26pt', fontStyle: 'italic', color: PRINT.gold, fontWeight: 500, letterSpacing: '0.04em' }}>{m.en}</span></div>
+              <div style={{ marginTop: 4 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '22pt', color: PRINT.cream, letterSpacing: '0.2em' }}>{m.zh}</span></div>
+              <div style={{ marginTop: 6 }}><PSans size={13} color={PRINT.creamMute} weight={300} track="0.06em">{m.desc}</PSans></div>
+            </div>
+            {i < arr.length - 1 && <div style={{ width: 1, alignSelf: 'stretch', background: 'rgba(232,201,125,0.22)' }} />}
+          </React.Fragment>
+        ))}
+      </div>
+
+      {/* Grand prize callout */}
+      <div style={{ position: 'absolute', top: 1500, left: 90, right: 90, background: 'linear-gradient(160deg, #0e1a33 0%, #050a18 100%)', border: '1px solid rgba(232,201,125,0.4)', padding: '40px 50px', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', right: 20, top: 10, fontFamily: "'Noto Serif TC',serif", fontSize: '220pt', color: 'rgba(232,201,125,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
+        <div style={{ display: 'flex', position: 'relative', alignItems: 'center', gap: 30 }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '32pt', color: PRINT.gold, lineHeight: 1, fontStyle: 'italic' }}>∞</span>
+              <PMono size={13} color={PRINT.goldDim} track="0.4em" weight={700}>GRAND PRIZE WEEK · 大獎</PMono>
+            </div>
+            <div style={{ marginTop: 10 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '44pt', color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排雙人套餐</span></div>
+            <div style={{ marginTop: 4 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontStyle: 'italic', fontSize: '18pt', color: PRINT.creamMute, letterSpacing: '0.04em' }}>日本和牛ステーキ ペアセット · WIRED TOKYO</span></div>
+            <div style={{ marginTop: 8 }}><PMono size={13} color={PRINT.gold} track="0.3em" weight={500}>5 / 24 — 5 / 31 ‧ 每日 20:00 抽出 1 位 ‧ 共 8 份 ‧ NT$ 2,300</PMono></div>
+          </div>
+          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+            <PBigQR size="130px" seed={2026} />
+            <PMono size={9} color={PRINT.goldDim} track="0.32em">立即參加 · JOIN</PMono>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div style={{ position: 'absolute', bottom: 80, left: 90, right: 90, borderTop: '1px solid rgba(232,201,125,0.22)', paddingTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <PMono size={11} color={PRINT.creamFaint} track="0.34em" weight={600}>TSUTAYA BOOKSTORE × WIRED TOKYO · 台中市政店</PMono>
+        <PMono size={11} color={PRINT.gold} track="0.34em" weight={700}>NEXUS.LIFE / 8TH</PMono>
+      </div>
+    </div>
   );
 }
 
@@ -1419,20 +1495,31 @@ function PrintApp() {
           ))}
         </DCSection>
 
-        {/* 19 主視覺海報 B2 */}
+        {/* 19 主視覺海報 A4 */}
         <DCSection
           title="19 · 主視覺海報"
-          subtitle="B2 直向 515 × 728 mm · 入口、電梯、大型展示位 · 含 11 站點縮略地圖"
+          subtitle="A4 直向 210 × 297 mm · 入口、電梯、展示位使用"
           count={`1 件 / 19`}
         >
-          <DCArtboard label="19 · Main Visual · B2 515 × 728 mm" dims="B2 · 515 × 728 mm">
+          <DCArtboard label="19 · Main Visual · A4 210 × 297 mm" dims="A4 · 210 × 297 mm">
+            <MainPoster />
+          </DCArtboard>
+        </DCSection>
+
+        {/* 20 電子海報 1080×1920 */}
+        <DCSection
+          title="20 · 電子海報"
+          subtitle="1080 × 1920 px · 9:16 直式 · 社群投放 / 數位看板使用"
+          count={`電子版 · 非印刷`}
+        >
+          <DCArtboard label="20 · Digital Poster · 1080 × 1920 px" dims="1080 × 1920 px · 9:16">
             <div style={{
-              width: `${Math.round(mm(515) * 0.38)}px`,
-              height: `${Math.round(mm(728) * 0.38)}px`,
+              width: `${Math.round(1080 * 0.28)}px`,
+              height: `${Math.round(1920 * 0.28)}px`,
               overflow: 'hidden', position: 'relative', flexShrink: 0,
             }}>
-              <div style={{ transform: 'scale(0.38)', transformOrigin: 'top left', position: 'absolute', top: 0, left: 0 }}>
-                <MainPoster />
+              <div style={{ transform: 'scale(0.28)', transformOrigin: 'top left', position: 'absolute', top: 0, left: 0 }}>
+                <DigitalPoster />
               </div>
             </div>
           </DCArtboard>
