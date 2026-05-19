@@ -773,7 +773,7 @@ function CounterCard() {
           {[
             { n: '01', tag: 'DAILY RITUAL', zh: '每日專屬儀式', desc: '每日完成儀式，獲得 Infinity Day 抽獎券' },
             { n: '02', tag: 'MARK JOURNAL', zh: '集印探索',     desc: '館內掃描 8 個主路點位印章，解鎖當日抽獎' },
-            { n: '03', tag: 'INFINITY DAY', zh: '加碼抽獎',     desc: '每日抽 1 次，券越多機率越高' },
+            { n: '03', tag: 'INFINITY DAY', zh: '加碼抽獎',     desc: '每晚 20:00，現場抽出 NT$2,300 和牛套餐' },
           ].map(m => (
             <div key={m.n} style={{ border: '0.5pt solid rgba(232,201,125,0.22)', background: 'rgba(232,201,125,0.025)', padding: '5mm 4.5mm', minHeight: '40mm' }}>
               <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '22pt', fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em' }}>
@@ -795,6 +795,9 @@ function CounterCard() {
         <div style={{ display: 'flex', gap: 10, position: 'relative' }}>
           <div style={{ flex: 1 }}>
             <PMono size={6.5} color={PRINT.goldDim} track="0.36em" weight={700}>GRAND PRIZE WEEK · 大獎週</PMono>
+            <div style={{ marginTop: 4, marginBottom: 4 }}>
+              <PMono size={5} color={PRINT.goldDim} track="0.3em" weight={500}>8 個夜晚 ‧ 8 份和牛 ‧ 每晚都有一位幸運者</PMono>
+            </div>
             <div style={{ marginTop: 4 }}>
               <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '19pt', color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排雙人套餐</span>
             </div>
@@ -817,7 +820,7 @@ function CounterCard() {
         <div>
           <PMono size={6} color={PRINT.creamFaint} track="0.3em" weight={600}>LOCATION</PMono>
           <div style={{ marginTop: 1 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.cream, letterSpacing: '0.08em' }}>台中市政店 ‧ 4F</span>
+            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.cream, letterSpacing: '0.08em' }}>台中市政店</span>
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
@@ -1143,7 +1146,7 @@ function MainPoster() {
         <PCoBrand height={8} gap={6} />
         <div style={{ textAlign: 'right' }}>
           <PMono size={5} color={PRINT.gold} track="0.36em" weight={700}>2026.04.25 — 05.31</PMono>
-          <div style={{ marginTop: 1 }}><PMono size={4} color={PRINT.creamFaint} track="0.4em" weight={500}>TAICHUNG CITYHALL · 4F</PMono></div>
+          <div style={{ marginTop: 1 }}><PMono size={4} color={PRINT.creamFaint} track="0.4em" weight={500}>TAICHUNG CITYHALL</PMono></div>
         </div>
       </div>
       <div style={{ position: 'absolute', top: '17mm', left: '12mm', right: '12mm', height: 0.5, background: 'rgba(232,201,125,0.25)' }} />
@@ -1184,7 +1187,7 @@ function MainPoster() {
         {[
           { n: '01', en: 'Daily Ritual',  zh: '每日專屬儀式', desc: '每日完成儀式 · 累積抽獎券' },
           { n: '02', en: 'Mark Journal',  zh: '集印探索',     desc: '館內掃描 8 個主路印章' },
-          { n: '03', en: 'Infinity Day',  zh: '加碼抽獎',     desc: '每日抽 1 次 · 券多機率高' },
+          { n: '03', en: 'Infinity Day',  zh: '加碼抽獎',     desc: '每晚 20:00，現場抽出 NT$2,300 和牛套餐' },
         ].map((m, i, arr) => (
           <React.Fragment key={m.en}>
             <div style={{ flex: 1, textAlign: 'center' }}>
@@ -1208,6 +1211,9 @@ function MainPoster() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '10pt', color: PRINT.gold, lineHeight: 1, fontStyle: 'italic' }}>∞</span>
               <PMono size={5} color={PRINT.goldDim} track="0.4em" weight={700}>GRAND PRIZE WEEK · 大獎</PMono>
+            </div>
+            <div style={{ marginTop: 4, marginBottom: 4 }}>
+              <PMono size={5} color={PRINT.goldDim} track="0.3em" weight={500}>8 個夜晚 ‧ 8 份和牛 ‧ 每晚都有一位幸運者</PMono>
             </div>
             <div style={{ marginTop: 2 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '14pt', color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排雙人套餐</span></div>
             <div style={{ marginTop: 1 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontStyle: 'italic', fontSize: '5pt', color: PRINT.creamMute, letterSpacing: '0.04em' }}>日本和牛ステーキ ペアセット · WIRED TOKYO</span></div>
@@ -1255,7 +1261,7 @@ function DigitalPoster() {
         <PCoBrand height={28} gap={18} />
         <div style={{ textAlign: 'right' }}>
           <PMono size={14} color={PRINT.gold} track="0.36em" weight={700}>2026.04.25 — 05.31</PMono>
-          <div style={{ marginTop: 4 }}><PMono size={11} color={PRINT.creamFaint} track="0.4em" weight={500}>TAICHUNG CITYHALL · 4F</PMono></div>
+          <div style={{ marginTop: 4 }}><PMono size={11} color={PRINT.creamFaint} track="0.4em" weight={500}>TAICHUNG CITYHALL</PMono></div>
         </div>
       </div>
       <div style={{ position: 'absolute', top: 164, left: 90, right: 90, height: 1, background: 'rgba(232,201,125,0.25)' }} />
@@ -1296,7 +1302,7 @@ function DigitalPoster() {
         {[
           { n: '01', en: 'Daily Ritual',  zh: '每日專屬儀式', desc: '每日完成儀式 · 累積抽獎券' },
           { n: '02', en: 'Mark Journal',  zh: '集印探索',     desc: '館內掃描 8 個主路印章' },
-          { n: '03', en: 'Infinity Day',  zh: '加碼抽獎',     desc: '每日抽 1 次 · 券多機率高' },
+          { n: '03', en: 'Infinity Day',  zh: '加碼抽獎',     desc: '每晚 20:00，現場抽出 NT$2,300 和牛套餐' },
         ].map((m, i, arr) => (
           <React.Fragment key={m.en}>
             <div style={{ flex: 1, textAlign: 'center' }}>
@@ -1320,6 +1326,9 @@ function DigitalPoster() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '32pt', color: PRINT.gold, lineHeight: 1, fontStyle: 'italic' }}>∞</span>
               <PMono size={13} color={PRINT.goldDim} track="0.4em" weight={700}>GRAND PRIZE WEEK · 大獎</PMono>
+            </div>
+            <div style={{ marginTop: 4, marginBottom: 4 }}>
+              <PMono size={5} color={PRINT.goldDim} track="0.3em" weight={500}>8 個夜晚 ‧ 8 份和牛 ‧ 每晚都有一位幸運者</PMono>
             </div>
             <div style={{ marginTop: 10 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '44pt', color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排雙人套餐</span></div>
             <div style={{ marginTop: 4 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontStyle: 'italic', fontSize: '18pt', color: PRINT.creamMute, letterSpacing: '0.04em' }}>日本和牛ステーキ ペアセット · WIRED TOKYO</span></div>
@@ -1489,24 +1498,24 @@ function PrintApp() {
             <DCArtboard
               key={s.n}
               label={`${s.n} · ${s.area} ‧ ${s.element}`}
-              dims="100 × 150 mm"
+              dims="A4 · 210 × 297 mm"
             >
               <StampStandee data={s} />
             </DCArtboard>
           ))}
         </DCSection>
 
-        {/* 09–11 隱蛋立牌 */}
+        {/* 09–11 無限夥伴 */}
         <DCSection
-          title="09–11 · 集印點立牌 隱蛋 A · B · C"
-          subtitle="100 × 150 mm · 員工別針 / 戶外桌 / 電梯告示 · 找到才會出現的彩蛋"
+          title="09–11 · 無限夥伴 A · B · C"
+          subtitle="A4 210 × 297 mm · 隱身各處的神秘角色‧找到就能領取抽獎券"
           count={`3 件 / 19`}
         >
           {HIDDEN_EGGS.map(e => (
             <DCArtboard
               key={e.id}
-              label={`隱蛋 ${e.id} ‧ ${e.area}`}
-              dims="100 × 150 mm"
+              label={`無限夥伴 ${e.id} ‧ ${e.area}`}
+              dims="A4 · 210 × 297 mm"
             >
               <StampStandee data={e} isEgg />
             </DCArtboard>
