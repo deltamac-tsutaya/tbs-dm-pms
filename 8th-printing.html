@@ -142,6 +142,32 @@
 <script type="text/babel">
 const { useState, useCallback, useEffect } = React;
 
+/* ─── Inline-SVG helper (html2canvas compatible, replaces CSS mask) ─── */
+const _svgCache = {};
+async function _loadSvgMarkup(src, fill) {
+  const key = `${src}::${fill}`;
+  if (_svgCache[key]) return _svgCache[key];
+  try {
+    const text = await fetch(src).then(r => r.text());
+    let svg = text.trim();
+    svg = svg.replace(/<svg([^>]*)>/, (_, a) => {
+      const attrs = a.replace(/\bfill="[^"]*"/g, '').replace(/\bstroke="[^"]*"/g, '');
+      return `<svg${attrs} width="100%" height="100%" fill="${fill}" stroke="none">`;
+    });
+    _svgCache[key] = svg;
+    return svg;
+  } catch { return null; }
+}
+function useSvgInline(src, color) {
+  const key = `${src}::${color}`;
+  const [markup, setMarkup] = useState(_svgCache[key] || null);
+  useEffect(() => {
+    if (!src || _svgCache[key]) return;
+    _loadSvgMarkup(src, color).then(m => { if (m) setMarkup(m); });
+  }, [src, color]);
+  return markup;
+}
+
 /* ─── mm → px helper (1 mm = 3.7795 px at 96 dpi) ─── */
 const mm = (n) => Math.round(n * 3.7795);
 
@@ -353,17 +379,19 @@ function TitleBlock({ en = 'Mark Journal', zh = '集印探索', size = 1, align 
   );
 }
 
-/* ─── Icon mask (recolor SVG) ─── */
+/* ─── Icon mask (recolor SVG) — uses inline SVG for html2canvas compat ─── */
 function PMaskIcon({ src, size = 40, color = PRINT.cream, opacity = 1, style: s }) {
+  const markup = useSvgInline(src, color);
+  const base = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: size, height: size, opacity, flexShrink: 0, ...s };
+  if (markup) return <span style={base} dangerouslySetInnerHTML={{ __html: markup }} />;
   return (
     <span style={{
-      display: 'inline-block', width: size, height: size,
-      backgroundColor: color, opacity,
+      ...base,
+      backgroundColor: color,
       WebkitMaskImage: `url('${src}')`, WebkitMaskSize: 'contain',
       WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center',
       maskImage: `url('${src}')`, maskSize: 'contain',
       maskRepeat: 'no-repeat', maskPosition: 'center',
-      ...s,
     }} />
   );
 }
@@ -401,8 +429,9 @@ function PCoBrand({ height = 11, gap = 8 }) {
   );
 }
 
-/* ─── Nexus Life wordmark (SVG mask) ─── */
+/* ─── Nexus Life wordmark — uses inline SVG for html2canvas compat ─── */
 function NexusWordmark({ width = 140, color = PRINT.cream, sub = true, align = 'center' }) {
+  const markup = useSvgInline('assets/nexus-life-logo.svg', color);
   const aspect = 862.33 / 150.7;
   const h = width / aspect;
   return (
@@ -411,15 +440,17 @@ function NexusWordmark({ width = 140, color = PRINT.cream, sub = true, align = '
       alignItems: align === 'left' ? 'flex-start' : (align === 'right' ? 'flex-end' : 'center'),
       gap: 4,
     }}>
-      <span style={{
-        display: 'block', width, height: h,
-        backgroundColor: color,
-        WebkitMaskImage: `url('assets/nexus-life-logo.svg')`,
-        WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat',
-        WebkitMaskPosition: 'center',
-        maskImage: `url('assets/nexus-life-logo.svg')`,
-        maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center',
-      }} />
+      {markup
+        ? <span style={{ display: 'block', width, height: h }} dangerouslySetInnerHTML={{ __html: markup }} />
+        : <span style={{
+            display: 'block', width, height: h,
+            backgroundColor: color,
+            WebkitMaskImage: `url('assets/nexus-life-logo.svg')`,
+            WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center',
+            maskImage: `url('assets/nexus-life-logo.svg')`,
+            maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center',
+          }} />
+      }
       {sub && (
         <div style={{
           fontFamily: "'Noto Sans TC',sans-serif",
@@ -1354,6 +1385,8 @@ function PrintApp() {
       setDlState({ running: true, current: i + 1, total });
 
       try {
+        // Brief pause so async SVG state (dangerouslySetInnerHTML) settles in DOM
+        await new Promise(r => setTimeout(r, 80));
         const canvas = await html2canvas(frameEl, {
           scale: 2,
           useCORS: true,
