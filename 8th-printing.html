@@ -684,6 +684,12 @@ function StampStandee({ data, isEgg = false }) {
         </p>
       </div>
 
+      {/* Wagyu strip image */}
+      <div style={{ position: 'absolute', top: '176mm', left: '16mm', right: '16mm', height: '16mm', overflow: 'hidden', border: '0.4pt solid rgba(232,201,125,0.2)' }}>
+        <img src="assets/image_steak_02.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,15,28,0.25) 0%, transparent 40%, rgba(8,15,28,0.35) 100%)' }} />
+      </div>
+
       {/* Prize reward block */}
       <div style={{ position: 'absolute', top: '196mm', left: '16mm', right: '16mm', background: 'linear-gradient(160deg, #0e1a33 0%, #050a18 100%)', border: `0.6pt solid ${PRINT.goldDim}`, padding: '5mm 7mm', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', right: 8, top: 2, fontFamily: "'Noto Serif TC',serif", fontSize: '52pt', color: 'rgba(232,201,125,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
@@ -745,6 +751,12 @@ function CounterCard() {
       {/* Nexus Life mark */}
       <div style={{ position: 'absolute', top: '34mm', left: '14mm' }}>
         <PNexusMark size={2.0} align="left" />
+      </div>
+
+      {/* Wagyu image strip */}
+      <div style={{ position: 'absolute', top: '44mm', left: '14mm', right: '14mm', height: '21mm', overflow: 'hidden', border: '0.5pt solid rgba(232,201,125,0.22)', boxShadow: '0 3mm 10mm -3mm rgba(0,0,0,0.5)' }}>
+        <img src="assets/image_steak_04.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 28%', display: 'block' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,15,28,0.3) 0%, transparent 35%, rgba(8,15,28,0.4) 100%)' }} />
       </div>
 
       {/* Infinity badge + tagline */}
@@ -971,10 +983,9 @@ function PrizeBoardDetail() {
       </div>
 
       {/* Hero photo placeholder (warm gradient to simulate photo) */}
-      <div style={{ position: 'absolute', top: '42mm', left: '14mm', right: '14mm', height: '108mm', overflow: 'hidden', border: '0.6pt solid rgba(232,201,125,0.35)', boxShadow: '0 16mm 28mm -10mm rgba(0,0,0,0.6)', background: 'linear-gradient(160deg, #1a0e08 0%, #2d1a0f 30%, #1a0e08 60%, #0d0905 100%)' }}>
-        {/* Simulated steak silhouette via a warm tone gradient */}
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 55%, rgba(120,50,20,0.55) 0%, rgba(60,20,5,0.3) 45%, transparent 70%)' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(11,20,36,0.3) 0%, transparent 30%, transparent 60%, rgba(11,20,36,0.9) 100%)' }} />
+      <div style={{ position: 'absolute', top: '42mm', left: '14mm', right: '14mm', height: '108mm', overflow: 'hidden', border: '0.6pt solid rgba(232,201,125,0.35)', boxShadow: '0 16mm 28mm -10mm rgba(0,0,0,0.6)' }}>
+        <img src="assets/image_steak_03.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 35%', display: 'block' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(11,20,36,0.25) 0%, transparent 25%, transparent 55%, rgba(11,20,36,0.85) 100%)' }} />
         <PTick pos={{ top: 6, left: 6 }} />
         <PTick pos={{ top: 6, right: 6 }} flipX />
         <PTick pos={{ bottom: 6, left: 6 }} flipY />
@@ -1182,6 +1193,12 @@ function MainPoster() {
         </p>
       </div>
 
+      {/* Wagyu hero image */}
+      <div style={{ position: 'absolute', top: '100mm', left: '12mm', right: '12mm', height: '26mm', overflow: 'hidden', border: '0.5pt solid rgba(232,201,125,0.25)', boxShadow: '0 4mm 12mm -3mm rgba(0,0,0,0.55)' }}>
+        <img src="assets/IMG_9445.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 45%', display: 'block' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(8,15,28,0.45) 0%, transparent 35%, transparent 65%, rgba(8,15,28,0.45) 100%)' }} />
+      </div>
+
       {/* 3 modules block */}
       <div style={{ position: 'absolute', top: '130mm', left: '12mm', right: '12mm', borderTop: '0.5pt solid rgba(232,201,125,0.28)', borderBottom: '0.5pt solid rgba(232,201,125,0.28)', padding: '6mm 0', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
         {[
@@ -1278,6 +1295,12 @@ function DigitalPoster() {
       {/* Nexus Life mark */}
       <div style={{ position: 'absolute', top: 270, left: 0, right: 0, textAlign: 'center' }}>
         <PNexusMark size={6.5} />
+      </div>
+
+      {/* Wagyu hero image */}
+      <div style={{ position: 'absolute', top: 430, left: 90, right: 90, height: 220, overflow: 'hidden', border: '1px solid rgba(232,201,125,0.3)', boxShadow: '0 20px 60px -10px rgba(0,0,0,0.65)' }}>
+        <img src="assets/image_steak_01.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,15,28,0.35) 0%, transparent 30%, transparent 60%, rgba(8,15,28,0.6) 100%)' }} />
       </div>
 
       {/* Tagline */}
