@@ -11,74 +11,122 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; font-family: 'Noto Sans TC', sans-serif; }
     body {
-      background: #e8e4de;
+      background: #dedad3;
       background-image:
-        linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px);
-      background-size: 32px 32px;
+        linear-gradient(rgba(0,0,0,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.055) 1px, transparent 1px);
+      background-size: 40px 40px;
       overflow-x: auto;
     }
     #root { min-height: 100vh; }
 
-    /* Toolbar */
+    /* ─── Toolbar ─── */
     .dc-toolbar {
       position: sticky; top: 0; z-index: 100;
-      background: #1a1410; border-bottom: 1px solid rgba(196,162,74,0.25);
-      padding: 0 20px; height: 48px;
+      background: rgba(14,10,6,0.97);
+      border-bottom: 1px solid rgba(196,162,74,0.18);
+      padding: 0 24px; height: 52px;
       display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+      box-shadow: 0 1px 0 rgba(196,162,74,0.08), 0 4px 24px rgba(0,0,0,0.55);
+      backdrop-filter: blur(8px);
     }
+    .dc-toolbar-brand { display: flex; flex-direction: column; gap: 2px; }
     .dc-toolbar-title { color: #ede1c8; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; }
-    .dc-toolbar-meta { color: rgba(196,162,74,0.7); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; }
-    .dc-toolbar-right { display: flex; align-items: center; gap: 16px; }
+    .dc-toolbar-meta { color: rgba(196,162,74,0.55); font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+    .dc-toolbar-right { display: flex; align-items: center; gap: 10px; }
     .dc-toolbar-badge {
-      background: rgba(196,162,74,0.12); border: 1px solid rgba(196,162,74,0.3);
-      color: #c4a24a; font-size: 10px; font-weight: 700; letter-spacing: 0.2em;
-      padding: 3px 10px; border-radius: 999px; text-transform: uppercase;
+      background: rgba(196,162,74,0.09); border: 1px solid rgba(196,162,74,0.22);
+      color: rgba(196,162,74,0.75); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.18em; padding: 3px 10px; border-radius: 999px;
+      text-transform: uppercase; white-space: nowrap;
     }
+    .dc-toolbar-divider { width: 1px; height: 20px; background: rgba(196,162,74,0.12); margin: 0 2px; }
+    .dc-toolbar-hint { color: rgba(196,162,74,0.35); font-size: 10px; letter-spacing: 0.08em; white-space: nowrap; }
 
-    /* Canvas */
-    .dc-canvas { padding: 40px 40px 80px; min-width: max-content; }
+    /* ─── Canvas ─── */
+    .dc-canvas { padding: 52px 52px 100px; min-width: max-content; }
 
-    /* Section */
-    .dc-section { margin-bottom: 64px; }
-    .dc-section-header { margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid rgba(58,42,29,0.18); }
+    /* ─── Section ─── */
+    .dc-section { margin-bottom: 76px; }
+    .dc-section-header {
+      margin-bottom: 28px;
+      display: flex; align-items: stretch; gap: 0;
+    }
+    .dc-section-accent {
+      width: 2px; flex-shrink: 0; border-radius: 2px;
+      background: linear-gradient(to bottom, rgba(196,162,74,0.7), rgba(196,162,74,0.15));
+      margin-right: 18px;
+    }
+    .dc-section-info {
+      flex: 1;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(58,42,29,0.12);
+    }
+    .dc-section-title-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-bottom: 6px;
+    }
     .dc-section-title {
       font-family: 'Noto Serif TC', serif;
-      font-size: 15px; font-weight: 500; color: #1a1410; letter-spacing: 0.04em;
+      font-size: 15px; font-weight: 500; color: #1c1510; letter-spacing: 0.03em;
     }
-    .dc-section-subtitle { margin-top: 4px; font-size: 11px; color: rgba(58,42,29,0.55); letter-spacing: 0.04em; }
-    .dc-section-count { font-size: 10px; color: rgba(196,162,74,0.8); font-weight: 700; letter-spacing: 0.2em; margin-top: 2px; }
+    .dc-section-badges { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .dc-section-type-badge {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
+      padding: 2px 9px; border-radius: 999px; text-transform: uppercase;
+    }
+    .dc-section-type-badge.print {
+      background: rgba(196,162,74,0.1); border: 1px solid rgba(196,162,74,0.28);
+      color: rgba(196,162,74,0.85);
+    }
+    .dc-section-type-badge.digital {
+      background: rgba(100,180,220,0.1); border: 1px solid rgba(100,180,220,0.3);
+      color: rgba(100,180,220,0.85);
+    }
+    .dc-section-count {
+      font-size: 9px; color: rgba(58,42,29,0.38); font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+    }
+    .dc-section-subtitle { font-size: 11px; color: rgba(58,42,29,0.48); letter-spacing: 0.04em; line-height: 1.65; }
 
-    /* Artboard row */
-    .dc-row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+    /* ─── Artboard row ─── */
+    .dc-row { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
 
-    /* Artboard */
-    .dc-artboard { display: flex; flex-direction: column; gap: 8px; }
+    /* ─── Artboard ─── */
+    .dc-artboard { display: flex; flex-direction: column; gap: 0; }
+    .dc-artboard-header { margin-bottom: 9px; }
     .dc-artboard-label {
       font-size: 10px; font-weight: 600; color: rgba(58,42,29,0.55);
-      letter-spacing: 0.1em; text-transform: uppercase; padding: 0 2px;
+      letter-spacing: 0.1em; text-transform: uppercase;
     }
-    .dc-artboard-dims { font-size: 9px; color: rgba(58,42,29,0.35); letter-spacing: 0.06em; margin-top: 1px; }
+    .dc-artboard-dims { font-size: 9px; color: rgba(58,42,29,0.32); letter-spacing: 0.06em; margin-top: 2px; }
     .dc-artboard-frame {
       position: relative;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.2);
-      background: transparent;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.1),
+        0 2px 8px rgba(0,0,0,0.18),
+        0 8px 28px rgba(0,0,0,0.22),
+        0 20px 56px rgba(0,0,0,0.14);
+      background: #1a1108;
       display: flex;
       gap: 16px;
     }
-    .dc-artboard-frame:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.25); }
     .dc-artboard-footer {
-      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 10px;
+      display: flex; align-items: center; justify-content: flex-end;
     }
 
-    /* Focus overlay */
+    /* ─── Print content (capture target) ─── */
+    .dc-print-content { flex-shrink: 0; display: block; }
+
+    /* ─── Focus overlay (no animation) ─── */
     .dc-focus-overlay {
       position: fixed; inset: 0; z-index: 500;
-      background: rgba(10, 8, 5, 0.92);
+      background: rgba(8,5,3,0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       display: flex; align-items: center; justify-content: center;
-      padding: 32px;
-      overflow: auto;
+      padding: 32px; overflow: auto;
     }
     .dc-focus-inner {
       position: relative;
@@ -86,117 +134,1793 @@
     }
     .dc-focus-close {
       position: fixed; top: 16px; right: 20px;
-      background: rgba(196,162,74,0.15); border: 1px solid rgba(196,162,74,0.3);
-      color: #c4a24a; font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
-      padding: 6px 14px; border-radius: 999px; cursor: pointer;
+      background: rgba(196,162,74,0.1); border: 1px solid rgba(196,162,74,0.28);
+      color: rgba(196,162,74,0.85); font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+      padding: 6px 16px; border-radius: 999px; cursor: pointer;
       font-family: 'Noto Sans TC', sans-serif; text-transform: uppercase;
     }
-    .dc-focus-close:hover { background: rgba(196,162,74,0.25); }
+    .dc-focus-close:hover {
+      background: rgba(196,162,74,0.2); border-color: rgba(196,162,74,0.5);
+      color: #c4a24a;
+    }
     .dc-focus-label {
-      font-size: 11px; color: rgba(196,162,74,0.7); letter-spacing: 0.1em; text-transform: uppercase;
+      font-size: 11px; color: rgba(196,162,74,0.55); letter-spacing: 0.1em; text-transform: uppercase;
     }
     .dc-artboard-frame.dc-zoom { cursor: zoom-in; }
-    .dc-artboard-frame.dc-zoom:hover::after {
-      content: '⤢ 放大';
-      position: absolute; top: 8px; right: 8px;
-      background: rgba(10,8,5,0.7); color: #c4a24a;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; font-family: 'Noto Sans TC', sans-serif;
-      padding: 4px 8px; border-radius: 4px; pointer-events: none;
-      z-index: 10;
-    }
 
-    /* Download button */
+    /* ─── Toolbar download-all button ─── */
     .dc-dl-btn {
       display: flex; align-items: center; gap: 6px;
-      background: rgba(196,162,74,0.12); border: 1px solid rgba(196,162,74,0.4);
+      background: rgba(196,162,74,0.11); border: 1px solid rgba(196,162,74,0.32);
       color: #c4a24a; font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
-      padding: 5px 14px; border-radius: 999px; cursor: pointer;
+      padding: 6px 16px; border-radius: 999px; cursor: pointer;
       font-family: 'Noto Sans TC', sans-serif; text-transform: uppercase;
-      transition: background 0.15s, border-color 0.15s;
       white-space: nowrap;
     }
-    .dc-dl-btn:hover:not(:disabled) { background: rgba(196,162,74,0.22); border-color: rgba(196,162,74,0.65); }
-    .dc-dl-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .dc-dl-btn:hover:not(:disabled) {
+      background: rgba(196,162,74,0.2); border-color: rgba(196,162,74,0.58);
+    }
+    .dc-dl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ─── Per-artboard download button ─── */
+    .dc-dl-item-btn {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(196,162,74,0.08); border: 1px solid rgba(196,162,74,0.25);
+      color: rgba(196,162,74,0.85); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.14em; padding: 5px 16px; border-radius: 999px;
+      cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+      text-transform: uppercase; white-space: nowrap;
+    }
+    .dc-dl-item-btn:hover:not(:disabled) {
+      background: rgba(196,162,74,0.18); border-color: rgba(196,162,74,0.5);
+      color: #c4a24a;
+    }
+    .dc-dl-item-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ─── Download progress toast (no slide animation) ─── */
     .dc-dl-progress {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-      background: #1a1410; border: 1px solid rgba(196,162,74,0.35);
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      background: #0e0a06; border: 1px solid rgba(196,162,74,0.28);
       color: #c4a24a; font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
-      padding: 10px 22px; border-radius: 999px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      padding: 12px 24px; border-radius: 999px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.8);
       z-index: 9999; font-family: 'Noto Sans TC', sans-serif;
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; gap: 12px;
     }
     .dc-dl-spinner {
-      width: 14px; height: 14px; border: 2px solid rgba(196,162,74,0.25);
+      width: 14px; height: 14px; border: 2px solid rgba(196,162,74,0.2);
       border-top-color: #c4a24a; border-radius: 50%;
       animation: dlspin 0.7s linear infinite;
     }
     @keyframes dlspin { to { transform: rotate(360deg); } }
-
-    /* Printing frames style */
-    .print-iframe {
-      border: none;
-      background: transparent;
-      display: block;
-    }
   </style>
 
+  <!-- Real QR code library -->
+  <script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
+
+  <!-- ════════════════════════════════════════════════════════════
+       Inlined print-common.js (window.PrintCommon component library)
+       Modifications vs. /printings/common/print-common.js:
+         · PPage no longer carries className 'dc-artboard-frame'
+         · asset paths '../assets/' → 'assets/'
+         · NexusWordmark uses <img> (html2canvas can't render CSS mask)
+  ════════════════════════════════════════════════════════════ -->
+  <script>
+  (function() {
+    const h = React.createElement;
+
+    /* ─── mm → px helper (1 mm = 3.7795 px at 96 dpi) ─── */
+    const mm = (n) => Math.round(n * 3.7795);
+
+    /* ─── Print design tokens ─── */
+    const PRINT = {
+      bg:        '#1a1108',
+      bgDeep:    '#0e0903',
+      bgInk:     '#060401',
+      bgWarm:    '#231508',
+      paper:     '#ede1c8',
+      paperLt:   '#f7eed8',
+      paperDim:  '#d9c9a7',
+      gold:      '#d4a843',
+      goldLt:    '#e8c470',
+      goldDeep:  '#b08830',
+      goldDim:   'rgba(212,168,67,0.55)',
+      goldMute:  'rgba(212,168,67,0.32)',
+      goldFaint: 'rgba(212,168,67,0.18)',
+      goldHair:  'rgba(212,168,67,0.1)',
+      red:       '#d4543e',
+      redDeep:   '#b03a28',
+      redLt:     '#e06650',
+      cream:     '#f4e8cc',
+      creamDim:  'rgba(244,232,204,0.78)',
+      creamMute: 'rgba(244,232,204,0.52)',
+      creamFaint:'rgba(244,232,204,0.32)',
+      brown:     '#f4e8cc',
+      brownDim:  'rgba(244,232,204,0.7)',
+    };
+
+    /* ─── Typography atoms ─── */
+    function PMono({ children, color, size, track, weight, style }) {
+      return h('span', {
+        style: {
+          fontFamily: "'Noto Sans TC',sans-serif",
+          fontSize: `${size !== undefined ? size : 7}pt`,
+          letterSpacing: track || '0.32em',
+          textTransform: 'uppercase',
+          color: color || PRINT.brown,
+          fontWeight: weight || 600,
+          fontVariantNumeric: 'tabular-nums',
+          fontFeatureSettings: '"tnum","palt"',
+          ...style,
+        }
+      }, children);
+    }
+
+    function PSerif({ children, size, weight, italic, color, track, style }) {
+      return h('span', {
+        style: {
+          fontFamily: "'Noto Serif TC',serif",
+          fontSize: `${size !== undefined ? size : 16}pt`,
+          fontWeight: weight || 400,
+          fontStyle: italic ? 'italic' : 'normal',
+          letterSpacing: track || '0.04em',
+          color: color || PRINT.brown,
+          fontFeatureSettings: '"palt"',
+          ...style,
+        }
+      }, children);
+    }
+
+    function PSans({ children, size, weight, color, track, style }) {
+      return h('span', {
+        style: {
+          fontFamily: "'Noto Sans TC',sans-serif",
+          fontSize: `${size !== undefined ? size : 10}pt`,
+          fontWeight: weight || 400,
+          letterSpacing: track || '0.04em',
+          color: color || PRINT.brown,
+          fontFeatureSettings: '"palt"',
+          ...style,
+        }
+      }, children);
+    }
+
+    /* ─── Gold gradient text ─── */
+    function GoldText({ children, soft, style, as }) {
+      const As = as || 'span';
+      const grad = soft
+        ? 'linear-gradient(135deg, #8e6b22 0%, #c4a24a 50%, #8e6b22 100%)'
+        : 'linear-gradient(135deg, #8e6b22 0%, #c4a24a 35%, #f0d684 50%, #c4a24a 65%, #8e6b22 100%)';
+      return h(As, {
+        style: {
+          background: grad,
+          WebkitBackgroundClip: 'text',
+          backgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          color: 'transparent',
+          ...style,
+        }
+      }, children);
+    }
+
+    /* ─── Paper grain overlay ─── */
+    function PaperGrain({ opacity }) {
+      return h('div', {
+        style: {
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          backgroundImage: `
+            url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"),
+            radial-gradient(circle at 20% 30%, rgba(212,168,67,0.04) 0.5px, transparent 1.5px),
+            radial-gradient(circle at 80% 70%, rgba(212,168,67,0.05) 0.5px, transparent 1.5px)
+          `,
+          backgroundSize: '180px 180px, 70px 70px, 90px 90px',
+          mixBlendMode: 'overlay',
+          opacity: opacity !== undefined ? opacity : 0.5,
+        }
+      });
+    }
+
+    /* ─── Corner ticks ─── */
+    function PTick({ pos, len, color, opacity, flipX, flipY, weight }) {
+      const t = `${flipX ? 'scaleX(-1)' : ''} ${flipY ? 'scaleY(-1)' : ''}`.trim();
+      const l = len !== undefined ? len : 6;
+      const w = weight !== undefined ? weight : 0.5;
+      return h('div', {
+        style: {
+          position: 'absolute',
+          ...pos,
+          width: l,
+          height: l,
+          transform: t,
+          opacity: opacity !== undefined ? opacity : 0.55,
+        }
+      }, [
+        h('div', { key: 'h-tick', style: { position: 'absolute', top: 0, left: 0, width: l, height: w, background: color || PRINT.gold } }),
+        h('div', { key: 'v-tick', style: { position: 'absolute', top: 0, left: 0, width: w, height: l, background: color || PRINT.gold } }),
+      ]);
+    }
+
+    /* ─── Crop marks ─── */
+    function PCropMarks({ color, len, inset }) {
+      const c = color || 'rgba(196,162,74,0.3)';
+      const l = len !== undefined ? len : 8;
+      const i = inset !== undefined ? inset : 3;
+      const s = (pos) => ({ position: 'absolute', ...pos, background: c, pointerEvents: 'none' });
+      return h(React.Fragment, null, [
+        h('div', { key: 'tl-h', style: s({ top: i, left: i, width: l, height: 0.5 }) }),
+        h('div', { key: 'tl-v', style: s({ top: i, left: i, width: 0.5, height: l }) }),
+        h('div', { key: 'tr-h', style: s({ top: i, right: i, width: l, height: 0.5 }) }),
+        h('div', { key: 'tr-v', style: s({ top: i, right: i, width: 0.5, height: l }) }),
+        h('div', { key: 'bl-h', style: s({ bottom: i, left: i, width: l, height: 0.5 }) }),
+        h('div', { key: 'bl-v', style: s({ bottom: i, left: i, width: 0.5, height: l }) }),
+        h('div', { key: 'br-h', style: s({ bottom: i, right: i, width: l, height: 0.5 }) }),
+        h('div', { key: 'br-v', style: s({ bottom: i, right: i, width: 0.5, height: l }) }),
+      ]);
+    }
+
+    /* ─── Page frame ─── */
+    function PPage({ wMm, hMm, bg, children, marks, grain, style }) {
+      const showMarks = marks !== undefined ? marks : true;
+      const showGrain = grain !== undefined ? grain : true;
+      return h('div', {
+        style: {
+          width: `${wMm}mm`,
+          height: `${hMm}mm`,
+          background: bg || `linear-gradient(160deg, ${PRINT.bgWarm} 0%, ${PRINT.bg} 50%, ${PRINT.bgDeep} 100%)`,
+          color: PRINT.cream,
+          position: 'relative',
+          overflow: 'hidden',
+          fontFamily: "'Noto Sans TC',sans-serif",
+          ...style,
+        }
+      }, [
+        showGrain && h(PaperGrain, { key: 'grain', opacity: 0.45 }),
+        children,
+        showMarks && h(PCropMarks, { key: 'marks' }),
+      ]);
+    }
+
+    /* ─── Thin rule ─── */
+    function PRule({ width, color, height, style }) {
+      return h('div', {
+        style: {
+          width: width || '24mm',
+          height: height !== undefined ? height : 0.5,
+          background: color || PRINT.goldFaint,
+          ...style,
+        }
+      });
+    }
+
+    /* ─── Watermark ─── */
+    function PWatermark({ ch, size, color, pos, italic }) {
+      return h('div', {
+        style: {
+          position: 'absolute',
+          ...(pos || { left: '50%', top: '50%' }),
+          transform: `translate(-50%, -50%) ${italic ? 'skewX(-6deg)' : ''}`,
+          fontFamily: "'Noto Serif TC',serif",
+          fontWeight: 500,
+          fontSize: size || 480,
+          lineHeight: 0.78,
+          color: color || 'rgba(196,162,74,0.05)',
+          letterSpacing: '-0.06em',
+          pointerEvents: 'none',
+          userSelect: 'none',
+          whiteSpace: 'nowrap',
+          fontStyle: italic ? 'italic' : 'normal',
+        }
+      }, ch || '8');
+    }
+
+    /* ─── Pill label ─── */
+    function PillLabel({ children, sparkle, size, gap, padding }) {
+      const showSparkle = sparkle !== undefined ? sparkle : true;
+      const s = size || 7;
+      return h('div', {
+        style: {
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: gap || 4,
+          padding: padding || '3pt 9pt',
+          border: `0.6pt solid ${PRINT.goldDim}`,
+          background: 'rgba(196,162,74,0.04)',
+          borderRadius: 999,
+        }
+      }, [
+        showSparkle && h('svg', {
+          key: 'sparkle-svg',
+          width: s + 1,
+          height: s + 1,
+          viewBox: '0 0 16 16',
+          style: { flex: '0 0 auto' }
+        }, [
+          h('path', { key: 'sparkle-path', d: 'M8 0 L9 6 L15 8 L9 10 L8 16 L7 10 L1 8 L7 6 Z', fill: PRINT.gold }),
+          h('circle', { key: 'c1', cx: '3', cy: '3', r: '0.8', fill: PRINT.gold, opacity: '0.6' }),
+          h('circle', { key: 'c2', cx: '13', cy: '13', r: '0.8', fill: PRINT.gold, opacity: '0.6' }),
+        ]),
+        h(PMono, { key: 'text', size: s, color: PRINT.gold, track: '0.32em', weight: 700 }, children)
+      ]);
+    }
+
+    /* ─── Title block ─── */
+    function TitleBlock({ en, zh, size, align, italic }) {
+      const s = size || 1;
+      const fs = 36 * s;
+      const alignVal = align === 'left' ? 'flex-start' : (align === 'right' ? 'flex-end' : 'center');
+      return h('div', {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: alignVal,
+        }
+      }, [
+        h('div', {
+          key: 'en-title',
+          style: {
+            fontFamily: "'Noto Serif TC',serif",
+            fontSize: `${fs}pt`,
+            fontWeight: 400,
+            color: PRINT.brown,
+            fontStyle: italic || italic === undefined ? 'italic' : 'normal',
+            letterSpacing: '0.01em',
+            lineHeight: 1.05,
+          }
+        }, en || 'Mark Journal'),
+        zh && h('div', {
+          key: 'zh-title',
+          style: {
+            marginTop: 4 * s,
+            fontFamily: "'Noto Serif TC',serif",
+            fontWeight: 300,
+            fontSize: `${fs * 0.32}pt`,
+            color: PRINT.brown,
+            letterSpacing: '0.42em',
+            paddingLeft: '0.4em',
+          }
+        }, zh)
+      ]);
+    }
+
+    /* ─── Icon mask (recolor SVG) ─── */
+    function PMaskIcon({ src, size, color, opacity, style }) {
+      const s = size || 40;
+      return h('span', {
+        style: {
+          display: 'inline-block',
+          width: s,
+          height: s,
+          backgroundColor: color || PRINT.brown,
+          opacity: opacity !== undefined ? opacity : 1,
+          WebkitMaskImage: `url('${src}')`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          maskImage: `url('${src}')`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          ...style,
+        }
+      });
+    }
+
+    /* ─── Infinity badge (double ring) ─── */
+    function InfinityBadge({ size, fg, accent, stroke, inner }) {
+      const W = 200, H = 100;
+      const s = size || 80;
+      const r = 42, cy = 50, cx1 = 55, cx2 = 145;
+      const str = stroke || 1.4;
+      const fColor = fg || PRINT.gold;
+      const aColor = accent || PRINT.gold;
+      const hasInner = inner !== undefined ? inner : true;
+      return h('svg', {
+        width: s,
+        height: s * (H / W),
+        viewBox: `0 0 ${W} ${H}`,
+        overflow: 'visible'
+      }, [
+        h('circle', { key: 'bg1', cx: cx1, cy: cy, r: r + 5, fill: 'none', stroke: fColor, strokeWidth: str * 0.4, opacity: 0.32 }),
+        h('circle', { key: 'bg2', cx: cx2, cy: cy, r: r + 5, fill: 'none', stroke: fColor, strokeWidth: str * 0.4, opacity: 0.32 }),
+        h('circle', { key: 'ring1', cx: cx1, cy: cy, r: r, fill: 'none', stroke: fColor, strokeWidth: str, strokeLinecap: 'round' }),
+        h('circle', { key: 'ring2', cx: cx2, cy: cy, r: r, fill: 'none', stroke: fColor, strokeWidth: str, strokeLinecap: 'round' }),
+        h('g', { key: 'center', transform: 'translate(100 50)' }, [
+          h('circle', { key: 'dot', r: 2.6, fill: aColor }),
+          hasInner && h('circle', { key: 'inner-ring', r: 7, fill: 'none', stroke: aColor, strokeWidth: 0.6, opacity: 0.5 })
+        ])
+      ]);
+    }
+
+    /* ─── Co-brand lockup ─── */
+    function PCoBrand({ height, gap }) {
+      const hVal = height || 11;
+      const filt = 'brightness(0) invert(1) opacity(0.88)';
+      return h('div', {
+        style: {
+          display: 'flex',
+          alignItems: 'center',
+          gap: gap || 8
+        }
+      }, [
+        h('img', { key: 'tsutaya', src: 'assets/tsutaya-logo.svg', alt: 'TSUTAYA', style: { height: hVal * 1.1, filter: filt, display: 'block' } }),
+        h('span', { key: 'cross', style: { fontFamily: "'Noto Sans TC',sans-serif", fontSize: `${hVal * 0.85}pt`, color: 'rgba(244,232,204,0.45)' } }, '×'),
+        h('img', { key: 'wired', src: 'assets/wired-tokyo-logo.svg', alt: 'WIRED TOKYO', style: { height: hVal * 1.25, filter: filt, display: 'block' } })
+      ]);
+    }
+
+    /* ─── Nexus Life wordmark (img + filter for html2canvas) ─── */
+    function NexusWordmark({ width, color, sub, align }) {
+      const wVal = width || 140;
+      const aspect = 862.33 / 150.7;
+      const hVal = wVal / aspect;
+      const alignVal = align === 'left' ? 'flex-start' : (align === 'right' ? 'flex-end' : 'center');
+      const showSub = sub !== undefined ? sub : true;
+      return h('div', {
+        style: {
+          display: 'inline-flex',
+          flexDirection: 'column',
+          alignItems: alignVal,
+          gap: 4,
+        }
+      }, [
+        h('img', {
+          key: 'wordmark-logo',
+          src: 'assets/nexus-life-logo.svg',
+          alt: 'NEXUS LIFE',
+          style: {
+            display: 'block',
+            width: wVal,
+            height: hVal,
+            objectFit: 'contain',
+            filter: 'brightness(0) invert(1) opacity(0.88)',
+          }
+        }),
+        showSub && h('div', {
+          key: 'sub-text',
+          style: {
+            fontFamily: "'Noto Sans TC',sans-serif",
+            fontSize: `${Math.max(5, hVal * 0.22)}pt`,
+            color: PRINT.brown,
+            fontWeight: 600,
+            letterSpacing: '0.42em',
+            paddingLeft: '0.42em',
+            lineHeight: 1.2,
+          }
+        }, '8TH ANNIVERSARY')
+      ]);
+    }
+
+    /* ─── Nexus Life inline mark ─── */
+    function PNexusMark({ size, align }) {
+      const s = size || 1;
+      const fs = 28 * s;
+      const alignVal = align === 'left' ? 'left' : 'center';
+      const alignFlex = align === 'left' ? 'flex-start' : 'center';
+      return h('div', {
+        style: {
+          display: 'inline-flex',
+          flexDirection: 'column',
+          alignItems: alignFlex,
+        }
+      }, [
+        h('h1', {
+          key: 'nexus-h1',
+          style: {
+            fontFamily: "'Noto Serif TC',serif",
+            fontSize: `${fs}pt`,
+            lineHeight: 0.88,
+            letterSpacing: '-0.02em',
+            fontWeight: 500,
+            margin: 0,
+            textAlign: alignVal,
+            color: PRINT.brown,
+          }
+        }, [
+          h(GoldText, { key: 'nexus-text' }, 'Nexus'),
+          h('span', { key: 'life-text', style: { fontStyle: 'italic', color: PRINT.brown, fontWeight: 400 } }, ' Life.')
+        ])
+      ]);
+    }
+
+    /* ─── Simulated QR code ─── */
+    function PBigQR({ size, label, seed, withBrackets }) {
+      const N = 25;
+      const cells = [];
+      let sVal = seed || 7;
+      const rand = () => { sVal = (sVal * 9301 + 49297) % 233280; return sVal / 233280; };
+      for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) cells.push(rand() > 0.5);
+      const setBlock = (cx, cy) => {
+        for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) {
+          const edge = x===0||x===6||y===0||y===6;
+          const inner = x>=2&&x<=4&&y>=2&&y<=4;
+          cells[(cy+y)*N+(cx+x)] = edge||inner;
+        }
+        for (let y = -1; y < 8; y++) for (let x = -1; x < 8; x++) {
+          if (x===-1||x===7||y===-1||y===7) {
+            if (cx+x>=0&&cx+x<N&&cy+y>=0&&cy+y<N) cells[(cy+y)*N+(cx+x)] = false;
+          }
+        }
+      };
+      setBlock(0,0); setBlock(N-7,0); setBlock(0,N-7);
+      for (let y = 0; y < 5; y++) for (let x = 0; x < 5; x++) {
+        const edge = x===0||x===4||y===0||y===4;
+        const inner = x===2&&y===2;
+        cells[(N-7+y)*N+(N-7+x)] = edge||inner;
+      }
+      const hasBrackets = withBrackets !== undefined ? withBrackets : true;
+      return h('div', {
+        style: {
+          width: size || '50mm',
+          height: size || '50mm',
+          background: `radial-gradient(circle at 30% 25%, ${PRINT.paperLt} 0%, ${PRINT.paper} 65%, ${PRINT.paperDim} 100%)`,
+          padding: '4mm',
+          position: 'relative',
+          border: `0.6pt solid ${PRINT.goldDim}`,
+          boxShadow: '0 1pt 2pt rgba(255,255,255,0.4) inset, 0 -1pt 2pt rgba(58,42,29,0.15) inset, 0 6mm 18mm -6mm rgba(0,0,0,0.55)',
+        }
+      }, [
+        h('div', {
+          key: 'noise',
+          style: {
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            opacity: 0.35,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E")`,
+            mixBlendMode: 'multiply',
+          }
+        }),
+        hasBrackets && h(React.Fragment, { key: 'ticks' }, [
+          h(PTick, { key: 'tl', pos: { top: '-1.5mm', left: '-1.5mm' }, len: 9, color: PRINT.gold, opacity: 0.85, weight: 0.8 }),
+          h(PTick, { key: 'tr', pos: { top: '-1.5mm', right: '-1.5mm' }, len: 9, color: PRINT.gold, opacity: 0.85, flipX: true, weight: 0.8 }),
+          h(PTick, { key: 'bl', pos: { bottom: '-1.5mm', left: '-1.5mm' }, len: 9, color: PRINT.gold, opacity: 0.85, flipY: true, weight: 0.8 }),
+          h(PTick, { key: 'br', pos: { bottom: '-1.5mm', right: '-1.5mm' }, len: 9, color: PRINT.gold, opacity: 0.85, flipX: true, flipY: true, weight: 0.8 }),
+        ]),
+        h('svg', {
+          key: 'qr-svg',
+          width: "100%",
+          height: "100%",
+          viewBox: `0 0 ${N} ${N}`,
+          style: { display: 'block', position: 'relative' }
+        }, cells.map((on, i) => on ? h('rect', { key: i, x: i%N, y: Math.floor(i/N), width: "1", height: "1", fill: PRINT.brown }) : null))
+      ]);
+    }
+
+    /* ─── Stamp emblem (cream circular stamp face) ─── */
+    function StampEmblem({ icon, size, iconColor, ticks }) {
+      const s = size || 60;
+      const hasTicks = ticks !== undefined ? ticks : true;
+      return h('div', {
+        style: {
+          position: 'relative',
+          width: s,
+          height: s,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }
+      }, [
+        h('div', {
+          key: 'circle-face',
+          style: {
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            background: `radial-gradient(circle at 30% 25%, ${PRINT.paperLt} 0%, ${PRINT.paper} 55%, ${PRINT.paperDim} 100%)`,
+            border: `0.6pt solid ${PRINT.goldDim}`,
+            boxShadow: `inset 0 1pt 2pt rgba(255,255,255,0.5), inset 0 -1pt 2pt rgba(58,42,29,0.18), 0 1pt 3pt rgba(0,0,0,0.35)`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            overflow: 'hidden',
+          }
+        }, [
+          h('div', {
+            key: 'noise',
+            style: {
+              position: 'absolute',
+              inset: 0,
+              pointerEvents: 'none',
+              opacity: 0.4,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E")`,
+              mixBlendMode: 'multiply',
+            }
+          }),
+          icon && h(PMaskIcon, { key: 'icon', src: icon, color: iconColor || PRINT.red, opacity: 0.92, style: { width: '58%', height: '58%' } })
+        ]),
+        hasTicks && h(React.Fragment, { key: 'ticks' }, [
+          h(PTick, { key: 'tl', pos: { top: -2, left: -2 }, len: 5, color: PRINT.gold, opacity: 0.75, weight: 0.6 }),
+          h(PTick, { key: 'tr', pos: { top: -2, right: -2 }, len: 5, color: PRINT.gold, opacity: 0.75, flipX: true, weight: 0.6 }),
+          h(PTick, { key: 'bl', pos: { bottom: -2, left: -2 }, len: 5, color: PRINT.gold, opacity: 0.75, flipY: true, weight: 0.6 }),
+          h(PTick, { key: 'br', pos: { bottom: -2, right: -2 }, len: 5, color: PRINT.gold, opacity: 0.75, flipX: true, flipY: true, weight: 0.6 }),
+        ])
+      ]);
+    }
+
+    /* ─── Station data (icons only; URLs live in the app script) ─── */
+    const STAMP_POINTS = [
+      { n: '01', area: '靈感補給站',   element: '無限', icon: 'assets/icon-01-infinity.svg', loc: '入口主題陳列區（2F）',
+        copy: '從這裡走出去，8 與 ∞ 同時開始。' },
+      { n: '02', area: '日常儀式感',   element: '陶杯', icon: 'assets/icon-02-cup.svg',      loc: '職人雜貨區（2F）',
+        copy: '手溫傳過陶杯，8 年的 ∞ 就在掌心。' },
+      { n: '03', area: '都市放空點',   element: '風',   icon: 'assets/icon-03-wind.svg',     loc: '戶外座位區（3F）',
+        copy: '露台吹來 ∞ 的風，繞了 8 個年頭才停。' },
+      { n: '04', area: '白日夢實驗室', element: '橡實', icon: 'assets/icon-04-acorn.svg',    loc: '兒童繪本書櫃（3F）',
+        copy: '一顆橡實用 8 年 ∞ 生長，長成整片森林。' },
+      { n: '05', area: '打卡神級背景', element: '書',   icon: 'assets/icon-05-book.svg',     loc: '樓梯書牆（3F）',
+        copy: '8 層書牆向 ∞ 展開，每格都是新世界。' },
+      { n: '06', area: '放鬆充電站',   element: '咖啡', icon: 'assets/icon-06-coffee.svg',   loc: '吧檯區（2F）',
+        copy: '一杯咖啡，8 年的 ∞ 日常，從未厭倦。' },
+      { n: '07', area: '絕美光影濾鏡', element: '光點', icon: 'assets/icon-07-flare.svg',    loc: '天井吊燈區（3F）',
+        copy: '光從天井 ∞ 落，你離第 8 枚只剩一步。' },
+      { n: '08', area: '情報交流道',   element: '花朵', icon: 'assets/icon-08-flower.svg',   loc: '告示牌（1F）',
+        copy: '8 年 ∞ 循環，每天都有一朵花記住你。' },
+    ];
+
+    const HIDDEN_EGGS = [
+      { id: 'A', area: '夥伴', element: '墨鏡松鼠 ∞', icon: 'assets/icon-04-acorn.svg', loc: '員工身上（隨機）',
+        copy: '牠等了你 8 分鐘，或者是 ∞ 分鐘，松鼠自己也數不清。' },
+      { id: 'B', area: '野生小夥伴', element: '墨鏡蜂鳥 ∞', icon: 'assets/icon-03-wind.svg', loc: '戶外座位桌上',
+        copy: '這個位子空著。蜂鳥只停在不趕路的人身邊。' },
+      { id: 'C', area: '野生大夥伴', element: '墨鏡麋鹿 ∞', icon: 'assets/icon-08-flower.svg', loc: '電梯告示',
+        copy: '電梯只有上下，沒有 ∞。麋鹿選擇住在這裡，等一個看得懂的人。' },
+    ];
+
+    // Export to global scope
+    window.PrintCommon = {
+      mm, PRINT, PMono, PSerif, PSans, GoldText, PaperGrain, PTick, PCropMarks, PPage, PRule, PWatermark, PillLabel, TitleBlock, PMaskIcon, InfinityBadge, PCoBrand, NexusWordmark, PNexusMark, PBigQR, StampEmblem, STAMP_POINTS, HIDDEN_EGGS
+    };
+  })();
+  </script>
 </head>
 <body>
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useCallback } = React;
-
-/* ─── mm → px helper (1 mm = 3.7795 px at 96 dpi) ─── */
-const mm = (n) => Math.round(n * 3.7795);
+const { useState, useCallback, useEffect, useRef } = React;
+const {
+  PRINT, PPage, PWatermark, PTick, PCoBrand, PillLabel, GoldText,
+  NexusWordmark, PNexusMark, PBigQR, InfinityBadge, PMono, PRule, mm
+} = window.PrintCommon;
 
 /* ═══════════════════════════════════════════════
-   Design Canvas — section + artboard scaffold
+   Stamp point data (with real scannable URLs)
 ═══════════════════════════════════════════════ */
-function DCSection({ title, subtitle, count, children }) {
+const STAMP_POINTS_DATA = [
+  { n: '01', area: '靈感補給站',   element: '無限', loc: '入口主題陳列區（2F）',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=cef53d02-f621-4a0f-8ac5-6d086fd8548a',
+    copy: '從這裡走出去，8 與 ∞ 同時開始。' },
+  { n: '02', area: '日常儀式感',   element: '陶杯', loc: '職人雜貨區（2F）',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=307fa785-0b6d-4804-b102-91c99feff219',
+    copy: '手溫傳過陶杯，8 年的 ∞ 就在掌心。' },
+  { n: '03', area: '都市放空點',   element: '風',   loc: '戶外座位區（3F）',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=28235074-fc63-42ef-b2e8-1c148651a98a',
+    copy: '露台吹來 ∞ 的風，繞了 8 個年頭才停。' },
+  { n: '04', area: '白日夢實驗室', element: '橡實', loc: '兒童繪本書櫃（3F）',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=ebf9986d-3393-4b78-a444-0c537b6f9866',
+    copy: '一顆橡實用 8 年 ∞ 生長，長成整片森林。' },
+  { n: '05', area: '打卡神級背景', element: '書',   loc: '樓梯書牆（3F）',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=e015052e-c04a-48af-9d15-662b18d6d166',
+    copy: '8 層書牆向 ∞ 展開，每格都是新世界。' },
+  { n: '06', area: '放鬆充電站',   element: '咖啡', loc: '吧檯區（2F）',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=55f33124-d27d-4414-80e7-a468a62f1977',
+    copy: '一杯咖啡，8 年的 ∞ 日常，從未厭倦。' },
+  { n: '07', area: '絕美光影濾鏡', element: '光點', loc: '天井吊燈區（3F）',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=aa22f6c4-3d79-48e3-ab10-820c513aa2ff',
+    copy: '光從天井 ∞ 落，你離第 8 枚只剩一步。' },
+  { n: '08', area: '情報交流道',   element: '花朵', loc: '告示牌（1F）',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=27b1d93f-ab44-4722-8e72-dc1b2fa2dee8',
+    copy: '8 年 ∞ 循環，每天都有一朵花記住你。' },
+];
+
+const HIDDEN_EGGS_DATA = [
+  { id: 'a', eggId: 'A', area: '夥伴',       element: '松鼠',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=0ed1fc2f-c16d-4a81-a2da-ea9032c24f66',
+    copy: '牠等了你 8 分鐘，或者是 ∞ 分鐘，松鼠自己也數不清。' },
+  { id: 'b', eggId: 'B', area: '野生小夥伴', element: '蜂鳥',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=b7b52f93-67f0-429a-babd-ac8ef3f1d253',
+    copy: '這個位子空著。蜂鳥只停在不趕路的人身邊。' },
+  { id: 'c', eggId: 'C', area: '野生大夥伴', element: '麋鹿',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=a10a94ad-a6f4-45db-8674-963513f8aa40',
+    copy: '電梯只有上下，沒有 ∞。麋鹿選擇住在這裡，等一個看得懂的人。' },
+];
+
+/* ═══════════════════════════════════════════════
+   Real QR code component (scannable)
+═══════════════════════════════════════════════ */
+function RealQR({ url, sizeMm }) {
+  const canvasRef = useRef(null);
+  const sizePx = Math.round((sizeMm || 80) * 3.7795);
+
+  useEffect(() => {
+    if (!canvasRef.current || !url) return;
+    QRCode.toCanvas(canvasRef.current, url, {
+      width: sizePx,
+      margin: 2,
+      color: {
+        dark:  '#f4e8cc',
+        light: 'transparent',
+      },
+      errorCorrectionLevel: 'M',
+    }, (err) => {
+      if (err) console.error('QR error:', err);
+    });
+  }, [url, sizePx]);
+
+  return (
+    <div style={{
+      position: 'relative',
+      width: `${sizeMm}mm`,
+      height: `${sizeMm}mm`,
+      background: `radial-gradient(circle at 30% 25%, rgba(212,168,67,0.12) 0%, rgba(0,0,0,0.4) 100%)`,
+      border: `1.2pt solid ${PRINT.goldDim}`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '4mm',
+      boxSizing: 'border-box',
+      boxShadow: `inset 0 1pt 2pt rgba(255,255,255,0.06), 0 4mm 16mm rgba(0,0,0,0.5)`,
+    }}>
+      <PTick pos={{ top: '-2mm', left: '-2mm' }} len={10} weight={1.2} color={PRINT.gold} opacity={0.9} />
+      <PTick pos={{ top: '-2mm', right: '-2mm' }} flipX len={10} weight={1.2} color={PRINT.gold} opacity={0.9} />
+      <PTick pos={{ bottom: '-2mm', left: '-2mm' }} flipY len={10} weight={1.2} color={PRINT.gold} opacity={0.9} />
+      <PTick pos={{ bottom: '-2mm', right: '-2mm' }} flipX flipY len={10} weight={1.2} color={PRINT.gold} opacity={0.9} />
+      <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   01–11 · Standee (集印點立牌)
+═══════════════════════════════════════════════ */
+function StandeeContent({ item, isEgg }) {
+  if (!item) {
+    return <div style={{ color: PRINT.cream, padding: 20, background: PRINT.bg, width: '210mm', height: '297mm' }}>找不到點位</div>;
+  }
+
+  const num = isEgg ? item.eggId : item.n;
+  const numDisplay = isEgg ? `Egg ${item.eggId}` : `No. ${num}`;
+
+  return (
+    <PPage wMm={210} hMm={297}>
+      {/* Radial ambient glow */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        background: `radial-gradient(ellipse 140% 90% at 50% 30%, rgba(212,168,67,0.16) 0%, transparent 65%)`,
+      }} />
+
+      {/* Outer frame */}
+      <div style={{ position: 'absolute', inset: '5.5mm', border: `1pt solid ${PRINT.goldDim}`, pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', inset: '8mm', border: `0.3pt solid ${PRINT.goldHair}`, pointerEvents: 'none' }} />
+
+      {/* Corner ticks */}
+      <PTick pos={{ top: '5.5mm', left: '5.5mm' }} len={16} weight={1.5} />
+      <PTick pos={{ top: '5.5mm', right: '5.5mm' }} flipX len={16} weight={1.5} />
+      <PTick pos={{ bottom: '5.5mm', left: '5.5mm' }} flipY len={16} weight={1.5} />
+      <PTick pos={{ bottom: '5.5mm', right: '5.5mm' }} flipX flipY len={16} weight={1.5} />
+
+      {/* TOP: co-brand + type badge */}
+      <div style={{
+        position: 'absolute', top: '13mm', left: '14mm', right: '14mm',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3.5mm',
+      }}>
+        <PCoBrand height={13} gap={12} />
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          padding: '2.5pt 12pt',
+          border: `0.7pt solid ${PRINT.goldDim}`,
+          background: 'rgba(212,168,67,0.1)',
+          borderRadius: 999,
+        }}>
+          <PMono size={8.5} color={PRINT.gold} track="0.32em" weight={700}>
+            {isEgg ? '✦  HIDDEN EGG  ·  隱藏點' : '✦  PHYSICAL JOURNEY  ·  集印探索'}
+          </PMono>
+        </div>
+      </div>
+
+      {/* HERO: Element name (giant) */}
+      <div style={{ position: 'absolute', top: '42mm', left: '8mm', right: '8mm', textAlign: 'center' }}>
+        <div style={{
+          fontFamily: "'Noto Serif TC',serif",
+          fontSize: '96pt', fontWeight: 600,
+          color: PRINT.cream,
+          letterSpacing: '0.18em',
+          lineHeight: 1.0,
+          textShadow: `0 0 48px rgba(212,168,67,0.45), 0 2px 12px rgba(0,0,0,0.8)`,
+        }}>
+          {item.element}
+        </div>
+
+        <div style={{
+          margin: '4mm auto 0',
+          width: '44mm', height: '1.5pt',
+          background: `linear-gradient(90deg, transparent 0%, ${PRINT.gold} 25%, ${PRINT.goldLt} 50%, ${PRINT.gold} 75%, transparent 100%)`,
+        }} />
+
+        <div style={{
+          marginTop: '4.5mm',
+          fontFamily: "'Noto Serif TC',serif",
+          fontSize: '20pt', fontWeight: 300,
+          color: PRINT.creamDim,
+          letterSpacing: '0.5em',
+          paddingLeft: '0.5em',
+        }}>
+          {item.area}
+        </div>
+
+        <div style={{ marginTop: '2.5mm' }}>
+          <PMono size={8.5} color={PRINT.gold} track="0.3em" weight={600}>
+            {isEgg ? '隱蛋 · 找到才出現' : item.loc}
+          </PMono>
+        </div>
+      </div>
+
+      {/* QR CODE (real, scannable) */}
+      <div style={{
+        position: 'absolute', top: '120mm', left: '50%',
+        transform: 'translateX(-50%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4mm',
+      }}>
+        <RealQR url={item.url} sizeMm={86} />
+        <div style={{ textAlign: 'center', marginTop: '1mm' }}>
+          <PMono size={12} color={PRINT.gold} track="0.42em" weight={700}>SCAN TO STAMP</PMono>
+          <div style={{ marginTop: '1.5mm' }}>
+            <PMono size={9.5} color={PRINT.creamMute} track="0.22em" weight={400}>
+              掃碼蓋章 · 集滿 8 枚參加抽獎
+            </PMono>
+          </div>
+        </div>
+      </div>
+
+      {/* Station ID + copy */}
+      <div style={{ position: 'absolute', bottom: '24mm', left: '12mm', right: '12mm', textAlign: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5mm', marginBottom: '3.5mm' }}>
+          <div style={{ width: '14mm', height: '0.8pt', background: PRINT.goldDim }} />
+          <PMono size={10} color={PRINT.gold} track="0.5em" weight={700}>{numDisplay}</PMono>
+          <div style={{ width: '14mm', height: '0.8pt', background: PRINT.goldDim }} />
+        </div>
+        <p style={{
+          margin: 0,
+          fontFamily: "'Noto Serif TC',serif",
+          fontSize: '14pt', lineHeight: 2.0, letterSpacing: '0.1em',
+          color: PRINT.creamDim, fontWeight: 300,
+        }}>
+          {item.copy}
+        </p>
+      </div>
+
+      {/* Footer */}
+      <div style={{ position: 'absolute', bottom: '11mm', left: 0, right: 0, textAlign: 'center' }}>
+        <PMono size={7.5} color={PRINT.creamFaint} track="0.28em" weight={400}>
+          {isEgg ? '見つけた人へ。 ／ For Those Who Found It.' : 'ここで、ひと呼吸。 ／ Pause Here for a Moment.'}
+        </PMono>
+      </div>
+    </PPage>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   12 · Counter info card
+═══════════════════════════════════════════════ */
+function CounterCardPage() {
+  return (
+    <PPage wMm={210} hMm={297}>
+      <PWatermark ch="∞" size={780} color="rgba(168,132,56,0.05)" pos={{ left: '52%', top: '52%' }} italic />
+
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 35%, rgba(212,168,67,0.04) 0%, transparent 60%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', inset: '8mm', border: `0.6pt solid rgba(212,168,67,0.2)` }} />
+      <PTick pos={{ top: '8mm', left: '8mm' }} len={10} />
+      <PTick pos={{ top: '8mm', right: '8mm' }} flipX len={10} />
+      <PTick pos={{ bottom: '8mm', left: '8mm' }} flipY len={10} />
+      <PTick pos={{ bottom: '8mm', right: '8mm' }} flipX flipY len={10} />
+
+      <div style={{ position: 'absolute', top: '14mm', left: '14mm', right: '14mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <PCoBrand height={11} />
+        <PMono size={7} color={PRINT.gold} track="0.36em" weight={700}>2026.04.25 — 05.31</PMono>
+      </div>
+      <div style={{ position: 'absolute', top: '21mm', left: '14mm', right: '14mm', height: 0.5, background: 'rgba(212,168,67,0.22)' }} />
+
+      <div style={{ position: 'absolute', top: '26mm', left: '14mm', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <PRule width="8mm" color={PRINT.gold} height={1} />
+        <PMono size={7} color={PRINT.brown} track="0.36em" weight={600}>COUNTER INFO · 櫃檯說明 · 台中市政店</PMono>
+      </div>
+
+      <div style={{ position: 'absolute', top: '34mm', left: '14mm' }}>
+        <PNexusMark size={2.0} align="left" />
+      </div>
+
+      <div style={{ position: 'absolute', top: '70mm', left: '14mm', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <InfinityBadge size={42} fg={PRINT.gold} accent={PRINT.gold} stroke={1.0} />
+        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, letterSpacing: '0.32em', fontWeight: 300 }}>
+          無限日常　∞　連結生活
+        </span>
+      </div>
+
+      <div style={{ position: 'absolute', top: '88mm', left: '14mm', right: '14mm' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '22pt', lineHeight: 1.5, letterSpacing: '0.06em', color: PRINT.brown, fontWeight: 400 }}>
+          用 <GoldText style={{ fontWeight: 600 }}>8 天</GoldText>，<br/>
+          把一個紀念日<span style={{ fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif", color: PRINT.gold }}>過完整</span>。
+        </p>
+      </div>
+
+      <div style={{ position: 'absolute', top: '134mm', left: '14mm', right: '14mm' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+          <PMono size={7} color={PRINT.gold} track="0.36em" weight={700}>THREE MODULES · 三大模組</PMono>
+          <PRule width="auto" style={{ flex: 1 }} color={PRINT.goldFaint} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginTop: 8 }}>
+          {[
+            { n: '01', tag: 'DAILY RITUAL', zh: '每日專屬儀式', desc: '每日完成儀式，獲得 Infinity Day 抽獎券' },
+            { n: '02', tag: 'MARK JOURNAL', zh: '集印探索',     desc: '館內掃描 8 個主路點位印章，解鎖當日抽獎' },
+            { n: '03', tag: 'INFINITY DAY', zh: '加碼抽獎',     desc: '每日抽 1 次，券越多機率越高' },
+          ].map(m => (
+            <div key={m.n} style={{ border: '0.5pt solid rgba(212,168,67,0.22)', background: 'rgba(212,168,67,0.025)', padding: '5mm 4.5mm', minHeight: '40mm' }}>
+              <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '22pt', fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em' }}>
+                <GoldText>{m.n}</GoldText>
+              </div>
+              <div style={{ marginTop: 5 }}><PMono size={6} color={PRINT.gold} track="0.3em" weight={700}>{m.tag}</PMono></div>
+              <div style={{ marginTop: 3 }}>
+                <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', color: PRINT.brown, letterSpacing: '0.08em', fontWeight: 400 }}>{m.zh}</span>
+              </div>
+              <p style={{ margin: '4mm 0 0', fontFamily: "'Noto Sans TC',sans-serif", fontSize: '7.5pt', lineHeight: 1.7, color: PRINT.brown, letterSpacing: '0.04em' }}>{m.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', top: '196mm', left: '14mm', right: '14mm', background: `linear-gradient(160deg, rgba(212,168,67,0.1) 0%, rgba(212,168,67,0.04) 100%)`, border: '0.6pt solid rgba(212,168,67,0.35)', padding: '8mm 8mm', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', right: -8, top: -16, fontFamily: "'Noto Serif TC',serif", fontSize: '110pt', color: 'rgba(168,132,56,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
+        <div style={{ display: 'flex', gap: 10, position: 'relative' }}>
+          <div style={{ flex: 1 }}>
+            <PMono size={6.5} color={PRINT.goldDim} track="0.36em" weight={700}>GRAND PRIZE WEEK · 大獎週</PMono>
+            <div style={{ marginTop: 4 }}>
+              <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '19pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排雙人套餐</span>
+            </div>
+            <div style={{ marginTop: 1 }}>
+              <span style={{ fontFamily: "'Noto Serif TC',serif", fontStyle: 'italic', fontSize: '10pt', color: PRINT.brown, letterSpacing: '0.02em' }}>日本和牛ステーキ ペアセット · WIRED TOKYO</span>
+            </div>
+            <div style={{ marginTop: 5 }}>
+              <PMono size={7} color={PRINT.gold} track="0.28em" weight={500}>5 / 24 — 5 / 31 ‧ 每日 20:00 抽出 ‧ 共 8 份 ‧ NT$ 2,300</PMono>
+            </div>
+          </div>
+          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+            <PBigQR size="24mm" seed={111} />
+            <PMono size={5} color={PRINT.goldDim} track="0.28em">SCAN TO JOIN</PMono>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', bottom: '14mm', left: '14mm', right: '14mm', borderTop: '0.5pt solid rgba(212,168,67,0.22)', paddingTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <PMono size={6} color={PRINT.creamFaint} track="0.3em" weight={600}>LOCATION</PMono>
+          <div style={{ marginTop: 1 }}>
+            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.08em' }}>台中市政店 ‧ 4F</span>
+          </div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <PMono size={6} color={PRINT.creamFaint} track="0.3em" weight={600}>EVENT PERIOD</PMono>
+          <div style={{ marginTop: 1 }}><PMono size={8} color={PRINT.gold} track="0.3em" weight={700}>NEXUS.LIFE · 8TH</PMono></div>
+        </div>
+      </div>
+    </PPage>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   13 · Prize board hero
+═══════════════════════════════════════════════ */
+function PrizeHeroPage() {
+  return (
+    <PPage wMm={210} hMm={297}>
+      <PWatermark ch="8" size={1100} color="rgba(196,162,74,0.035)" pos={{ left: '50%', top: '50%' }} />
+
+      <PTick pos={{ top: '8mm', left: '8mm' }} len={12} weight={0.7} />
+      <PTick pos={{ top: '8mm', right: '8mm' }} flipX len={12} weight={0.7} />
+      <PTick pos={{ bottom: '8mm', left: '8mm' }} flipY len={12} weight={0.7} />
+      <PTick pos={{ bottom: '8mm', right: '8mm' }} flipX flipY len={12} weight={0.7} />
+
+      <div style={{ position: 'absolute', top: '14mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PCoBrand height={10} gap={10} />
+      </div>
+
+      <div style={{ position: 'absolute', top: '30mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PillLabel size={7}>PRIVATE INVITATION · 八週年邀請</PillLabel>
+      </div>
+
+      <div style={{ position: 'absolute', top: '40mm', left: 0, right: 0, textAlign: 'center' }}>
+        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '52pt', fontStyle: 'italic', color: PRINT.brown, fontWeight: 400, letterSpacing: '0.02em', lineHeight: 1.05 }}>
+          Nexus <span style={{ fontStyle: 'italic' }}>Life.</span>
+        </div>
+        <div style={{ marginTop: 6 }}>
+          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', color: PRINT.brown, letterSpacing: '0.42em', fontWeight: 300, paddingLeft: '0.42em' }}>
+            無 限 日 常　∞　連 結 生 活
+          </span>
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', top: '78mm', left: '50%', transform: 'translateX(-50%)' }}>
+        <div style={{
+          width: '94mm', height: '94mm', borderRadius: '50%',
+          background: `radial-gradient(circle at 30% 25%, ${PRINT.paperLt} 0%, ${PRINT.paper} 60%, ${PRINT.paperDim} 100%)`,
+          border: `0.8pt solid ${PRINT.goldDim}`,
+          boxShadow: 'inset 0 2pt 4pt rgba(255,255,255,0.5), inset 0 -2pt 4pt rgba(58,42,29,0.18), 0 6mm 24mm -6mm rgba(0,0,0,0.65)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          position: 'relative', overflow: 'hidden',
+        }}>
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.5, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")`, mixBlendMode: 'multiply' }} />
+          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '300pt', lineHeight: 0.8, color: PRINT.brown, fontStyle: 'italic', letterSpacing: '-0.06em', fontWeight: 400, position: 'relative', textShadow: '0 1pt 0 rgba(255,255,255,0.4)' }}>∞</div>
+          <div style={{ position: 'absolute', inset: '8mm', borderRadius: '50%', border: `0.5pt dashed rgba(196,162,74,0.45)`, pointerEvents: 'none' }} />
+        </div>
+        <PTick pos={{ top: '-3mm', left: '-3mm' }} len={12} color={PRINT.gold} opacity={0.85} weight={0.8} />
+        <PTick pos={{ top: '-3mm', right: '-3mm' }} len={12} color={PRINT.gold} opacity={0.85} flipX weight={0.8} />
+        <PTick pos={{ bottom: '-3mm', left: '-3mm' }} len={12} color={PRINT.gold} opacity={0.85} flipY weight={0.8} />
+        <PTick pos={{ bottom: '-3mm', right: '-3mm' }} len={12} color={PRINT.gold} opacity={0.85} flipX flipY weight={0.8} />
+      </div>
+
+      <div style={{ position: 'absolute', top: '188mm', left: 0, right: 0, textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '22pt', lineHeight: 1.55, letterSpacing: '0.1em', color: PRINT.brown, fontWeight: 400 }}>
+          用 <GoldText style={{ fontWeight: 600 }}>8 天</GoldText>，把一個紀念日<br/>
+          <span style={{ fontStyle: 'italic', color: PRINT.gold, fontWeight: 500 }}>過完整</span>。
+        </p>
+      </div>
+
+      <div style={{ position: 'absolute', top: '232mm', left: '16mm', right: '16mm', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, borderTop: `0.5pt solid ${PRINT.goldDim}`, borderBottom: `0.5pt solid ${PRINT.goldDim}`, padding: '6mm 0' }}>
+        {[
+          { en: 'Daily Ritual',  zh: '每日專屬儀式' },
+          { en: 'Mark Journal',  zh: '集印探索'     },
+          { en: 'Infinity Day',  zh: '加碼抽獎'     },
+        ].map((m, i) => (
+          <div key={m.en} style={{ textAlign: 'center', borderLeft: i === 0 ? 'none' : `0.4pt solid ${PRINT.goldFaint}`, padding: '0 4mm' }}>
+            <div><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '14pt', fontStyle: 'italic', color: PRINT.gold, fontWeight: 500, letterSpacing: '0.04em' }}>{m.en}</span></div>
+            <div style={{ marginTop: 3 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.2em', fontWeight: 400 }}>{m.zh}</span></div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ position: 'absolute', top: '258mm', left: '16mm', right: '16mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <PMono size={6} color={PRINT.gold} track="0.4em" weight={700}>GRAND PRIZE WEEK</PMono>
+          <div style={{ marginTop: 2 }}>
+            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>5 / 24 — 5 / 31</span>
+            <span style={{ color: PRINT.brown, fontSize: '8pt', marginLeft: 6, letterSpacing: '0.1em' }}>每日 20:00 抽出</span>
+          </div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <PMono size={6} color={PRINT.creamFaint} track="0.4em" weight={600}>EVENT PERIOD</PMono>
+          <div style={{ marginTop: 2 }}>
+            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>2026.04.25 — 05.31</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', bottom: '12mm', left: '16mm', right: '16mm', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldMute}`, paddingTop: 6 }}>
+        <NexusWordmark width={130} align="left" />
+        <PBigQR size="20mm" seed={777} />
+      </div>
+    </PPage>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   14 · Prize board detail
+═══════════════════════════════════════════════ */
+function PrizeDetailPage() {
+  return (
+    <PPage wMm={210} hMm={297}>
+      <div style={{ position: 'absolute', inset: '8mm', border: '0.6pt solid rgba(212,168,67,0.22)' }} />
+      <PTick pos={{ top: '8mm', left: '8mm' }} len={10} />
+      <PTick pos={{ top: '8mm', right: '8mm' }} flipX len={10} />
+      <PTick pos={{ bottom: '8mm', left: '8mm' }} flipY len={10} />
+      <PTick pos={{ bottom: '8mm', right: '8mm' }} flipX flipY len={10} />
+
+      <div style={{ position: 'absolute', top: '14mm', left: '14mm', right: '14mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <PMono size={6.5} color={PRINT.brown} track="0.36em" weight={600}>
+          Nexus <span style={{ fontStyle: 'italic', textTransform: 'none' }}>Life.</span> · 8TH ANNIVERSARY
+        </PMono>
+        <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>POSTER · 02 / 02</PMono>
+      </div>
+      <div style={{ position: 'absolute', top: '20mm', left: '14mm', right: '14mm', height: 0.5, background: 'rgba(212,168,67,0.22)' }} />
+
+      <div style={{ position: 'absolute', top: '26mm', left: '14mm' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <PRule width="8mm" color={PRINT.gold} height={1} />
+          <PMono size={7} color={PRINT.brown} track="0.36em" weight={600}>無限日常　∞　連結生活</PMono>
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', top: '33mm', left: '14mm', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '14pt', color: PRINT.gold, lineHeight: 1, fontStyle: 'italic' }}>∞</span>
+        <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>INFINITY DAY · 加碼大獎</PMono>
+      </div>
+
+      <div style={{ position: 'absolute', top: '42mm', left: '14mm', right: '14mm', height: '108mm', overflow: 'hidden', border: '0.6pt solid rgba(212,168,67,0.35)', boxShadow: '0 8mm 20mm rgba(36,32,28,0.06)', background: 'linear-gradient(160deg, #1a0e08 0%, #2d1a0f 30%, #1a0e08 60%, #0d0905 100%)' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 55%, rgba(120,50,20,0.55) 0%, rgba(60,20,5,0.3) 45%, transparent 70%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(11,20,36,0.3) 0%, transparent 30%, transparent 60%, rgba(11,20,36,0.9) 100%)' }} />
+        <PTick pos={{ top: 6, left: 6 }} />
+        <PTick pos={{ top: 6, right: 6 }} flipX />
+        <PTick pos={{ bottom: 6, left: 6 }} flipY />
+        <PTick pos={{ bottom: 6, right: 6 }} flipX flipY />
+        <div style={{ position: 'absolute', top: 8, left: 8, padding: '3pt 7pt', background: 'rgba(255,255,255,0.85)', border: '0.5pt solid rgba(168,132,56,0.5)', backdropFilter: 'blur(6px)' }}>
+          <PMono size={6} color={PRINT.gold} track="0.34em" weight={700}>A5 JAPANESE WAGYU · GRAND PRIZE</PMono>
+        </div>
+        <div style={{ position: 'absolute', bottom: 8, right: 8, textAlign: 'right' }}>
+          <PMono size={5.5} color={PRINT.goldDim} track="0.3em" weight={700}>VALUE</PMono>
+          <div style={{ marginTop: 1 }}>
+            <GoldText style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '24pt', fontWeight: 600, letterSpacing: '0.02em', display: 'inline-block' }}>NT$&nbsp;2,300</GoldText>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', top: '156mm', left: '14mm', right: '14mm' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '26pt', lineHeight: 1.25, letterSpacing: '0.06em', color: PRINT.brown, fontWeight: 500 }}>
+          日本和牛<br/><GoldText style={{ fontWeight: 600 }}>牛排雙人套餐</GoldText>
+        </p>
+        <div style={{ marginTop: 4 }}>
+          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', fontStyle: 'italic', color: PRINT.brown, letterSpacing: '0.04em' }}>
+            日本和牛ステーキ ペアセット ‧ WIRED TOKYO
+          </span>
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', top: '194mm', left: '14mm', right: '14mm' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', lineHeight: 1.85, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 300 }}>
+          有些美味，不需要被說服。<br/>只要在剛好的時間，端上桌。
+        </p>
+      </div>
+
+      <div style={{ position: 'absolute', top: '224mm', left: '14mm', right: '14mm' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>FLAVOR NOTES</PMono>
+          <PRule width="auto" style={{ flex: 1 }} color={PRINT.goldFaint} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <div>
+            <PMono size={6} color={PRINT.creamFaint} track="0.32em" weight={600}>·  TOP NOTE</PMono>
+            <p style={{ margin: '2pt 0 0', fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', lineHeight: 1.75, color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 400 }}>
+              番茄的鮮味，<br/>讓肉香更立體。
+            </p>
+          </div>
+          <div>
+            <PMono size={6} color={PRINT.creamFaint} track="0.32em" weight={600}>·  FINISH</PMono>
+            <p style={{ margin: '2pt 0 0', fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', lineHeight: 1.75, color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 400 }}>
+              橙醋的酸感，<br/>讓尾韻更乾淨。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', bottom: '14mm', left: '14mm', right: '14mm', borderTop: '0.5pt solid rgba(212,168,67,0.22)', paddingTop: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <PMono size={6.5} color={PRINT.gold} track="0.34em" weight={700}>LIMITED · 限量 8 份</PMono>
+          <div style={{ marginTop: 2 }}>
+            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>
+              2026 / 5 / 24 — 5 / 31&nbsp;<span style={{ color: PRINT.brown, fontWeight: 300 }}>‧ 每日 20:00 抽出 1 位</span>
+            </span>
+          </div>
+        </div>
+        <PBigQR size="24mm" seed={555} />
+      </div>
+    </PPage>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   15–18 · Table cards (A6 · front + back)
+═══════════════════════════════════════════════ */
+function TableCardAFront() {
+  return (
+    <PPage wMm={105} hMm={148}>
+      <PWatermark ch="8" size={320} color="rgba(196,162,74,0.035)" pos={{ left: '50%', top: '50%' }} />
+      <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
+      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
+      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PCoBrand height={7.5} gap={7} />
+      </div>
+      <div style={{ position: 'absolute', top: '22mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PillLabel size={6}>DAILY RITUAL ‧ 每日專屬儀式</PillLabel>
+      </div>
+      <div style={{ position: 'absolute', top: '38mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <InfinityBadge size={28} fg={PRINT.gold} accent={PRINT.gold} stroke={1.0} />
+      </div>
+      <div style={{ position: 'absolute', top: '56mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '12.5pt', lineHeight: 1.55, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
+          用 <GoldText style={{ fontWeight: 600 }}>8 天</GoldText>，<br/>
+          把一個紀念日過完整。
+        </p>
+      </div>
+      <div style={{ position: 'absolute', top: '88mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '7.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.04em', fontWeight: 300 }}>
+          每天點亮 1 個日常儀式，<br/>
+          即可解鎖當日 Infinity Day 抽獎。<br/>
+          和牛雙人套餐、經典商品，等著你。
+        </p>
+      </div>
+      <div style={{ position: 'absolute', bottom: '16mm', left: 0, right: 0, textAlign: 'center' }}>
+        <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>SCAN TO START ‧ 掃描開始</PMono>
+      </div>
+      <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 01</PMono>
+      </div>
+    </PPage>
+  );
+}
+
+function TableCardABack() {
+  return (
+    <PPage wMm={105} hMm={148}>
+      <PWatermark ch="咖啡" size={170} color="rgba(196,162,74,0.022)" pos={{ left: '50%', top: '50%' }} />
+      <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
+      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
+      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PCoBrand height={7.5} gap={7} />
+      </div>
+      <div style={{ position: 'absolute', top: '22mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.1em' }}>
+          WIRED TOKYO
+        </span>
+        <div style={{ marginTop: 2 }}>
+          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '8pt', fontStyle: 'italic', color: PRINT.brown, letterSpacing: '0.06em' }}>
+            Coffee & Relax
+          </span>
+        </div>
+      </div>
+      <div style={{ position: 'absolute', top: '44mm', left: '50%', transform: 'translateX(-50%)' }}>
+        <PBigQR size="46mm" seed={101} />
+      </div>
+      <div style={{ position: 'absolute', top: '98mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '8.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.08em', fontWeight: 300 }}>
+          咖啡不是必需，但那一刻的空白是。<br/>
+          在這裡，用一杯暖熱，把時間拉長。
+        </p>
+      </div>
+      <div style={{ position: 'absolute', bottom: '15mm', left: 0, right: 0, textAlign: 'center' }}>
+        <PMono size={6.5} color={PRINT.gold} track="0.26em" weight={700}>ANNIVERSARY SPECIAL ‧ 憑券享 8 折優惠</PMono>
+      </div>
+      <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 01</PMono>
+      </div>
+    </PPage>
+  );
+}
+
+function TableCardBFront() {
+  return (
+    <PPage wMm={105} hMm={148}>
+      <PWatermark ch="8" size={320} color="rgba(196,162,74,0.035)" pos={{ left: '50%', top: '50%' }} />
+      <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
+      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
+      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PCoBrand height={7.5} gap={7} />
+      </div>
+      <div style={{ position: 'absolute', top: '22mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PillLabel size={6}>MARK JOURNAL ‧ 集印探索</PillLabel>
+      </div>
+      <div style={{ position: 'absolute', top: '38mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <InfinityBadge size={28} fg={PRINT.gold} accent={PRINT.gold} stroke={1.0} />
+      </div>
+      <div style={{ position: 'absolute', top: '56mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '12.5pt', lineHeight: 1.55, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
+          尋找館內 <GoldText style={{ fontWeight: 600 }}>8 個</GoldText> 印章，<br/>
+          解鎖你的探索地圖。
+        </p>
+      </div>
+      <div style={{ position: 'absolute', top: '88mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '7.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.04em', fontWeight: 300 }}>
+          館內設有 8 處主路點位印章與 3 處隱蛋印章。<br/>
+          掃描並收集印章，<br/>
+          集滿即可解鎖當日大獎抽獎資格。
+        </p>
+      </div>
+      <div style={{ position: 'absolute', bottom: '16mm', left: 0, right: 0, textAlign: 'center' }}>
+        <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>SCAN TO EXPLORE ‧ 掃描探索</PMono>
+      </div>
+      <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 02</PMono>
+      </div>
+    </PPage>
+  );
+}
+
+function TableCardBBack() {
+  return (
+    <PPage wMm={105} hMm={148}>
+      <PWatermark ch="日光" size={170} color="rgba(196,162,74,0.022)" pos={{ left: '50%', top: '50%' }} />
+      <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
+      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
+      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PCoBrand height={7.5} gap={7} />
+      </div>
+      <div style={{ position: 'absolute', top: '22mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.1em' }}>
+          TSUTAYA BOOKSTORE
+        </span>
+        <div style={{ marginTop: 2 }}>
+          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '8pt', fontStyle: 'italic', color: PRINT.brown, letterSpacing: '0.06em' }}>
+            Space & Light
+          </span>
+        </div>
+      </div>
+      <div style={{ position: 'absolute', top: '44mm', left: '50%', transform: 'translateX(-50%)' }}>
+        <PBigQR size="46mm" seed={102} />
+      </div>
+      <div style={{ position: 'absolute', top: '98mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '8.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.08em', fontWeight: 300 }}>
+          天井落下的光，比任何濾鏡都溫柔。<br/>
+          在這裡，光影在書頁上寫著無聲的詩。
+        </p>
+      </div>
+      <div style={{ position: 'absolute', bottom: '15mm', left: 0, right: 0, textAlign: 'center' }}>
+        <PMono size={6.5} color={PRINT.gold} track="0.26em" weight={700}>ANNIVERSARY SPECIAL ‧ 憑券享書籍折抵</PMono>
+      </div>
+      <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 02</PMono>
+      </div>
+    </PPage>
+  );
+}
+
+function TableCardCFront() {
+  return (
+    <PPage wMm={105} hMm={148}>
+      <PWatermark ch="8" size={320} color="rgba(196,162,74,0.035)" pos={{ left: '50%', top: '50%' }} />
+      <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
+      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
+      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PCoBrand height={7.5} gap={7} />
+      </div>
+      <div style={{ position: 'absolute', top: '22mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PillLabel size={6}>GRAND PRIZE WEEK ‧ 大獎週</PillLabel>
+      </div>
+      <div style={{ position: 'absolute', top: '38mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <InfinityBadge size={28} fg={PRINT.gold} accent={PRINT.gold} stroke={1.0} />
+      </div>
+      <div style={{ position: 'absolute', top: '56mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', lineHeight: 1.55, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
+          和牛雙人套餐，<br/>
+          每日 <GoldText style={{ fontWeight: 600 }}>20:00</GoldText> 準時抽。
+        </p>
+      </div>
+      <div style={{ position: 'absolute', top: '88mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '7.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.04em', fontWeight: 300 }}>
+          5/24 至 5/31，大獎週登場。<br/>
+          持有抽獎券，即可參與每日抽獎。<br/>
+          天天抽出 WIRED TOKYO 和牛雙人套餐。
+        </p>
+      </div>
+      <div style={{ position: 'absolute', bottom: '16mm', left: 0, right: 0, textAlign: 'center' }}>
+        <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>SCAN TO JOIN ‧ 掃描參與</PMono>
+      </div>
+      <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 03</PMono>
+      </div>
+    </PPage>
+  );
+}
+
+function TableCardCBack() {
+  return (
+    <PPage wMm={105} hMm={148}>
+      <PWatermark ch="風動" size={170} color="rgba(196,162,74,0.022)" pos={{ left: '50%', top: '50%' }} />
+      <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
+      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
+      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PCoBrand height={7.5} gap={7} />
+      </div>
+      <div style={{ position: 'absolute', top: '22mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.1em' }}>
+          TSUTAYA BOOKSTORE
+        </span>
+        <div style={{ marginTop: 2 }}>
+          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '8pt', fontStyle: 'italic', color: PRINT.brown, letterSpacing: '0.06em' }}>
+            Wind & Mind
+          </span>
+        </div>
+      </div>
+      <div style={{ position: 'absolute', top: '44mm', left: '50%', transform: 'translateX(-50%)' }}>
+        <PBigQR size="46mm" seed={103} />
+      </div>
+      <div style={{ position: 'absolute', top: '98mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '8.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.08em', fontWeight: 300 }}>
+          有些想法，隨風而來，又隨風而去。<br/>
+          在這裡，我們學會與不確定性溫柔共處。
+        </p>
+      </div>
+      <div style={{ position: 'absolute', bottom: '15mm', left: 0, right: 0, textAlign: 'center' }}>
+        <PMono size={6.5} color={PRINT.gold} track="0.26em" weight={700}>ANNIVERSARY SPECIAL ‧ 憑券享限定飲品加購</PMono>
+      </div>
+      <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 03</PMono>
+      </div>
+    </PPage>
+  );
+}
+
+function TableCardDFront() {
+  return (
+    <PPage wMm={105} hMm={148}>
+      <PWatermark ch="8" size={320} color="rgba(196,162,74,0.035)" pos={{ left: '50%', top: '50%' }} />
+      <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
+      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
+      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PCoBrand height={7.5} gap={7} />
+      </div>
+      <div style={{ position: 'absolute', top: '22mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PillLabel size={6}>TSUTAYA BOOKSTORE ‧ 台中市政店</PillLabel>
+      </div>
+      <div style={{ position: 'absolute', top: '38mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <InfinityBadge size={28} fg={PRINT.gold} accent={PRINT.gold} stroke={1.0} />
+      </div>
+      <div style={{ position: 'absolute', top: '56mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', lineHeight: 1.55, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
+          八週年特別企劃，<br/>
+          期待與你在此相遇。
+        </p>
+      </div>
+      <div style={{ position: 'absolute', top: '88mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '7.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.04em', fontWeight: 300 }}>
+          自 2018 年起，我們在此陪伴你的日常。<br/>
+          在這值得紀念的時刻，<br/>
+          邀請你一同探索生活的無限可能。
+        </p>
+      </div>
+      <div style={{ position: 'absolute', bottom: '16mm', left: 0, right: 0, textAlign: 'center' }}>
+        <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>JOIN US NOW ‧ 立即加入</PMono>
+      </div>
+      <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 04</PMono>
+      </div>
+    </PPage>
+  );
+}
+
+function TableCardDBack() {
+  return (
+    <PPage wMm={105} hMm={148}>
+      <PWatermark ch="閱讀" size={170} color="rgba(196,162,74,0.022)" pos={{ left: '50%', top: '50%' }} />
+      <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
+      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
+      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
+      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PCoBrand height={7.5} gap={7} />
+      </div>
+      <div style={{ position: 'absolute', top: '22mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.1em' }}>
+          TSUTAYA BOOKSTORE
+        </span>
+        <div style={{ marginTop: 2 }}>
+          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '8pt', fontStyle: 'italic', color: PRINT.brown, letterSpacing: '0.06em' }}>
+            Books & Beyond
+          </span>
+        </div>
+      </div>
+      <div style={{ position: 'absolute', top: '44mm', left: '50%', transform: 'translateX(-50%)' }}>
+        <PBigQR size="46mm" seed={104} />
+      </div>
+      <div style={{ position: 'absolute', top: '98mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '8.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.08em', fontWeight: 300 }}>
+          翻開一本書，就是開啟一段對話。<br/>
+          在這裡，每個字句都可能與你的日常產生共鳴。
+        </p>
+      </div>
+      <div style={{ position: 'absolute', bottom: '15mm', left: 0, right: 0, textAlign: 'center' }}>
+        <PMono size={6.5} color={PRINT.gold} track="0.26em" weight={700}>ANNIVERSARY SPECIAL ‧ 憑券享書籍折抵</PMono>
+      </div>
+      <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 04</PMono>
+      </div>
+    </PPage>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   19 · Main poster (A4)
+═══════════════════════════════════════════════ */
+function MainPosterPage() {
+  return (
+    <PPage wMm={210} hMm={297}>
+      <PWatermark ch="8" size={1100} color="rgba(196,162,74,0.025)" pos={{ left: '50%', top: '50%' }} />
+
+      <PTick pos={{ top: '8mm', left: '8mm' }} len={12} weight={0.7} />
+      <PTick pos={{ top: '8mm', right: '8mm' }} flipX len={12} weight={0.7} />
+      <PTick pos={{ bottom: '8mm', left: '8mm' }} flipY len={12} weight={0.7} />
+      <PTick pos={{ bottom: '8mm', right: '8mm' }} flipX flipY len={12} weight={0.7} />
+
+      <div style={{ position: 'absolute', top: '16mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PCoBrand height={11} gap={10} />
+      </div>
+
+      <div style={{ position: 'absolute', top: '32mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PillLabel size={7.5}>8TH ANNIVERSARY ‧ 八週年特別企劃</PillLabel>
+      </div>
+
+      <div style={{ position: 'absolute', top: '44mm', left: 0, right: 0, textAlign: 'center' }}>
+        <h1 style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '46pt', fontWeight: 300, color: PRINT.brown, letterSpacing: '0.12em', lineHeight: 1.25 }}>
+          無限日常　<span style={{ fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif", color: PRINT.gold }}>∞</span><br/>連結生活
+        </h1>
+        <div style={{ marginTop: 8 }}>
+          <PMono size={8.5} color={PRINT.goldDim} track="0.45em">NEXUS LIFE ‧ TSUTAYA BOOKSTORE</PMono>
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', top: '106mm', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <InfinityBadge size={140} fg={PRINT.gold} accent={PRINT.gold} stroke={0.8} />
+      </div>
+
+      <div style={{ position: 'absolute', top: '168mm', left: 0, right: 0, textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '18pt', lineHeight: 1.6, letterSpacing: '0.16em', color: PRINT.brown, fontWeight: 300 }}>
+          用 <GoldText style={{ fontWeight: 500 }}>8 天</GoldText> 的時間，<br/>
+          把一個紀念日過得完整。
+        </p>
+      </div>
+
+      <div style={{ position: 'absolute', top: '206mm', left: '24mm', right: '24mm' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>THREE WAYS TO JOIN ‧ 參與方式</PMono>
+          <PRule width="auto" style={{ flex: 1 }} color={PRINT.goldFaint} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+          {[
+            { n: '01', title: '每日專屬儀式', desc: '點亮日常，獲得抽獎券' },
+            { n: '02', title: '集印探索', desc: '館內集章，解鎖地圖' },
+            { n: '03', title: '加碼大獎', desc: '每日 20:00 抽和牛套餐' },
+          ].map(item => (
+            <div key={item.n} style={{ borderLeft: `0.5pt solid ${PRINT.goldDim}`, paddingLeft: 8 }}>
+              <PMono size={7} color={PRINT.gold} track="0.2em" weight={700}>NO.{item.n}</PMono>
+              <div style={{ marginTop: 2 }}>
+                <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '10.5pt', color: PRINT.brown, fontWeight: 500 }}>{item.title}</span>
+              </div>
+              <p style={{ margin: '3pt 0 0', fontFamily: "'Noto Sans TC',sans-serif", fontSize: '7pt', lineHeight: 1.6, color: PRINT.brown }}>{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', bottom: '16mm', left: '24mm', right: '24mm', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: `0.5pt solid ${PRINT.goldDim}`, paddingTop: 10 }}>
+        <div>
+          <PMono size={6} color={PRINT.creamFaint} track="0.3em" weight={600}>EVENT PERIOD</PMono>
+          <div style={{ marginTop: 2 }}>
+            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.08em' }}>2026.04.25 — 05.31</span>
+          </div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <PMono size={6} color={PRINT.creamFaint} track="0.3em" weight={600}>LOCATION</PMono>
+          <div style={{ marginTop: 2 }}>
+            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.08em' }}>台中市政店</span>
+          </div>
+        </div>
+      </div>
+    </PPage>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   20 · Digital poster (216 × 384 mm @ 9:16)
+═══════════════════════════════════════════════ */
+function DigitalPosterPage() {
+  return (
+    <PPage wMm={216} hMm={384}>
+      <PWatermark ch="∞" size={1300} color="rgba(196,162,74,0.022)" pos={{ left: '50%', top: '50%' }} />
+
+      <PTick pos={{ top: '8mm', left: '8mm' }} len={12} weight={0.8} />
+      <PTick pos={{ top: '8mm', right: '8mm' }} flipX len={12} weight={0.8} />
+      <PTick pos={{ bottom: '8mm', left: '8mm' }} flipY len={12} weight={0.8} />
+      <PTick pos={{ bottom: '8mm', right: '8mm' }} flipX flipY len={12} weight={0.8} />
+
+      <div style={{ position: 'absolute', top: '22mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PCoBrand height={13} gap={12} />
+      </div>
+
+      <div style={{ position: 'absolute', top: '44mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PillLabel size={8.5}>8TH ANNIVERSARY ‧ DIGITAL SCREEN</PillLabel>
+      </div>
+
+      <div style={{ position: 'absolute', top: '62mm', left: 0, right: 0, textAlign: 'center' }}>
+        <h1 style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '56pt', fontWeight: 300, color: PRINT.brown, letterSpacing: '0.12em', lineHeight: 1.25 }}>
+          無限日常　<span style={{ fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif", color: PRINT.gold }}>∞</span><br/>連結生活
+        </h1>
+        <div style={{ marginTop: 10 }}>
+          <PMono size={9.5} color={PRINT.goldDim} track="0.45em">NEXUS LIFE ‧ TSUTAYA BOOKSTORE</PMono>
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', top: '150mm', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <InfinityBadge size={160} fg={PRINT.gold} accent={PRINT.gold} stroke={0.8} />
+      </div>
+
+      <div style={{ position: 'absolute', top: '224mm', left: 0, right: 0, textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '20pt', lineHeight: 1.6, letterSpacing: '0.16em', color: PRINT.brown, fontWeight: 300 }}>
+          用 <GoldText style={{ fontWeight: 500 }}>8 天</GoldText> 的時間，<br/>
+          把一個紀念日過得完整。
+        </p>
+      </div>
+
+      <div style={{ position: 'absolute', top: '272mm', left: '28mm', right: '28mm' }}>
+        <div style={{ borderTop: `0.5pt solid ${PRINT.goldDim}`, paddingTop: 12, textAlign: 'center' }}>
+          <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>5/24 — 5/31 GRAND PRIZE WEEK ‧ 大獎週</PMono>
+          <p style={{ margin: '6pt 0 0', fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.08em' }}>
+            每日 20:00 抽和牛雙人套餐
+          </p>
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', bottom: '22mm', left: '28mm', right: '28mm', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: `0.5pt solid ${PRINT.goldDim}`, paddingTop: 12 }}>
+        <div>
+          <PMono size={6.5} color={PRINT.creamFaint} track="0.3em" weight={600}>EVENT PERIOD</PMono>
+          <div style={{ marginTop: 2 }}>
+            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.08em' }}>2026.04.25 — 05.31</span>
+          </div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <PMono size={6.5} color={PRINT.creamFaint} track="0.3em" weight={600}>LOCATION</PMono>
+          <div style={{ marginTop: 2 }}>
+            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.08em' }}>台中市政店 4F</span>
+          </div>
+        </div>
+      </div>
+    </PPage>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   Download helpers
+═══════════════════════════════════════════════ */
+const PX_PER_MM = 3.7795;
+const safeName = (label) => label.replace(/[\/\\:*?"<>|·‧]/g, '_').replace(/\s+/g, '_');
+
+function triggerBlobDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+async function panelToPdfBlob(panels) {
+  const { jsPDF } = window.jspdf;
+  let pdf = null;
+  for (const el of panels) {
+    const canvas = await html2canvas(el, {
+      scale: 3, useCORS: true, allowTaint: true, logging: false,
+      backgroundColor: null, width: el.offsetWidth, height: el.offsetHeight,
+    });
+    const wMm = Math.round(el.offsetWidth / PX_PER_MM);
+    const hMm = Math.round(el.offsetHeight / PX_PER_MM);
+    const ori = wMm > hMm ? 'l' : 'p';
+    if (!pdf) pdf = new jsPDF({ orientation: ori, unit: 'mm', format: [wMm, hMm] });
+    else pdf.addPage([wMm, hMm], ori);
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, wMm, hMm);
+  }
+  return pdf ? pdf.output('blob') : null;
+}
+
+async function elementToPngBlob(el) {
+  const canvas = await html2canvas(el, {
+    scale: 2, useCORS: true, allowTaint: true, logging: false, backgroundColor: null,
+  });
+  return new Promise(r => canvas.toBlob(r, 'image/png'));
+}
+
+/* ═══════════════════════════════════════════════
+   DCSection
+═══════════════════════════════════════════════ */
+function DCSection({ title, subtitle, count, type = 'print', children }) {
   return (
     <div className="dc-section">
       <div className="dc-section-header">
-        <div className="dc-section-title">{title}</div>
-        {subtitle && <div className="dc-section-subtitle">{subtitle}</div>}
-        {count && <div className="dc-section-count">{count}</div>}
+        <div className="dc-section-accent" />
+        <div className="dc-section-info">
+          <div className="dc-section-title-row">
+            <div className="dc-section-title">{title}</div>
+            <div className="dc-section-badges">
+              {count && <div className="dc-section-count">{count}</div>}
+              <div className={`dc-section-type-badge ${type}`}>
+                {type === 'digital' ? 'Digital' : '印刷'}
+              </div>
+            </div>
+          </div>
+          {subtitle && <div className="dc-section-subtitle">{subtitle}</div>}
+        </div>
       </div>
       <div className="dc-row">{children}</div>
     </div>
   );
 }
 
-function DCArtboard({ label, dims, children, scale }) {
+/* ═══════════════════════════════════════════════
+   DCArtboard (per-item download)
+═══════════════════════════════════════════════ */
+function DCArtboard({ label, dims, type = 'print', captureId, children }) {
+  const frameRef = useRef(null);
   const [focused, setFocused] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
+  useEffect(() => {
+    if (!focused) return;
+    const handler = (e) => { if (e.key === 'Escape') setFocused(false); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [focused]);
+
+  const downloadItem = useCallback(async () => {
+    setDownloading(true);
+    try {
+      await document.fonts.ready;
+      const name = safeName(label);
+      if (type === 'digital') {
+        const target = captureId ? document.getElementById(captureId) : null;
+        const el = target ? target.firstElementChild : null;
+        if (!el) { console.warn('No capture target for', label); return; }
+        const blob = await elementToPngBlob(el);
+        if (blob) triggerBlobDownload(blob, `${name}.png`);
+      } else {
+        const panels = Array.from(frameRef.current.querySelectorAll('.dc-print-content'));
+        if (!panels.length) { console.warn('No print panels for', label); return; }
+        const blob = await panelToPdfBlob(panels);
+        if (blob) triggerBlobDownload(blob, `${name}.pdf`);
+      }
+    } catch (e) {
+      console.error('Download failed for', label, e);
+    } finally {
+      setDownloading(false);
+    }
+  }, [label, type, captureId]);
 
   return (
     <>
-      <div className="dc-artboard">
-        <div className="dc-artboard-footer">
-          <div>
-            <div className="dc-artboard-label">{label}</div>
-            {dims && <div className="dc-artboard-dims">{dims}</div>}
-          </div>
+      <div className="dc-artboard" data-type={type} data-capture-id={captureId || ''}>
+        <div className="dc-artboard-header">
+          <div className="dc-artboard-label">{label}</div>
+          {dims && <div className="dc-artboard-dims">{dims}</div>}
         </div>
-        <div
-          className="dc-artboard-frame dc-zoom"
-          style={scale ? { transform: `scale(${scale})`, transformOrigin: 'top left', marginBottom: `calc(${scale * 100 - 100}% - ${(1-scale)*0}px)` } : {}}
-          onClick={() => setFocused(true)}
-        >
+        <div className="dc-artboard-frame dc-zoom" ref={frameRef} onClick={() => setFocused(true)}>
           {children}
+        </div>
+        <div className="dc-artboard-footer">
+          <button
+            className="dc-dl-item-btn"
+            disabled={downloading}
+            onClick={(e) => { e.stopPropagation(); downloadItem(); }}
+          >
+            {downloading
+              ? <><span className="dc-dl-spinner" style={{ width: 10, height: 10, borderWidth: 1.5 }} />處理中…</>
+              : `↓ ${type === 'digital' ? 'PNG' : 'PDF'}`}
+          </button>
         </div>
       </div>
 
       {focused && (
         <div className="dc-focus-overlay" onClick={() => setFocused(false)}>
-          <div className="dc-focus-inner" onClick={e => e.stopPropagation()}>
+          <div className="dc-focus-inner" onClick={(e) => e.stopPropagation()}>
             <button className="dc-focus-close" onClick={() => setFocused(false)}>ESC · 關閉</button>
             <div className="dc-focus-label">{label}{dims ? ` · ${dims}` : ''}</div>
             <div style={{ overflow: 'auto', maxWidth: '95vw', maxHeight: '90vh', display: 'flex', gap: 20 }}>
@@ -210,156 +1934,86 @@ function DCArtboard({ label, dims, children, scale }) {
 }
 
 /* ═══════════════════════════════════════════════
-   Main App
+   PrintApp
 ═══════════════════════════════════════════════ */
+const DIGITAL_DISPLAY_SCALE = 0.28;
+
 function PrintApp() {
   const [dlState, setDlState] = useState({ running: false, current: 0, total: 0 });
 
   const downloadAll = useCallback(async () => {
-    const artboards = document.querySelectorAll('.dc-artboard');
+    const artboards = Array.from(document.querySelectorAll('.dc-canvas .dc-artboard[data-type]'));
     const total = artboards.length;
     setDlState({ running: true, current: 0, total });
 
+    await document.fonts.ready;
     const zip = new JSZip();
-    const { jsPDF } = window.jspdf;
 
     for (let i = 0; i < artboards.length; i++) {
       const ab = artboards[i];
       const labelEl = ab.querySelector('.dc-artboard-label');
       const label = labelEl ? labelEl.textContent.trim() : `artboard-${i + 1}`;
-      
-      const iframes = ab.querySelectorAll('.dc-artboard-frame iframe');
+      const type = ab.getAttribute('data-type') || 'print';
+      const captureId = ab.getAttribute('data-capture-id');
+      const prefix = String(i + 1).padStart(2, '0');
+      const name = `${prefix}_${safeName(label)}`;
+
       setDlState({ running: true, current: i + 1, total });
 
-      const isDigital = label.includes('Digital') || label.includes('電子') || label.includes('20 ·');
-
-      if (isDigital) {
-        // 數位輸出：導出為 PNG
-        for (let j = 0; j < iframes.length; j++) {
-          const iframe = iframes[j];
-          const suffix = iframes.length > 1 ? (j === 0 ? '_front' : '_back') : '';
-          const filename = `${String(i + 1).padStart(2, '0')}_${label.replace(/[\/\\:*?"<>|·‧]/g, '_').replace(/\s+/g, '_')}${suffix}.png`;
-
-          try {
-            const targetDoc = iframe.contentDocument || iframe.contentWindow.document;
-            const renderTarget = targetDoc.getElementById('root').firstElementChild;
-            
-            if (!renderTarget) {
-              console.warn(`Target not found in iframe for ${filename}`);
-              continue;
-            }
-
-            const canvas = await html2canvas(renderTarget, {
-              scale: 2,
-              useCORS: true,
-              allowTaint: true,
-              logging: false,
-              backgroundColor: null,
-            });
-            const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-            if (blob) zip.file(filename, blob);
-          } catch (e) {
-            console.warn(`Skip ${filename}:`, e);
-          }
+      try {
+        if (type === 'digital') {
+          const target = captureId ? document.getElementById(captureId) : null;
+          const el = target ? target.firstElementChild : null;
+          if (!el) { console.warn('No capture target for', label); continue; }
+          const blob = await elementToPngBlob(el);
+          if (blob) zip.file(`${name}.png`, blob);
+        } else {
+          const panels = Array.from(ab.querySelectorAll('.dc-print-content'));
+          if (!panels.length) { console.warn('No panels for', label); continue; }
+          const blob = await panelToPdfBlob(panels);
+          if (blob) zip.file(`${name}.pdf`, blob);
         }
-      } else {
-        // 印刷物：導出為 PDF (多面合併為多頁)
-        const filename = `${String(i + 1).padStart(2, '0')}_${label.replace(/[\/\\:*?"<>|·‧]/g, '_').replace(/\s+/g, '_')}.pdf`;
-        let pdfInstance = null;
-
-        for (let j = 0; j < iframes.length; j++) {
-          const iframe = iframes[j];
-          
-          // 獲取 iframe 尺寸以決定 PDF 頁面大小 (mm)
-          const styleWidth = iframe.style.width || `${iframe.offsetWidth}px`;
-          const styleHeight = iframe.style.height || `${iframe.offsetHeight}px`;
-          const widthMm = Math.round(parseFloat(styleWidth) / 3.7795) || 210;
-          const heightMm = Math.round(parseFloat(styleHeight) / 3.7795) || 297;
-          const orientation = widthMm > heightMm ? 'l' : 'p';
-
-          try {
-            const targetDoc = iframe.contentDocument || iframe.contentWindow.document;
-            const renderTarget = targetDoc.getElementById('root').firstElementChild;
-            
-            if (!renderTarget) {
-              console.warn(`Target not found in iframe for ${filename} page ${j + 1}`);
-              continue;
-            }
-
-            // 使用 scale: 3 以利高品質印刷
-            const canvas = await html2canvas(renderTarget, {
-              scale: 3,
-              useCORS: true,
-              allowTaint: true,
-              logging: false,
-              backgroundColor: null,
-            });
-            
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-            if (!pdfInstance) {
-              pdfInstance = new jsPDF({
-                orientation: orientation,
-                unit: 'mm',
-                format: [widthMm, heightMm]
-              });
-            } else {
-              pdfInstance.addPage([widthMm, heightMm], orientation);
-            }
-
-            pdfInstance.addImage(imgData, 'JPEG', 0, 0, widthMm, heightMm);
-          } catch (e) {
-            console.warn(`Skip page ${j + 1} of ${filename}:`, e);
-          }
-        }
-
-        if (pdfInstance) {
-          const pdfBlob = pdfInstance.output('blob');
-          zip.file(filename, pdfBlob);
-        }
+      } catch (e) {
+        console.warn('Skip', label, e);
       }
     }
 
     const content = await zip.generateAsync({ type: 'blob' });
-    const url = URL.createObjectURL(content);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = '8TH_印刷品總覽.zip';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
+    triggerBlobDownload(content, '8TH_印刷品總覽.zip');
     setDlState({ running: false, current: 0, total: 0 });
   }, []);
 
   return (
     <div>
-      {/* Toolbar */}
-      <div className="dc-toolbar">
-        <div>
-          <div className="dc-toolbar-title">Nexus Life · 八週年文宣印刷品</div>
-          <div className="dc-toolbar-meta">台中市政店 · 8TH ANNIVERSARY · 2026.04.25 — 05.31</div>
-        </div>
-        <div className="dc-toolbar-right">
-          <div className="dc-toolbar-badge">19 件印刷物</div>
-          <div className="dc-toolbar-badge">Mark Journal</div>
-          <button
-            className="dc-dl-btn"
-            disabled={dlState.running}
-            onClick={downloadAll}
-          >
-            ↓ 下載全套 (PDF/PNG)
-          </button>
-          <div style={{ color: 'rgba(196,162,74,0.5)', fontSize: 10, letterSpacing: '0.08em' }}>點擊任一印件可放大</div>
+      {/* Off-screen full-size digital poster (capture target for PNG export) */}
+      <div style={{ position: 'absolute', top: '-99999px', left: 0, pointerEvents: 'none', opacity: 0 }} aria-hidden="true">
+        <div id="digital-poster-capture">
+          <DigitalPosterPage />
         </div>
       </div>
 
-      {/* Progress toast */}
+      {/* Toolbar */}
+      <div className="dc-toolbar">
+        <div className="dc-toolbar-brand">
+          <div className="dc-toolbar-title">Nexus Life · 八週年文宣印刷品</div>
+          <div className="dc-toolbar-meta">台中市政店 · 8TH Anniversary · 2026.04.25 — 05.31</div>
+        </div>
+        <div className="dc-toolbar-right">
+          <div className="dc-toolbar-badge">19 件印刷物</div>
+          <div className="dc-toolbar-badge">單一檔案</div>
+          <div className="dc-toolbar-divider" />
+          <div className="dc-toolbar-hint">點擊任一印件可放大</div>
+          <button className="dc-dl-btn" disabled={dlState.running} onClick={downloadAll}>
+            ↓ 下載全套 (PDF / PNG)
+          </button>
+        </div>
+      </div>
+
+      {/* Download progress toast */}
       {dlState.running && (
         <div className="dc-dl-progress">
           <div className="dc-dl-spinner" />
-          正在截圖 {dlState.current} / {dlState.total} · 請稍候
+          正在輸出 {dlState.current} / {dlState.total} · 請稍候
         </div>
       )}
 
@@ -368,57 +2022,42 @@ function PrintApp() {
 
         {/* 01–08 主路集印點立牌 */}
         <DCSection
-          title="01–08 · 集印點立牌 主路"
-          subtitle="A4 210 × 297 mm · 8 站 · 館內主動線陳列 · 銅版紙 200gsm 建議"
+          title="01 – 08 · 集印點立牌 主路"
+          subtitle="A4 210 × 297 mm · 8 站 · 館內主動線陳列 · 銅版紙 200gsm 建議 · QR 可實際掃描"
           count="8 件 / 19"
+          type="print"
         >
-          {[
-            { id: '01', area: '靈感補給站', el: '無限' },
-            { id: '02', area: '日常儀式感', el: '陶杯' },
-            { id: '03', area: '都市放空點', el: '風' },
-            { id: '04', area: '白日夢實驗室', el: '橡實' },
-            { id: '05', area: '打卡神級背景', el: '書' },
-            { id: '06', area: '放鬆充電站', el: '咖啡' },
-            { id: '07', area: '絕美光影濾鏡', el: '光點' },
-            { id: '08', area: '情報交流道', el: '花朵' }
-          ].map(s => (
+          {STAMP_POINTS_DATA.map((s) => (
             <DCArtboard
-              key={s.id}
-              label={`${s.id} · ${s.area} ‧ ${s.el}`}
+              key={s.n}
+              label={`${s.n} · ${s.area} ‧ ${s.element}`}
               dims="A4 · 210 × 297 mm"
+              type="print"
             >
-              <iframe
-                src={`printings/standee.html?id=${s.id}`}
-                style={{ width: `${mm(210)}px`, height: `${mm(297)}px` }}
-                className="print-iframe"
-                scrolling="no"
-              />
+              <div className="dc-print-content">
+                <StandeeContent item={s} isEgg={false} />
+              </div>
             </DCArtboard>
           ))}
         </DCSection>
 
         {/* 09–11 隱蛋立牌 */}
         <DCSection
-          title="09–11 · 集印點立牌 隱蛋 A · B · C"
+          title="09 – 11 · 集印點立牌 隱蛋 A · B · C"
           subtitle="A4 210 × 297 mm · 員工別針 / 戶外桌 / 電梯告示 · 找到才會出現的彩蛋"
           count="3 件 / 19"
+          type="print"
         >
-          {[
-            { code: 'a', id: 'A', area: '夥伴' },
-            { code: 'b', id: 'B', area: '野生小夥伴' },
-            { code: 'c', id: 'C', area: '野生大夥伴' }
-          ].map(e => (
+          {HIDDEN_EGGS_DATA.map((e) => (
             <DCArtboard
               key={e.id}
-              label={`隱蛋 ${e.id} ‧ ${e.area}`}
+              label={`隱蛋 ${e.eggId} ‧ ${e.area}`}
               dims="A4 · 210 × 297 mm"
+              type="print"
             >
-              <iframe
-                src={`printings/standee.html?id=${e.code}`}
-                style={{ width: `${mm(210)}px`, height: `${mm(297)}px` }}
-                className="print-iframe"
-                scrolling="no"
-              />
+              <div className="dc-print-content">
+                <StandeeContent item={e} isEgg={true} />
+              </div>
             </DCArtboard>
           ))}
         </DCSection>
@@ -428,14 +2067,10 @@ function PrintApp() {
           title="12 · 櫃檯說明立卡"
           subtitle="A4 210 × 297 mm · 服務台立式 L 型壓克力插卡使用"
           count="1 件 / 19"
+          type="print"
         >
-          <DCArtboard label="12 · Counter Info Card" dims="A4 · 210 × 297 mm">
-            <iframe
-              src="printings/counter-card.html"
-              style={{ width: `${mm(210)}px`, height: `${mm(297)}px` }}
-              className="print-iframe"
-              scrolling="no"
-            />
+          <DCArtboard label="12 · Counter Info Card" dims="A4 · 210 × 297 mm" type="print">
+            <div className="dc-print-content"><CounterCardPage /></div>
           </DCArtboard>
         </DCSection>
 
@@ -444,56 +2079,39 @@ function PrintApp() {
           title="13 – 14 · 獎品看板（雙面）"
           subtitle="A4 210 × 297 mm · P1 主視覺 + P2 大獎詳情 · 高磅銅版紙建議"
           count="2 件 / 19"
+          type="print"
         >
-          <DCArtboard label="13 · P1 · Hero 主視覺" dims="A4 · 210 × 297 mm">
-            <iframe
-              src="printings/prize-board-hero.html"
-              style={{ width: `${mm(210)}px`, height: `${mm(297)}px` }}
-              className="print-iframe"
-              scrolling="no"
-            />
+          <DCArtboard label="13 · P1 · Hero 主視覺" dims="A4 · 210 × 297 mm" type="print">
+            <div className="dc-print-content"><PrizeHeroPage /></div>
           </DCArtboard>
-          <DCArtboard label="14 · P2 · 大獎詳情" dims="A4 · 210 × 297 mm">
-            <iframe
-              src="printings/prize-board-detail.html"
-              style={{ width: `${mm(210)}px`, height: `${mm(297)}px` }}
-              className="print-iframe"
-              scrolling="no"
-            />
+          <DCArtboard label="14 · P2 · 大獎詳情" dims="A4 · 210 × 297 mm" type="print">
+            <div className="dc-print-content"><PrizeDetailPage /></div>
           </DCArtboard>
         </DCSection>
 
         {/* 15–18 桌面卡 */}
         <DCSection
           title="15 – 18 · 桌面卡 A · B · C · D"
-          subtitle="A6 105 × 148 mm · 雙面印刷 · 正面 ∞ · 背面四種風味註記"
+          subtitle="A6 105 × 148 mm · 雙面印刷 · 正面主題 + 背面風味註記 · 一次輸出雙面 PDF"
           count="4 件 / 19"
+          type="print"
         >
-          {[
-            { letter: 'a', title: 'A', line: '炙燒的香，先到。' },
-            { letter: 'b', title: 'B', line: '鹽讓甜更明亮。'  },
-            { letter: 'c', title: 'C', line: '胡椒留下尾韻。'  },
-            { letter: 'd', title: 'D', line: '一點醬就夠。'    },
-          ].map(t => (
-            <DCArtboard
-              key={t.letter}
-              label={`${t.letter.toUpperCase()} · 桌面卡 ${t.title} · ${t.line}`}
-              dims="A6 × 2 · 雙面 · 105 × 148 mm"
-            >
-              <iframe
-                src={`printings/table-card-${t.letter}-front.html`}
-                style={{ width: `${mm(105)}px`, height: `${mm(148)}px` }}
-                className="print-iframe"
-                scrolling="no"
-              />
-              <iframe
-                src={`printings/table-card-${t.letter}-back.html`}
-                style={{ width: `${mm(105)}px`, height: `${mm(148)}px` }}
-                className="print-iframe"
-                scrolling="no"
-              />
-            </DCArtboard>
-          ))}
+          <DCArtboard label="A · Daily Ritual · 每日專屬儀式" dims="A6 × 2 · 雙面 · 105 × 148 mm" type="print">
+            <div className="dc-print-content"><TableCardAFront /></div>
+            <div className="dc-print-content"><TableCardABack /></div>
+          </DCArtboard>
+          <DCArtboard label="B · Mark Journal · 集印探索" dims="A6 × 2 · 雙面 · 105 × 148 mm" type="print">
+            <div className="dc-print-content"><TableCardBFront /></div>
+            <div className="dc-print-content"><TableCardBBack /></div>
+          </DCArtboard>
+          <DCArtboard label="C · Grand Prize Week · 大獎週" dims="A6 × 2 · 雙面 · 105 × 148 mm" type="print">
+            <div className="dc-print-content"><TableCardCFront /></div>
+            <div className="dc-print-content"><TableCardCBack /></div>
+          </DCArtboard>
+          <DCArtboard label="D · TSUTAYA Bookstore · 書店" dims="A6 × 2 · 雙面 · 105 × 148 mm" type="print">
+            <div className="dc-print-content"><TableCardDFront /></div>
+            <div className="dc-print-content"><TableCardDBack /></div>
+          </DCArtboard>
         </DCSection>
 
         {/* 19 主視覺海報 A4 */}
@@ -501,44 +2119,38 @@ function PrintApp() {
           title="19 · 主視覺海報"
           subtitle="A4 直向 210 × 297 mm · 入口、電梯、展示位使用"
           count="1 件 / 19"
+          type="print"
         >
-          <DCArtboard label="19 · Main Visual · A4 210 × 297 mm" dims="A4 · 210 × 297 mm">
-            <iframe
-              src="printings/main-poster.html"
-              style={{ width: `${mm(210)}px`, height: `${mm(297)}px` }}
-              className="print-iframe"
-              scrolling="no"
-            />
+          <DCArtboard label="19 · Main Visual · A4 210 × 297 mm" dims="A4 · 210 × 297 mm" type="print">
+            <div className="dc-print-content"><MainPosterPage /></div>
           </DCArtboard>
         </DCSection>
 
-        {/* 20 電子海報 1080×1920 */}
+        {/* 20 電子海報 */}
         <DCSection
           title="20 · 電子海報"
-          subtitle="1080 × 1920 px · 9:16 直式 · 社群投放 / 數位看板使用"
+          subtitle="216 × 384 mm · 9:16 直式 · 社群投放 / 數位看板使用 · 輸出高解析 PNG"
           count="電子版 · 非印刷"
+          type="digital"
         >
-          <DCArtboard label="20 · Digital Poster · 1080 × 1920 px" dims="1080 × 1920 px · 9:16">
-            <div style={{
-              width: `${Math.round(1080 * 0.28)}px`,
-              height: `${Math.round(1920 * 0.28)}px`,
-              overflow: 'hidden', position: 'relative', flexShrink: 0,
-            }}>
-              <iframe
-                src="printings/digital-poster.html"
-                style={{
-                  width: '216mm',
-                  height: '384mm',
-                  border: 'none',
-                  transform: 'scale(0.28)',
-                  transformOrigin: 'top left',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0
-                }}
-                className="print-iframe"
-                scrolling="no"
-              />
+          <DCArtboard
+            label="20 · Digital Poster · 9:16"
+            dims="216 × 384 mm · 9:16"
+            type="digital"
+            captureId="digital-poster-capture"
+          >
+            <div
+              className="dc-print-content"
+              style={{
+                width: `${Math.round(mm(216) * DIGITAL_DISPLAY_SCALE)}px`,
+                height: `${Math.round(mm(384) * DIGITAL_DISPLAY_SCALE)}px`,
+                overflow: 'hidden',
+                position: 'relative',
+              }}
+            >
+              <div style={{ transform: `scale(${DIGITAL_DISPLAY_SCALE})`, transformOrigin: 'top left', position: 'absolute', top: 0, left: 0 }}>
+                <DigitalPosterPage />
+              </div>
             </div>
           </DCArtboard>
         </DCSection>
