@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>集印點立牌</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="common/print-common.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <script src="common/print-common.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { PRINT, PPage, PWatermark, PTick, PCoBrand, PillLabel, PMono } = window.PrintCommon;
+
+    const STAMP_POINTS = [
+      { n: '01', area: '靈感補給站',   element: '無限', icon: '../assets/icon-01-infinity.svg', loc: '入口主題陳列區（2F）',
+        copy: '從這裡走出去，8 與 ∞ 同時開始。' },
+      { n: '02', area: '日常儀式感',   element: '陶杯', icon: '../assets/icon-02-cup.svg',      loc: '職人雜貨區（2F）',
+        copy: '手溫傳過陶杯，8 年的 ∞ 就在掌心。' },
+      { n: '03', area: '都市放空點',   element: '風',   icon: '../assets/icon-03-wind.svg',     loc: '戶外座位區（3F）',
+        copy: '露台吹來 ∞ 的風，繞了 8 個年頭才停。' },
+      { n: '04', area: '白日夢實驗室', element: '橡實', icon: '../assets/icon-04-acorn.svg',    loc: '兒童繪本書櫃（3F）',
+        copy: '一顆橡實用 8 年 ∞ 生長，長成整片森林。' },
+      { n: '05', area: '打卡神級背景', element: '書',   icon: '../assets/icon-05-book.svg',     loc: '樓梯書牆（3F）',
+        copy: '8 層書牆向 ∞ 展開，每格都是新世界。' },
+      { n: '06', area: '放鬆充電站',   element: '咖啡', icon: '../assets/icon-06-coffee.svg',   loc: '吧檯區（2F）',
+        copy: '一杯咖啡，8 年的 ∞ 日常，從未厭倦。' },
+      { n: '07', area: '絕美光影濾鏡', element: '光點', icon: '../assets/icon-07-flare.svg',    loc: '天井吊燈區（3F）',
+        copy: '光從天井 ∞ 落，你離第 8 枚只剩一步。' },
+      { n: '08', area: '情報交流道',   element: '花朵', icon: '../assets/icon-08-flower.svg',   loc: '告示牌（1F）',
+        copy: '8 年 ∞ 循環，每天都有一朵花記住你。' },
+    ];
+
+    const HIDDEN_EGGS = [
+      { id: 'a', eggId: 'A', area: '夥伴', element: '墨鏡松鼠', icon: '../assets/icon-04-acorn.svg', loc: '員工身上（隨機）',
+        copy: '牠等了你 8 分鐘，或者是 ∞ 分鐘，松鼠自己也數不清。' },
+      { id: 'b', eggId: 'B', area: '野生小夥伴', element: '墨鏡蜂鳥', icon: '../assets/icon-03-wind.svg', loc: '戶外座位桌上',
+        copy: '這個位子空著。蜂鳥只停在不趕路的人身邊。' },
+      { id: 'c', eggId: 'C', area: '野生大夥伴', element: '墨鏡麋鹿', icon: '../assets/icon-08-flower.svg', loc: '電梯告示',
+        copy: '電梯只有上下，沒有 ∞。麋鹿選擇住在這裡，等一個看得懂的人。' },
+    ];
+
+    /* ── Big QR Code (real URL-aware) ── */
+    function BigQRReal({ url, size }) {
+      const ref = React.useRef(null);
+      React.useEffect(() => {
+        const s = size || 80;
+        const el = ref.current;
+        if (!el || !url) return;
+        if (typeof QRCode !== 'undefined') {
+          new QRCode(el, { text: url, width: s, height: s, colorDark: PRINT.cream, colorLight: 'transparent', correctLevel: QRCode.CorrectLevel.M });
+        }
+      }, [url, size]);
+      return React.createElement('div', { ref, style: { width: size || 80, height: size || 80 } });
+    }
+
+    /* ── Animated gold shimmer box ── */
+    function GoldBox({ children, style }) {
+      return (
+        <div style={{
+          position: 'relative',
+          background: `linear-gradient(135deg, rgba(212,168,67,0.12) 0%, rgba(212,168,67,0.04) 50%, rgba(212,168,67,0.1) 100%)`,
+          border: `1.5pt solid ${PRINT.goldDim}`,
+          borderRadius: 3,
+          overflow: 'hidden',
+          ...style,
+        }}>
+          {/* shimmer line */}
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, height: '1.5pt',
+            background: `linear-gradient(90deg, transparent 0%, ${PRINT.gold} 40%, ${PRINT.goldLt} 50%, ${PRINT.gold} 60%, transparent 100%)`,
+            opacity: 0.8,
+          }} />
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0, height: '1pt',
+            background: `linear-gradient(90deg, transparent 0%, ${PRINT.goldDim} 50%, transparent 100%)`,
+            opacity: 0.5,
+          }} />
+          {children}
+        </div>
+      );
+    }
+
+    function StandeePage() {
+      const params = new URLSearchParams(window.location.search);
+      const targetId = (params.get('id') || '01').toLowerCase();
+
+      let item = STAMP_POINTS.find(s => s.n === targetId);
+      let isEgg = false;
+
+      if (!item) {
+        item = HIDDEN_EGGS.find(e => e.id === targetId || e.eggId.toLowerCase() === targetId);
+        isEgg = true;
+      }
+
+      if (!item) {
+        return <div style={{ color: PRINT.cream, padding: 20 }}>立牌資料未找到 ID: {targetId}</div>;
+      }
+
+      const num = isEgg ? item.eggId : item.n;
+      const numDisplay = isEgg ? `Egg ${item.eggId}` : `No. ${num}`;
+
+      /* ── Gold shimmer watermark number ── */
+      const watermarkGrad = `linear-gradient(135deg, rgba(212,168,67,0.08) 0%, rgba(212,168,67,0.03) 60%, rgba(212,168,67,0.06) 100%)`;
+
+      return (
+        <PPage wMm={210} hMm={297}>
+
+          {/* ── Radial ambient glow ── */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            background: `radial-gradient(ellipse 120% 80% at 50% 35%, rgba(212,168,67,0.13) 0%, transparent 65%)`,
+          }} />
+
+          {/* ── Border frame ── */}
+          <div style={{
+            position: 'absolute', inset: '6mm',
+            border: `0.8pt solid ${PRINT.goldDim}`,
+            pointerEvents: 'none',
+          }} />
+          <div style={{
+            position: 'absolute', inset: '8.5mm',
+            border: `0.3pt solid ${PRINT.goldHair}`,
+            pointerEvents: 'none',
+          }} />
+
+          {/* ── Corner ticks ── */}
+          <PTick pos={{ top: '6mm', left: '6mm' }} len={14} weight={1.2} />
+          <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={14} weight={1.2} />
+          <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={14} weight={1.2} />
+          <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={14} weight={1.2} />
+
+          {/* ── Large ghost watermark number ── */}
+          <div style={{
+            position: 'absolute', top: '28%', left: '50%',
+            transform: 'translateX(-50%) translateY(-50%)',
+            fontFamily: "'Noto Serif TC',serif",
+            fontSize: '520pt', fontWeight: 700,
+            lineHeight: 0.78, letterSpacing: '-0.04em',
+            background: watermarkGrad,
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            color: 'transparent',
+            pointerEvents: 'none', userSelect: 'none',
+            whiteSpace: 'nowrap',
+            fontStyle: 'italic',
+          }}>
+            {isEgg ? '∞' : num}
+          </div>
+
+          {/* ── TOP SECTION: co-brand + pill ── */}
+          <div style={{
+            position: 'absolute', top: '13mm', left: '14mm', right: '14mm',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3mm',
+          }}>
+            <PCoBrand height={13} gap={12} />
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '2.5pt 10pt',
+              border: `0.6pt solid ${PRINT.goldDim}`,
+              background: 'rgba(212,168,67,0.08)',
+              borderRadius: 999,
+            }}>
+              <PMono size={8.5} color={PRINT.gold} track="0.32em" weight={700}>
+                {isEgg ? '✦ HIDDEN EGG · 隱藏點' : '✦ PHYSICAL JOURNEY · 集印探索'}
+              </PMono>
+            </div>
+          </div>
+
+          {/* ── HERO TEXT: Element name (massive) ── */}
+          <div style={{
+            position: 'absolute', top: '40mm', left: '10mm', right: '10mm',
+            textAlign: 'center',
+          }}>
+            {/* Big element character */}
+            <div style={{
+              fontFamily: "'Noto Serif TC',serif",
+              fontSize: '88pt', fontWeight: 500,
+              color: PRINT.cream,
+              letterSpacing: '0.22em',
+              lineHeight: 1.1,
+              textShadow: `0 0 40px rgba(212,168,67,0.35), 0 2px 8px rgba(0,0,0,0.6)`,
+            }}>
+              {item.element}
+            </div>
+            {/* Gold underline accent */}
+            <div style={{
+              margin: '3mm auto 0',
+              width: '40mm',
+              height: '1.5pt',
+              background: `linear-gradient(90deg, transparent 0%, ${PRINT.gold} 30%, ${PRINT.goldLt} 50%, ${PRINT.gold} 70%, transparent 100%)`,
+            }} />
+            {/* Area name */}
+            <div style={{
+              marginTop: '4mm',
+              fontFamily: "'Noto Serif TC',serif",
+              fontSize: '18pt', fontWeight: 300,
+              color: PRINT.creamDim,
+              letterSpacing: '0.48em',
+              paddingLeft: '0.5em',
+            }}>
+              {item.area}
+            </div>
+            {/* Location subtitle */}
+            <div style={{ marginTop: '2mm' }}>
+              <PMono size={8} color={PRINT.gold} track="0.3em" weight={600}>
+                {item.loc}
+              </PMono>
+            </div>
+          </div>
+
+          {/* ── QR CODE SECTION ── */}
+          <div style={{
+            position: 'absolute', top: '118mm', left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4mm',
+          }}>
+            <GoldBox style={{ padding: '5mm 5mm 4mm', borderRadius: 6 }}>
+              {/* Real QR placeholder – svg grid */}
+              <svg
+                width="84mm" height="84mm"
+                viewBox="0 0 84 84"
+                style={{ display: 'block' }}
+              >
+                {/* Fake QR cells – use deterministic seeded pattern */}
+                {(() => {
+                  const N = 21;
+                  const cells = [];
+                  let s = parseInt(num, 36) * 31 + 97;
+                  const rand = () => { s = (s * 6271 + 49297) % 233280; return s / 233280; };
+                  for (let i = 0; i < N * N; i++) cells.push(rand() > 0.48);
+                  // Set finder patterns
+                  const setFinder = (ox, oy) => {
+                    for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) {
+                      const edge = x===0||x===6||y===0||y===6;
+                      const inner = x>=2&&x<=4&&y>=2&&y<=4;
+                      cells[(oy+y)*N+(ox+x)] = edge||inner;
+                    }
+                    for (let y=-1;y<8;y++) for(let x=-1;x<8;x++) {
+                      if(x===-1||x===7||y===-1||y===7)
+                        if(ox+x>=0&&ox+x<N&&oy+y>=0&&oy+y<N) cells[(oy+y)*N+(ox+x)]=false;
+                    }
+                  };
+                  setFinder(0,0); setFinder(N-7,0); setFinder(0,N-7);
+                  const cell = 84/N;
+                  return cells.map((on, i) => on ? (
+                    <rect key={i} x={(i%N)*cell} y={Math.floor(i/N)*cell} width={cell-0.5} height={cell-0.5} rx={0.4} fill={PRINT.cream} />
+                  ) : null);
+                })()}
+              </svg>
+            </GoldBox>
+
+            {/* Scan CTA */}
+            <div style={{ textAlign: 'center' }}>
+              <PMono size={11} color={PRINT.gold} track="0.4em" weight={700}>
+                SCAN TO STAMP
+              </PMono>
+              <div style={{ marginTop: 4 }}>
+                <PMono size={9} color={PRINT.creamMute} track="0.26em" weight={400}>
+                  掃碼蓋章 · 集滿 8 枚參加抽獎
+                </PMono>
+              </div>
+            </div>
+          </div>
+
+          {/* ── STATION ID + COPY ── */}
+          <div style={{
+            position: 'absolute', bottom: '26mm', left: '12mm', right: '12mm',
+            textAlign: 'center',
+          }}>
+            {/* Station number band */}
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '4mm',
+              marginBottom: '4mm',
+            }}>
+              <div style={{ width: '12mm', height: '0.8pt', background: PRINT.goldDim }} />
+              <PMono size={9.5} color={PRINT.gold} track="0.5em" weight={700}>
+                {numDisplay}
+              </PMono>
+              <div style={{ width: '12mm', height: '0.8pt', background: PRINT.goldDim }} />
+            </div>
+
+            {/* Copy poem */}
+            <p style={{
+              margin: 0,
+              fontFamily: "'Noto Serif TC',serif",
+              fontSize: '14pt', lineHeight: 1.9, letterSpacing: '0.12em',
+              color: PRINT.creamDim, fontWeight: 300,
+            }}>
+              {item.copy}
+            </p>
+          </div>
+
+          {/* ── Footer ── */}
+          <div style={{
+            position: 'absolute', bottom: '11mm', left: 0, right: 0,
+            textAlign: 'center',
+          }}>
+            <PMono size={7.5} color={PRINT.creamFaint} track="0.3em" weight={400}>
+              {isEgg ? '見つけた人へ ／ For Those Who Found It' : 'ここで、ひと呼吸。 ／ Pause Here for a Moment'}
+            </PMono>
+          </div>
+
+        </PPage>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<StandeePage />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>№ 08 · 情報交流道 - 集印立牌</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="common/print-common.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <script src="common/print-common.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { PRINT, PPage, PWatermark, PTick, PCoBrand, PillLabel, TitleBlock, PBigQR, PMono } = window.PrintCommon;
+    const data = {
+      "n": "08",
+      "area": "情報交流道",
+      "element": "花朵",
+      "icon": "../assets/icon-08-flower.svg",
+      "copy": "8 年 ∞ 循環，每天都有一朵花記住你。"
+    };
+
+    font-family: 'Noto Serif TC', serif;
+
+    function StandeePage() {
+      const num = data.n;
+      const langSub = 'ここで、ひと呼吸。 ／ Pause here for a moment.';
+      return (
+        <PPage wMm={210} hMm={297}>
+          <PWatermark ch={num} size={680} color="rgba(196,162,74,0.035)" pos={{ left: '50%', top: '48%' }} />
+
+          <PTick pos={{ top: '8mm', left: '8mm' }} len={10} weight={0.7} />
+          <PTick pos={{ top: '8mm', right: '8mm' }} flipX len={10} weight={0.7} />
+          <PTick pos={{ bottom: '8mm', left: '8mm' }} flipY len={10} weight={0.7} />
+          <PTick pos={{ bottom: '8mm', right: '8mm' }} flipX flipY len={10} weight={0.7} />
+
+          {/* Co-brand */}
+          <div style={{ position: 'absolute', top: '16mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+            <PCoBrand height={11} gap={10} />
+          </div>
+
+          {/* Pill */}
+          <div style={{ position: 'absolute', top: '30mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+            <PillLabel size={7.5}>PHYSICAL JOURNEY</PillLabel>
+          </div>
+
+          {/* Title */}
+          <div style={{ position: 'absolute', top: '42mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+            <TitleBlock en="Mark Journal" zh="集印探索" size={1.1} italic />
+          </div>
+
+          {/* QR hero */}
+          <div style={{ position: 'absolute', top: '86mm', left: '50%', transform: 'translateX(-50%)' }}>
+            <PBigQR size="92mm" seed={parseInt(num, 36) * 17 + 7} />
+          </div>
+
+          {/* Station line */}
+          <div style={{ position: 'absolute', top: '210mm', left: 0, right: 0, textAlign: 'center' }}>
+            <span style={{
+              fontFamily: "'Noto Serif TC',serif",
+              fontSize: '20pt', color: PRINT.brown, fontWeight: 400,
+              letterSpacing: '0.32em', fontStyle: 'italic',
+            }}>
+              № {num}
+            </span>
+            <span style={{ margin: '0 16px', color: PRINT.gold, fontSize: '13pt', fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif" }}>∞</span>
+            <span style={{
+              fontFamily: "'Noto Serif TC',serif",
+              fontSize: '20pt', color: PRINT.brown, fontWeight: 400, letterSpacing: '0.18em',
+            }}>
+              {data.element}
+            </span>
+          </div>
+
+          {/* Copy poem */}
+          <div style={{ position: 'absolute', top: '228mm', left: '24mm', right: '24mm', textAlign: 'center' }}>
+            <p style={{
+              margin: 0, fontFamily: "'Noto Serif TC',serif",
+              fontSize: '12pt', lineHeight: 1.8, letterSpacing: '0.12em',
+              color: PRINT.brown, fontWeight: 300,
+            }}>{data.copy}</p>
+          </div>
+
+          {/* Footer */}
+          <div style={{ position: 'absolute', bottom: '16mm', left: 0, right: 0, textAlign: 'center' }}>
+            <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '9pt', letterSpacing: '0.22em', color: PRINT.creamFaint, lineHeight: 1.6, fontWeight: 300 }}>
+              {langSub}
+            </div>
+            <div style={{ marginTop: 4 }}>
+              <PMono size={8} color={PRINT.gold} track="0.45em" weight={700}>SCAN  ·  集滿 8 天 參加抽獎</PMono>
+            </div>
+          </div>
+        </PPage>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<StandeePage />);
+  </script>
+</body>
+</html>
