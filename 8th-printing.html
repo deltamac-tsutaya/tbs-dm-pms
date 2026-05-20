@@ -173,29 +173,29 @@ const mm = (n) => Math.round(n * 3.7795);
 
 /* ─── Print design tokens ─── */
 const PRINT = {
-  bg:        '#231a13',
-  bgDeep:    '#15100b',
-  bgInk:     '#0d0905',
-  bgWarm:    '#2c211a',
-  paper:     '#ede1c8',
-  paperLt:   '#f5ead5',
-  paperDim:  '#d9c9a7',
-  gold:      '#c4a24a',
-  goldLt:    '#d4b66a',
-  goldDeep:  '#a08537',
-  goldDim:   'rgba(196,162,74,0.55)',
-  goldMute:  'rgba(196,162,74,0.32)',
-  goldFaint: 'rgba(196,162,74,0.18)',
-  goldHair:  'rgba(196,162,74,0.1)',
-  red:       '#b94a3a',
-  redDeep:   '#9a3a2c',
-  redLt:     '#c75c4a',
-  cream:     '#f0e4cc',
-  creamDim:  'rgba(240,228,204,0.7)',
-  creamMute: 'rgba(240,228,204,0.5)',
-  creamFaint:'rgba(240,228,204,0.3)',
-  brown:     '#3a2a1d',
-  brownDim:  'rgba(58,42,29,0.7)',
+  bg:        '#fdfcf9',
+  bgDeep:    '#f5f2e9',
+  bgInk:     '#eae5d8',
+  bgWarm:    '#faf7f0',
+  paper:     '#ffffff',
+  paperLt:   '#fbfaf7',
+  paperDim:  '#f5f2e9',
+  gold:      '#a88438',
+  goldLt:    '#c29f53',
+  goldDeep:  '#876624',
+  goldDim:   'rgba(168,132,56,0.65)',
+  goldMute:  'rgba(168,132,56,0.4)',
+  goldFaint: 'rgba(168,132,56,0.22)',
+  goldHair:  'rgba(168,132,56,0.12)',
+  red:       '#b83323',
+  redDeep:   '#942518',
+  redLt:     '#d64d3c',
+  cream:     '#24201c',
+  creamDim:  'rgba(36,32,28,0.75)',
+  creamMute: 'rgba(36,32,28,0.55)',
+  creamFaint:'rgba(36,32,28,0.32)',
+  brown:     '#24201c',
+  brownDim:  'rgba(36,32,28,0.7)',
 };
 
 /* ─── Typography atoms ─── */
@@ -252,17 +252,17 @@ function GoldText({ children, soft = false, style: s, as: As = 'span' }) {
 }
 
 /* ─── Paper grain overlay ─── */
-function PaperGrain({ opacity = 0.5 }) {
+function PaperGrain({ opacity = 0.16 }) {
   return (
     <div style={{
       position: 'absolute', inset: 0, pointerEvents: 'none',
       backgroundImage: `
-        url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"),
-        radial-gradient(circle at 20% 30%, rgba(196,162,74,0.04) 0.5px, transparent 1.5px),
-        radial-gradient(circle at 80% 70%, rgba(196,162,74,0.05) 0.5px, transparent 1.5px)
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E"),
+        radial-gradient(circle at 20% 30%, rgba(36,32,28,0.02) 0.5px, transparent 1.5px),
+        radial-gradient(circle at 80% 70%, rgba(36,32,28,0.02) 0.5px, transparent 1.5px)
       `,
-      backgroundSize: '180px 180px, 70px 70px, 90px 90px',
-      mixBlendMode: 'overlay', opacity,
+      backgroundSize: '150px 150px, 60px 60px, 80px 80px',
+      mixBlendMode: 'multiply', opacity,
     }} />
   );
 }
@@ -416,13 +416,13 @@ function InfinityBadge({ size = 80, fg = PRINT.gold, accent = PRINT.gold, stroke
 
 /* ─── Co-brand lockup ─── */
 function PCoBrand({ height = 11, gap = 8 }) {
-  const filt = 'brightness(0) invert(1) opacity(0.85)';
+  const filt = 'brightness(0.12) opacity(0.88)';
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap }}>
       <img src="assets/tsutaya-logo.svg" alt="TSUTAYA"
         style={{ height: height * 1.1, filter: filt, display: 'block' }} />
       <span style={{ fontFamily: "'Noto Sans TC',sans-serif",
-        fontSize: `${height * 0.85}pt`, color: PRINT.creamFaint }}>×</span>
+        fontSize: `${height * 0.85}pt`, color: PRINT.goldDim }}>×</span>
       <img src="assets/wired-tokyo-logo.svg" alt="WIRED TOKYO"
         style={{ height: height * 1.25, filter: filt, display: 'block' }} />
     </div>
@@ -681,7 +681,7 @@ function StampStandee({ data, isEgg = false }) {
     '03': '放空這一刻，拿下今晚機會。',
     '04': '一個掃描，一個抽獎資格。',
     '05': '掃完 5 站，還剩 3 站就集滿了。',
-    '06': '今晚 20:00，你可以不只是想像。',
+    '06': '今晚 20:00，你可以親自品嚐美味。',
     '07': '倒數第二站了。',
     '08': '8 站集滿 → 每日抽獎資格到手。',
     'A':  '領取抽獎券，今晚的和牛機率更高。',
@@ -738,7 +738,7 @@ function StampStandee({ data, isEgg = false }) {
       </div>
 
       {/* Divider */}
-      <div style={{ position: 'absolute', top: '144mm', left: '18mm', right: '18mm', height: 0.5, background: 'rgba(232,201,125,0.2)' }} />
+      <div style={{ position: 'absolute', top: '144mm', left: '18mm', right: '18mm', height: 0.5, background: PRINT.goldDim, opacity: 0.4 }} />
 
       {/* Action tagline — big, emotional */}
       <div style={{ position: 'absolute', top: '150mm', left: '18mm', right: '18mm', textAlign: 'center' }}>
@@ -748,20 +748,20 @@ function StampStandee({ data, isEgg = false }) {
       </div>
 
       {/* Wagyu strip image */}
-      <div style={{ position: 'absolute', top: '176mm', left: '16mm', right: '16mm', height: '16mm', overflow: 'hidden', border: '0.4pt solid rgba(232,201,125,0.2)' }}>
+      <div style={{ position: 'absolute', top: '176mm', left: '16mm', right: '16mm', height: '16mm', overflow: 'hidden', border: `0.5pt solid ${PRINT.goldDim}` }}>
         <img src="assets/image_steak_02.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,15,28,0.25) 0%, transparent 40%, rgba(8,15,28,0.35) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(36,32,28,0.05) 0%, transparent 40%, rgba(36,32,28,0.12) 100%)' }} />
       </div>
 
       {/* Prize reward block */}
-      <div style={{ position: 'absolute', top: '196mm', left: '16mm', right: '16mm', background: 'linear-gradient(160deg, #0e1a33 0%, #050a18 100%)', border: `0.6pt solid ${PRINT.goldDim}`, padding: '5mm 7mm', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: 8, top: 2, fontFamily: "'Noto Serif TC',serif", fontSize: '52pt', color: 'rgba(232,201,125,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
+      <div style={{ position: 'absolute', top: '196mm', left: '16mm', right: '16mm', background: PRINT.paper, border: `0.75pt solid ${PRINT.goldDim}`, borderRadius: 1, padding: '5mm 7mm', overflow: 'hidden', boxShadow: '0 2mm 6mm rgba(36,32,28,0.03)' }}>
+        <div style={{ position: 'absolute', right: 8, top: 2, fontFamily: "'Noto Serif TC',serif", fontSize: '52pt', color: 'rgba(168,132,56,0.05)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
         <div style={{ position: 'relative' }}>
           <PMono size={5.5} color={PRINT.gold} track="0.4em" weight={700}>掃描集印 · 獲得今晚抽獎資格</PMono>
           <div style={{ marginTop: 4 }}>
             <PSans size={8.5} color={PRINT.creamDim} weight={400} track="0.06em">{hint}</PSans>
           </div>
-          <div style={{ marginTop: 6, borderTop: `0.5pt solid rgba(232,201,125,0.2)`, paddingTop: 4 }}>
+          <div style={{ marginTop: 6, borderTop: `0.5pt solid ${PRINT.goldDim}`, opacity: 0.8, paddingTop: 4 }}>
             <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.cream, fontWeight: 500, letterSpacing: '0.04em' }}>日本和牛牛排雙人套餐</span>
           </div>
           <div style={{ marginTop: 2 }}>
@@ -803,7 +803,7 @@ function CounterCard() {
         <PCoBrand height={11} />
         <PMono size={7} color={PRINT.gold} track="0.36em" weight={700}>2026.04.25 — 05.31</PMono>
       </div>
-      <div style={{ position: 'absolute', top: '21mm', left: '14mm', right: '14mm', height: 0.5, background: 'rgba(232,201,125,0.22)' }} />
+      <div style={{ position: 'absolute', top: '21mm', left: '14mm', right: '14mm', height: 0.5, background: PRINT.goldDim, opacity: 0.4 }} />
 
       {/* Eyebrow */}
       <div style={{ position: 'absolute', top: '26mm', left: '14mm', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -817,9 +817,9 @@ function CounterCard() {
       </div>
 
       {/* Wagyu image strip */}
-      <div style={{ position: 'absolute', top: '44mm', left: '14mm', right: '14mm', height: '21mm', overflow: 'hidden', border: '0.5pt solid rgba(232,201,125,0.22)', boxShadow: '0 3mm 10mm -3mm rgba(0,0,0,0.5)' }}>
+      <div style={{ position: 'absolute', top: '44mm', left: '14mm', right: '14mm', height: '21mm', overflow: 'hidden', border: `0.5pt solid ${PRINT.goldDim}`, boxShadow: '0 2mm 6mm rgba(36,32,28,0.04)' }}>
         <img src="assets/image_steak_04.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 28%', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,15,28,0.3) 0%, transparent 35%, rgba(8,15,28,0.4) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(36,32,28,0.05) 0%, transparent 35%, rgba(36,32,28,0.12) 100%)' }} />
       </div>
 
       {/* Infinity badge + tagline */}
@@ -850,7 +850,7 @@ function CounterCard() {
             { n: '02', tag: 'MARK JOURNAL', zh: '集印探索',     desc: '館內掃描 8 個主路點位印章，解鎖當日抽獎' },
             { n: '03', tag: 'INFINITY DAY', zh: '加碼抽獎',     desc: '每晚 20:00，現場抽出 NT$2,300 和牛套餐' },
           ].map(m => (
-            <div key={m.n} style={{ border: '0.5pt solid rgba(232,201,125,0.22)', background: 'rgba(232,201,125,0.025)', padding: '5mm 4.5mm', minHeight: '40mm' }}>
+            <div key={m.n} style={{ border: `0.5pt solid ${PRINT.goldDim}`, background: PRINT.paperLt, padding: '5mm 4.5mm', minHeight: '40mm', borderRadius: 1, boxShadow: '0 1mm 3mm rgba(36,32,28,0.02)' }}>
               <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '22pt', fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em' }}>
                 <GoldText>{m.n}</GoldText>
               </div>
@@ -865,8 +865,8 @@ function CounterCard() {
       </div>
 
       {/* Grand prize callout */}
-      <div style={{ position: 'absolute', top: '196mm', left: '14mm', right: '14mm', background: 'linear-gradient(160deg, #0e1a33 0%, #050a18 100%)', border: '0.6pt solid rgba(232,201,125,0.35)', padding: '8mm 8mm', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: -8, top: -16, fontFamily: "'Noto Serif TC',serif", fontSize: '110pt', color: 'rgba(232,201,125,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
+      <div style={{ position: 'absolute', top: '196mm', left: '14mm', right: '14mm', background: PRINT.paper, border: `0.75pt solid ${PRINT.goldDim}`, borderRadius: 1, padding: '8mm 8mm', overflow: 'hidden', boxShadow: '0 2mm 6mm rgba(36,32,28,0.03)' }}>
+        <div style={{ position: 'absolute', right: -8, top: -16, fontFamily: "'Noto Serif TC',serif", fontSize: '110pt', color: 'rgba(168,132,56,0.05)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
         <div style={{ display: 'flex', gap: 10, position: 'relative' }}>
           <div style={{ flex: 1 }}>
             <PMono size={6.5} color={PRINT.goldDim} track="0.36em" weight={700}>GRAND PRIZE WEEK · 大獎週</PMono>
@@ -948,12 +948,12 @@ function PrizeBoardHero() {
           width: '94mm', height: '94mm', borderRadius: '50%',
           background: `radial-gradient(circle at 30% 25%, ${PRINT.paperLt} 0%, ${PRINT.paper} 60%, ${PRINT.paperDim} 100%)`,
           border: `0.8pt solid ${PRINT.goldDim}`,
-          boxShadow: 'inset 0 2pt 4pt rgba(255,255,255,0.5), inset 0 -2pt 4pt rgba(58,42,29,0.18), 0 6mm 24mm -6mm rgba(0,0,0,0.65)',
+          boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(36,32,28,0.08), 0 4mm 16mm rgba(36,32,28,0.06)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           position: 'relative', overflow: 'hidden',
         }}>
-          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.5, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")`, mixBlendMode: 'multiply' }} />
-          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '300pt', lineHeight: 0.8, color: PRINT.brown, fontStyle: 'italic', letterSpacing: '-0.06em', fontWeight: 400, position: 'relative', textShadow: '0 1pt 0 rgba(255,255,255,0.4)' }}>∞</div>
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.15, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")`, mixBlendMode: 'multiply' }} />
+          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '300pt', lineHeight: 0.8, color: PRINT.brown, fontStyle: 'italic', letterSpacing: '-0.06em', fontWeight: 400, position: 'relative', textShadow: '0 1pt 0 rgba(255,255,255,0.8)' }}>∞</div>
           <div style={{ position: 'absolute', inset: '8mm', borderRadius: '50%', border: `0.5pt dashed rgba(196,162,74,0.45)`, pointerEvents: 'none' }} />
         </div>
         <PTick pos={{ top: '-3mm', left: '-3mm' }} len={12} color={PRINT.gold} opacity={0.85} weight={0.8} />
@@ -1046,15 +1046,15 @@ function PrizeBoardDetail() {
       </div>
 
       {/* Hero photo placeholder (warm gradient to simulate photo) */}
-      <div style={{ position: 'absolute', top: '42mm', left: '14mm', right: '14mm', height: '108mm', overflow: 'hidden', border: '0.6pt solid rgba(232,201,125,0.35)', boxShadow: '0 16mm 28mm -10mm rgba(0,0,0,0.6)' }}>
+      <div style={{ position: 'absolute', top: '42mm', left: '14mm', right: '14mm', height: '108mm', overflow: 'hidden', border: `0.6pt solid ${PRINT.goldDim}`, boxShadow: '0 8mm 20mm -4mm rgba(36,32,28,0.08)' }}>
         <img src="assets/image_steak_03.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 35%', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(11,20,36,0.25) 0%, transparent 25%, transparent 55%, rgba(11,20,36,0.85) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(36,32,28,0.06) 0%, transparent 25%, transparent 55%, rgba(36,32,28,0.18) 100%)' }} />
         <PTick pos={{ top: 6, left: 6 }} />
         <PTick pos={{ top: 6, right: 6 }} flipX />
         <PTick pos={{ bottom: 6, left: 6 }} flipY />
         <PTick pos={{ bottom: 6, right: 6 }} flipX flipY />
         {/* Badge */}
-        <div style={{ position: 'absolute', top: 8, left: 8, padding: '3pt 7pt', background: 'rgba(11,20,36,0.78)', border: '0.5pt solid rgba(232,201,125,0.5)', backdropFilter: 'blur(6px)' }}>
+        <div style={{ position: 'absolute', top: 8, left: 8, padding: '3pt 7pt', background: 'rgba(255,255,255,0.85)', border: `0.5pt solid ${PRINT.gold}`, backdropFilter: 'blur(6px)', borderRadius: 1 }}>
           <PMono size={6} color={PRINT.gold} track="0.34em" weight={700}>A5 JAPANESE WAGYU · GRAND PRIZE</PMono>
         </div>
         {/* Value */}
@@ -1158,7 +1158,7 @@ function TableCard({ letter, line }) {
 
       {/* BACK — tasting beat */}
       <PPage wMm={105} hMm={148}>
-        <div style={{ position: 'absolute', inset: '5mm', border: '0.5pt solid rgba(232,201,125,0.22)' }} />
+        <div style={{ position: 'absolute', inset: '5mm', border: `0.5pt solid ${PRINT.goldDim}`, borderRadius: 1 }} />
         <PTick pos={{ top: '5mm', left: '5mm' }} />
         <PTick pos={{ top: '5mm', right: '5mm' }} flipX />
         <PTick pos={{ bottom: '5mm', left: '5mm' }} flipY />
@@ -1186,7 +1186,7 @@ function TableCard({ letter, line }) {
           </div>
         </div>
 
-        <div style={{ position: 'absolute', bottom: '9mm', left: '9mm', right: '9mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '0.5pt solid rgba(232,201,125,0.22)', paddingTop: 4 }}>
+        <div style={{ position: 'absolute', bottom: '9mm', left: '9mm', right: '9mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: `0.5pt solid ${PRINT.goldDim}`, opacity: 0.6, paddingTop: 4 }}>
           <PCoBrand height={6.5} />
           <PQRCode size="14mm" url={LIFF_URL} />
         </div>
@@ -1202,14 +1202,14 @@ function MainPoster() {
   return (
     <PPage wMm={210} hMm={297}>
       {/* Gigantic 8 watermark */}
-      <div style={{ position: 'absolute', left: '50%', top: '40%', transform: 'translate(-50%, -50%)', fontFamily: "'Noto Serif TC',serif", fontWeight: 500, fontSize: '900pt', lineHeight: 0.78, color: 'rgba(232,201,125,0.04)', letterSpacing: '-0.06em', pointerEvents: 'none', userSelect: 'none' }}>8</div>
+      <div style={{ position: 'absolute', left: '50%', top: '40%', transform: 'translate(-50%, -50%)', fontFamily: "'Noto Serif TC',serif", fontWeight: 500, fontSize: '900pt', lineHeight: 0.78, color: 'rgba(168,132,56,0.035)', letterSpacing: '-0.06em', pointerEvents: 'none', userSelect: 'none' }}>8</div>
 
       {/* Vignette */}
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 35%, rgba(201,168,76,0.1) 0%, transparent 55%), linear-gradient(180deg, rgba(11,20,36,0) 60%, rgba(8,15,28,0.6) 100%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 35%, rgba(168,132,56,0.06) 0%, transparent 60%)', pointerEvents: 'none' }} />
 
       {/* Outer frame */}
-      <div style={{ position: 'absolute', inset: '6mm', border: '0.8pt solid rgba(232,201,125,0.28)' }} />
-      <div style={{ position: 'absolute', inset: '8mm', border: '0.5pt solid rgba(232,201,125,0.1)' }} />
+      <div style={{ position: 'absolute', inset: '6mm', border: `0.8pt solid ${PRINT.goldDim}` }} />
+      <div style={{ position: 'absolute', inset: '8mm', border: `0.5pt solid ${PRINT.goldHair}` }} />
       <PTick pos={{ top: '6mm', left: '6mm' }} len={9} weight={0.5} />
       <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={9} weight={0.5} />
       <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={9} weight={0.5} />
@@ -1223,14 +1223,14 @@ function MainPoster() {
           <div style={{ marginTop: 1 }}><PMono size={4} color={PRINT.creamFaint} track="0.4em" weight={500}>TAICHUNG CITYHALL</PMono></div>
         </div>
       </div>
-      <div style={{ position: 'absolute', top: '17mm', left: '12mm', right: '12mm', height: 0.5, background: 'rgba(232,201,125,0.25)' }} />
+      <div style={{ position: 'absolute', top: '17mm', left: '12mm', right: '12mm', height: 0.5, background: PRINT.goldDim, opacity: 0.4 }} />
 
       {/* Eyebrow */}
       <div style={{ position: 'absolute', top: '21mm', left: 0, right: 0, textAlign: 'center' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-          <PRule width="9mm" color={PRINT.gold} height={0.6} />
+          <PRule width="9mm" color={PRINT.goldDim} height={0.6} />
           <PMono size={6} color={PRINT.gold} track="0.46em" weight={700}>8TH ANNIVERSARY · 八週年紀念</PMono>
-          <PRule width="9mm" color={PRINT.gold} height={0.6} />
+          <PRule width="9mm" color={PRINT.goldDim} height={0.6} />
         </div>
       </div>
 
@@ -1257,13 +1257,13 @@ function MainPoster() {
       </div>
 
       {/* Wagyu hero image */}
-      <div style={{ position: 'absolute', top: '100mm', left: '12mm', right: '12mm', height: '26mm', overflow: 'hidden', border: '0.5pt solid rgba(232,201,125,0.25)', boxShadow: '0 4mm 12mm -3mm rgba(0,0,0,0.55)' }}>
+      <div style={{ position: 'absolute', top: '100mm', left: '12mm', right: '12mm', height: '26mm', overflow: 'hidden', border: `0.5pt solid ${PRINT.goldDim}`, boxShadow: '0 3mm 8mm rgba(36,32,28,0.05)' }}>
         <img src="assets/IMG_9445.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 45%', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(8,15,28,0.45) 0%, transparent 35%, transparent 65%, rgba(8,15,28,0.45) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(36,32,28,0.05) 0%, transparent 25%, transparent 75%, rgba(36,32,28,0.05) 100%)' }} />
       </div>
 
       {/* 3 modules block */}
-      <div style={{ position: 'absolute', top: '130mm', left: '12mm', right: '12mm', borderTop: '0.5pt solid rgba(232,201,125,0.28)', borderBottom: '0.5pt solid rgba(232,201,125,0.28)', padding: '6mm 0', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+      <div style={{ position: 'absolute', top: '130mm', left: '12mm', right: '12mm', borderTop: `0.5pt solid ${PRINT.goldDim}`, borderBottom: `0.5pt solid ${PRINT.goldDim}`, padding: '6mm 0', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
         {[
           { n: '01', en: 'Daily Ritual',  zh: '每日專屬儀式', desc: '每日完成儀式 · 累積抽獎券' },
           { n: '02', en: 'Mark Journal',  zh: '集印探索',     desc: '館內掃描 8 個主路印章' },
@@ -1278,14 +1278,14 @@ function MainPoster() {
               <div style={{ marginTop: 1 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '7pt', color: PRINT.cream, letterSpacing: '0.2em' }}>{m.zh}</span></div>
               <div style={{ marginTop: 2 }}><PSans size={4} color={PRINT.creamMute} weight={300} track="0.06em">{m.desc}</PSans></div>
             </div>
-            {i < arr.length - 1 && <div style={{ width: 0.4, alignSelf: 'stretch', background: 'rgba(232,201,125,0.22)' }} />}
+            {i < arr.length - 1 && <div style={{ width: 0.4, alignSelf: 'stretch', background: PRINT.goldDim, opacity: 0.4 }} />}
           </React.Fragment>
         ))}
       </div>
 
       {/* Grand prize callout */}
-      <div style={{ position: 'absolute', top: '175mm', left: '12mm', right: '12mm', background: 'linear-gradient(160deg, #0e1a33 0%, #050a18 100%)', border: '0.6pt solid rgba(232,201,125,0.4)', padding: '5mm 6mm', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: 6, top: 2, fontFamily: "'Noto Serif TC',serif", fontSize: '70pt', color: 'rgba(232,201,125,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
+      <div style={{ position: 'absolute', top: '175mm', left: '12mm', right: '12mm', background: PRINT.paper, border: `0.75pt solid ${PRINT.goldDim}`, padding: '5mm 6mm', overflow: 'hidden', boxShadow: '0 2mm 6mm rgba(36,32,28,0.03)' }}>
+        <div style={{ position: 'absolute', right: 6, top: 2, fontFamily: "'Noto Serif TC',serif", fontSize: '70pt', color: 'rgba(168,132,56,0.05)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
         <div style={{ display: 'flex', position: 'relative', alignItems: 'center', gap: 6 }}>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -1307,7 +1307,7 @@ function MainPoster() {
       </div>
 
       {/* Footer */}
-      <div style={{ position: 'absolute', bottom: '9mm', left: '12mm', right: '12mm', borderTop: '0.5pt solid rgba(232,201,125,0.22)', paddingTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ position: 'absolute', bottom: '9mm', left: '12mm', right: '12mm', borderTop: `0.5pt solid ${PRINT.goldDim}`, opacity: 0.4, paddingTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <PMono size={4} color={PRINT.creamFaint} track="0.34em" weight={600}>TSUTAYA BOOKSTORE × WIRED TOKYO · 台中市政店</PMono>
         <PMono size={4} color={PRINT.gold} track="0.34em" weight={700}>NEXUS.LIFE / 8TH</PMono>
       </div>
@@ -1322,19 +1322,19 @@ function DigitalPoster() {
   return (
     <div style={{
       width: 1080, height: 1920,
-      background: `linear-gradient(165deg, ${PRINT.bgWarm} 0%, ${PRINT.bg} 50%, ${PRINT.bgDeep} 100%)`,
-      color: PRINT.cream,
+      background: `linear-gradient(165deg, ${PRINT.paperLt} 0%, ${PRINT.paper} 50%, ${PRINT.paperDim} 100%)`,
+      color: PRINT.brown,
       position: 'relative', overflow: 'hidden',
       fontFamily: "'Noto Sans TC',sans-serif",
     }}>
       <PaperGrain opacity={0.35} />
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 35%, rgba(201,168,76,0.08) 0%, transparent 55%), linear-gradient(180deg, rgba(11,20,36,0) 60%, rgba(8,15,28,0.5) 100%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 35%, rgba(168,132,56,0.06) 0%, transparent 60%)', pointerEvents: 'none' }} />
 
       {/* Gigantic 8 watermark */}
-      <div style={{ position: 'absolute', left: '50%', top: '42%', transform: 'translate(-50%, -50%)', fontFamily: "'Noto Serif TC',serif", fontWeight: 500, fontSize: '1800px', lineHeight: 0.78, color: 'rgba(232,201,125,0.04)', letterSpacing: '-0.06em', pointerEvents: 'none', userSelect: 'none' }}>8</div>
+      <div style={{ position: 'absolute', left: '50%', top: '42%', transform: 'translate(-50%, -50%)', fontFamily: "'Noto Serif TC',serif", fontWeight: 500, fontSize: '1800px', lineHeight: 0.78, color: 'rgba(168,132,56,0.035)', letterSpacing: '-0.06em', pointerEvents: 'none', userSelect: 'none' }}>8</div>
 
       {/* Outer frame */}
-      <div style={{ position: 'absolute', inset: 60, border: '1px solid rgba(232,201,125,0.28)' }} />
+      <div style={{ position: 'absolute', inset: 60, border: `1px solid ${PRINT.goldDim}` }} />
 
       {/* Header */}
       <div style={{ position: 'absolute', top: 96, left: 90, right: 90, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -1344,14 +1344,14 @@ function DigitalPoster() {
           <div style={{ marginTop: 4 }}><PMono size={11} color={PRINT.creamFaint} track="0.4em" weight={500}>TAICHUNG CITYHALL</PMono></div>
         </div>
       </div>
-      <div style={{ position: 'absolute', top: 164, left: 90, right: 90, height: 1, background: 'rgba(232,201,125,0.25)' }} />
+      <div style={{ position: 'absolute', top: 164, left: 90, right: 90, height: 1, background: PRINT.goldDim, opacity: 0.4 }} />
 
       {/* Eyebrow */}
       <div style={{ position: 'absolute', top: 196, left: 0, right: 0, textAlign: 'center' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16 }}>
-          <div style={{ width: 80, height: 1.5, background: PRINT.gold }} />
+          <div style={{ width: 80, height: 1.5, background: PRINT.goldDim }} />
           <PMono size={15} color={PRINT.gold} track="0.46em" weight={700}>8TH ANNIVERSARY · 八週年紀念</PMono>
-          <div style={{ width: 80, height: 1.5, background: PRINT.gold }} />
+          <div style={{ width: 80, height: 1.5, background: PRINT.goldDim }} />
         </div>
       </div>
 
@@ -1361,9 +1361,9 @@ function DigitalPoster() {
       </div>
 
       {/* Wagyu hero image */}
-      <div style={{ position: 'absolute', top: 430, left: 90, right: 90, height: 220, overflow: 'hidden', border: '1px solid rgba(232,201,125,0.3)', boxShadow: '0 20px 60px -10px rgba(0,0,0,0.65)' }}>
+      <div style={{ position: 'absolute', top: 430, left: 90, right: 90, height: 220, overflow: 'hidden', border: `1px solid ${PRINT.goldDim}`, boxShadow: '0 20px 60px -10px rgba(36,32,28,0.08)' }}>
         <img src="assets/image_steak_01.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,15,28,0.35) 0%, transparent 30%, transparent 60%, rgba(8,15,28,0.6) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(36,32,28,0.05) 0%, transparent 30%, transparent 60%, rgba(36,32,28,0.05) 100%)' }} />
       </div>
 
       {/* Tagline */}
@@ -1384,7 +1384,7 @@ function DigitalPoster() {
       </div>
 
       {/* 3 modules */}
-      <div style={{ position: 'absolute', top: 1160, left: 90, right: 90, borderTop: '1px solid rgba(232,201,125,0.28)', borderBottom: '1px solid rgba(232,201,125,0.28)', padding: '50px 0', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+      <div style={{ position: 'absolute', top: 1160, left: 90, right: 90, borderTop: `1px solid ${PRINT.goldDim}`, borderBottom: `1px solid ${PRINT.goldDim}`, padding: '50px 0', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
         {[
           { n: '01', en: 'Daily Ritual',  zh: '每日專屬儀式', desc: '每日完成儀式 · 累積抽獎券' },
           { n: '02', en: 'Mark Journal',  zh: '集印探索',     desc: '館內掃描 8 個主路印章' },
@@ -1399,14 +1399,14 @@ function DigitalPoster() {
               <div style={{ marginTop: 4 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '22pt', color: PRINT.cream, letterSpacing: '0.2em' }}>{m.zh}</span></div>
               <div style={{ marginTop: 6 }}><PSans size={13} color={PRINT.creamMute} weight={300} track="0.06em">{m.desc}</PSans></div>
             </div>
-            {i < arr.length - 1 && <div style={{ width: 1, alignSelf: 'stretch', background: 'rgba(232,201,125,0.22)' }} />}
+            {i < arr.length - 1 && <div style={{ width: 1, alignSelf: 'stretch', background: PRINT.goldDim, opacity: 0.4 }} />}
           </React.Fragment>
         ))}
       </div>
 
       {/* Grand prize callout */}
-      <div style={{ position: 'absolute', top: 1500, left: 90, right: 90, background: 'linear-gradient(160deg, #0e1a33 0%, #050a18 100%)', border: '1px solid rgba(232,201,125,0.4)', padding: '40px 50px', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: 20, top: 10, fontFamily: "'Noto Serif TC',serif", fontSize: '220pt', color: 'rgba(232,201,125,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
+      <div style={{ position: 'absolute', top: 1500, left: 90, right: 90, background: PRINT.paper, border: `1.5px solid ${PRINT.goldDim}`, padding: '40px 50px', overflow: 'hidden', boxShadow: '0 8px 24px rgba(36,32,28,0.03)' }}>
+        <div style={{ position: 'absolute', right: 20, top: 10, fontFamily: "'Noto Serif TC',serif", fontSize: '220pt', color: 'rgba(168,132,56,0.05)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
         <div style={{ display: 'flex', position: 'relative', alignItems: 'center', gap: 30 }}>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -1428,7 +1428,7 @@ function DigitalPoster() {
       </div>
 
       {/* Footer */}
-      <div style={{ position: 'absolute', bottom: 80, left: 90, right: 90, borderTop: '1px solid rgba(232,201,125,0.22)', paddingTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ position: 'absolute', bottom: 80, left: 90, right: 90, borderTop: `1px solid ${PRINT.goldDim}`, opacity: 0.4, paddingTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <PMono size={11} color={PRINT.creamFaint} track="0.34em" weight={600}>TSUTAYA BOOKSTORE × WIRED TOKYO · 台中市政店</PMono>
         <PMono size={11} color={PRINT.gold} track="0.34em" weight={700}>NEXUS.LIFE / 8TH</PMono>
       </div>
