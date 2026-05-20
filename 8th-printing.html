@@ -135,6 +135,7 @@
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -541,6 +542,53 @@ function PBigQR({ size = '50mm', label, seed = 7, withBrackets = true }) {
   );
 }
 
+/* ─── Real QR code component ─── */
+const _qrCache = {};
+function PQRCode({ url, size = '50mm', withBrackets = true }) {
+  const [svgHtml, setSvgHtml] = useState(_qrCache[url] || null);
+  useEffect(() => {
+    if (!url || _qrCache[url]) return;
+    if (typeof QRCode === 'undefined') return;
+    QRCode.toString(url, { type: 'svg', margin: 1, errorCorrectionLevel: 'M',
+      color: { dark: '#3a2a1d', light: '#ede1c8' } }, (err, svg) => {
+      if (!err) {
+        const s = svg.replace('<svg ', '<svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet" ');
+        _qrCache[url] = s;
+        setSvgHtml(s);
+      }
+    });
+  }, [url]);
+
+  const isPixel = typeof size === 'string' && size.endsWith('px');
+  const pad = isPixel ? Math.max(4, Math.round(parseInt(size) * 0.055)) + 'px' : '3.5%';
+  const tLen = isPixel ? Math.max(5, Math.round(parseInt(size) * 0.1)) : 9;
+
+  return (
+    <div style={{
+      width: size, height: size,
+      background: `radial-gradient(circle at 30% 25%, ${PRINT.paperLt} 0%, ${PRINT.paper} 65%, ${PRINT.paperDim} 100%)`,
+      padding: pad, position: 'relative',
+      border: `0.6pt solid ${PRINT.goldDim}`,
+      boxShadow: '0 1pt 2pt rgba(255,255,255,0.4) inset, 0 -1pt 2pt rgba(58,42,29,0.15) inset, 0 6mm 18mm -6mm rgba(0,0,0,0.55)',
+      boxSizing: 'border-box',
+    }}>
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.3,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E")`,
+        mixBlendMode: 'multiply' }} />
+      {withBrackets && (<>
+        <PTick pos={{ top: '-1.5mm', left: '-1.5mm' }} len={tLen} color={PRINT.gold} opacity={0.85} weight={0.8} />
+        <PTick pos={{ top: '-1.5mm', right: '-1.5mm' }} len={tLen} color={PRINT.gold} opacity={0.85} flipX weight={0.8} />
+        <PTick pos={{ bottom: '-1.5mm', left: '-1.5mm' }} len={tLen} color={PRINT.gold} opacity={0.85} flipY weight={0.8} />
+        <PTick pos={{ bottom: '-1.5mm', right: '-1.5mm' }} len={tLen} color={PRINT.gold} opacity={0.85} flipX flipY weight={0.8} />
+      </>)}
+      {svgHtml
+        ? <div style={{ width: '100%', height: '100%', position: 'relative' }} dangerouslySetInnerHTML={{ __html: svgHtml }} />
+        : <div style={{ width: '100%', height: '100%', background: PRINT.paper, opacity: 0.4 }} />
+      }
+    </div>
+  );
+}
+
 /* ─── Stamp emblem (cream circular stamp face) ─── */
 function StampEmblem({ icon, size = 60, iconColor = PRINT.red, ticks = true }) {
   return (
@@ -575,33 +623,47 @@ function StampEmblem({ icon, size = 60, iconColor = PRINT.red, ticks = true }) {
   );
 }
 
+/* ─── URLs ─── */
+const LIFF_URL = 'https://liff.line.me/2009815115-CHcrof7l';
+
 /* ─── Station data ─── */
 const STAMP_POINTS = [
   { n: '01', area: '靈感補給站',   element: '無限', icon: 'assets/icon-01-infinity.svg', loc: '入口主題陳列區（2F）',
-    copy: '第一站掃了，今晚 20:00 的和牛就開始等你了。' },
+    copy: '第一站掃了，今晚 20:00 的和牛就開始等你了。',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=b62c9225-8987-457a-a600-66b208fa3037' },
   { n: '02', area: '日常儀式感',   element: '陶杯', icon: 'assets/icon-02-cup.svg',      loc: '職人雜貨區（2F）',
-    copy: '把生活過得有質感的人，本來就值得一頓 NT$ 2,300 的和牛。' },
+    copy: '把生活過得有質感的人，本來就值得一頓 NT$ 2,300 的和牛。',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=0dbbec76-24b5-4f62-b193-bee1ecaa0945' },
   { n: '03', area: '都市放空點',   element: '風',   icon: 'assets/icon-03-wind.svg',     loc: '戶外座位區（3F）',
-    copy: '吹個風，讓今晚的和牛自己找上來。' },
+    copy: '吹個風，讓今晚的和牛自己找上來。',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=24c01c12-a7ed-4b96-9a6a-664d421085cf' },
   { n: '04', area: '白日夢實驗室', element: '橡實', icon: 'assets/icon-04-acorn.svg',    loc: '兒童繪本書櫃（3F）',
-    copy: '白日夢成真的方式：把這站也掃了。' },
+    copy: '白日夢成真的方式：把這站也掃了。',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=b728a85e-738a-43c4-8bb2-eb0cefcda6f0' },
   { n: '05', area: '打卡神級背景', element: '書',   icon: 'assets/icon-05-book.svg',     loc: '樓梯書牆（3F）',
-    copy: '拍完照，順手掃了，今晚的故事更好說。' },
+    copy: '拍完照，順手掃了，今晚的故事更好說。',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=8a1b511b-2fd0-4172-916e-2ba94282d3df' },
   { n: '06', area: '放鬆充電站',   element: '咖啡', icon: 'assets/icon-06-coffee.svg',   loc: '吧檯區（2F）',
-    copy: '一杯咖啡配和牛想像，剛剛好的週年獎勵。' },
+    copy: '一杯咖啡配和牛想像，剛剛好的週年獎勵。',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=e89b23f8-fcd1-4af9-a40c-41d8defb0912' },
   { n: '07', area: '絕美光影濾鏡', element: '光點', icon: 'assets/icon-07-flare.svg',    loc: '天井吊燈區（3F）',
-    copy: '光這麼美，和牛這麼值，今天都可以是你的。' },
+    copy: '光這麼美，和牛這麼值，今天都可以是你的。',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=6f38ac85-d442-4131-bca8-fcc2a2aa773e' },
   { n: '08', area: '情報交流道',   element: '花朵', icon: 'assets/icon-08-flower.svg',   loc: '告示牌（1F）',
-    copy: '第 8 站。集滿了。今晚 20:00，輪到你了。' },
+    copy: '第 8 站。集滿了。今晚 20:00，輪到你了。',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=facd800c-e8e5-4c08-be82-19581230bc70' },
 ];
 
 const HIDDEN_EGGS = [
   { id: 'A', area: '夥伴', element: '墨鏡松鼠 ∞', icon: 'assets/icon-04-acorn.svg', loc: '員工身上（隨機）',
-    copy: '找到牠了？你的運氣今晚可以繼續發揮。' },
+    copy: '找到牠了？你的運氣今晚可以繼續發揮。',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=0ed1fc2f-c16d-4a81-a2da-ea9032c24f66' },
   { id: 'B', area: '野生小夥伴', element: '墨鏡蜂鳥 ∞', icon: 'assets/icon-03-wind.svg', loc: '戶外座位桌上',
-    copy: '蜂鳥只停在不趕路的人身邊。你值得今晚那份和牛。' },
+    copy: '蜂鳥只停在不趕路的人身邊。你值得今晚那份和牛。',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=b7b52f93-67f0-429a-babd-ac8ef3f1d253' },
   { id: 'C', area: '野生大夥伴', element: '墨鏡麋鹿 ∞', icon: 'assets/icon-08-flower.svg', loc: '電梯告示',
-    copy: '找到麋鹿的人，今晚 20:00 記得守著手機。' },
+    copy: '找到麋鹿的人，今晚 20:00 記得守著手機。',
+    url: 'https://taichung-8th-anniversary.vercel.app/?id=a10a94ad-a6f4-45db-8674-963513f8aa40' },
 ];
 
 /* ─── Stamp Standee / Companion card — A4 ─── */
@@ -653,7 +715,7 @@ function StampStandee({ data, isEgg = false }) {
 
       {/* QR hero */}
       <div style={{ position: 'absolute', top: '50mm', left: '50%', transform: 'translateX(-50%)' }}>
-        <PBigQR size="70mm" seed={parseInt(num, 36) * 17 + 7} />
+        <PQRCode size="70mm" url={data.url} />
       </div>
 
       {/* Station line */}
@@ -821,7 +883,7 @@ function CounterCard() {
             </div>
           </div>
           <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-            <PBigQR size="24mm" seed={111} />
+            <PQRCode size="24mm" url={LIFF_URL} />
             <PMono size={5} color={PRINT.goldDim} track="0.28em">SCAN TO JOIN</PMono>
           </div>
         </div>
@@ -941,7 +1003,7 @@ function PrizeBoardHero() {
       {/* Footer */}
       <div style={{ position: 'absolute', bottom: '12mm', left: '16mm', right: '16mm', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldMute}`, paddingTop: 6 }}>
         <NexusWordmark width={130} align="left" />
-        <PBigQR size="20mm" seed={777} />
+        <PQRCode size="20mm" url={LIFF_URL} />
       </div>
     </PPage>
   );
@@ -1054,7 +1116,7 @@ function PrizeBoardDetail() {
             </span>
           </div>
         </div>
-        <PBigQR size="24mm" seed={555} />
+        <PQRCode size="24mm" url={LIFF_URL} />
       </div>
     </PPage>
   );
@@ -1125,7 +1187,7 @@ function TableCard({ letter, line }) {
 
         <div style={{ position: 'absolute', bottom: '9mm', left: '9mm', right: '9mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '0.5pt solid rgba(232,201,125,0.22)', paddingTop: 4 }}>
           <PCoBrand height={6.5} />
-          <PBigQR size="14mm" seed={parseInt(letter, 36) * 13 + 4} />
+          <PQRCode size="14mm" url={LIFF_URL} />
         </div>
       </PPage>
     </div>
@@ -1237,7 +1299,7 @@ function MainPoster() {
             <div style={{ marginTop: 2 }}><PMono size={4} color={PRINT.gold} track="0.3em" weight={500}>5 / 24 — 5 / 31 ‧ 每日 20:00 抽出 1 位 ‧ 共 8 份 ‧ NT$ 2,300</PMono></div>
           </div>
           <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-            <PBigQR size="16mm" seed={2026} />
+            <PQRCode size="16mm" url={LIFF_URL} />
             <PMono size={3} color={PRINT.goldDim} track="0.32em">立即參加 · JOIN</PMono>
           </div>
         </div>
@@ -1358,7 +1420,7 @@ function DigitalPoster() {
             <div style={{ marginTop: 8 }}><PMono size={13} color={PRINT.gold} track="0.3em" weight={500}>5 / 24 — 5 / 31 ‧ 每日 20:00 抽出 1 位 ‧ 共 8 份 ‧ NT$ 2,300</PMono></div>
           </div>
           <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            <PBigQR size="130px" seed={2026} />
+            <PQRCode size="130px" url={LIFF_URL} />
             <PMono size={9} color={PRINT.goldDim} track="0.32em">立即參加 · JOIN</PMono>
           </div>
         </div>
