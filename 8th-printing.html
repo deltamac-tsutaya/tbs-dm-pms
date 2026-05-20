@@ -63,6 +63,9 @@
     .dc-artboard-frame {
       position: relative;
       box-shadow: 0 4px 24px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.2);
+      background: transparent;
+      display: flex;
+      gap: 16px;
     }
     .dc-artboard-frame:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.25); }
     .dc-artboard-footer {
@@ -99,6 +102,7 @@
       background: rgba(10,8,5,0.7); color: #c4a24a;
       font-size: 10px; font-weight: 700; letter-spacing: 0.1em; font-family: 'Noto Sans TC', sans-serif;
       padding: 4px 8px; border-radius: 4px; pointer-events: none;
+      z-index: 10;
     }
 
     /* Download button */
@@ -128,1313 +132,30 @@
       animation: dlspin 0.7s linear infinite;
     }
     @keyframes dlspin { to { transform: rotate(360deg); } }
+
+    /* Printing frames style */
+    .print-iframe {
+      border: none;
+      background: transparent;
+      display: block;
+    }
   </style>
 
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useCallback, useEffect } = React;
-
-/* ─── Inline-SVG helper (html2canvas compatible, replaces CSS mask) ─── */
-const _svgCache = {};
-async function _loadSvgMarkup(src, fill) {
-  const key = `${src}::${fill}`;
-  if (_svgCache[key]) return _svgCache[key];
-  try {
-    const text = await fetch(src).then(r => r.text());
-    let svg = text.trim();
-    svg = svg.replace(/<svg([^>]*)>/, (_, a) => {
-      const attrs = a.replace(/\bfill="[^"]*"/g, '').replace(/\bstroke="[^"]*"/g, '');
-      return `<svg${attrs} width="100%" height="100%" fill="${fill}" stroke="none">`;
-    });
-    _svgCache[key] = svg;
-    return svg;
-  } catch { return null; }
-}
-function useSvgInline(src, color) {
-  const key = `${src}::${color}`;
-  const [markup, setMarkup] = useState(_svgCache[key] || null);
-  useEffect(() => {
-    if (!src || _svgCache[key]) return;
-    _loadSvgMarkup(src, color).then(m => { if (m) setMarkup(m); });
-  }, [src, color]);
-  return markup;
-}
+const { useState, useCallback } = React;
 
 /* ─── mm → px helper (1 mm = 3.7795 px at 96 dpi) ─── */
 const mm = (n) => Math.round(n * 3.7795);
-
-/* ─── Print design tokens ─── */
-const PRINT = {
-  bg:        '#231a13',
-  bgDeep:    '#15100b',
-  bgInk:     '#0d0905',
-  bgWarm:    '#2c211a',
-  paper:     '#ede1c8',
-  paperLt:   '#f5ead5',
-  paperDim:  '#d9c9a7',
-  gold:      '#c4a24a',
-  goldLt:    '#d4b66a',
-  goldDeep:  '#a08537',
-  goldDim:   'rgba(196,162,74,0.55)',
-  goldMute:  'rgba(196,162,74,0.32)',
-  goldFaint: 'rgba(196,162,74,0.18)',
-  goldHair:  'rgba(196,162,74,0.1)',
-  red:       '#b94a3a',
-  redDeep:   '#9a3a2c',
-  redLt:     '#c75c4a',
-  cream:     '#f0e4cc',
-  creamDim:  'rgba(240,228,204,0.7)',
-  creamMute: 'rgba(240,228,204,0.5)',
-  creamFaint:'rgba(240,228,204,0.3)',
-  brown:     '#3a2a1d',
-  brownDim:  'rgba(58,42,29,0.7)',
-};
-
-/* ─── Typography atoms ─── */
-function PMono({ children, color = PRINT.creamMute, size = 7, track = '0.32em', weight = 600, style: s }) {
-  return (
-    <span style={{
-      fontFamily: "'Noto Sans TC',sans-serif",
-      fontSize: `${size}pt`, letterSpacing: track, textTransform: 'uppercase',
-      color, fontWeight: weight,
-      fontVariantNumeric: 'tabular-nums', fontFeatureSettings: '"tnum","palt"',
-      ...s,
-    }}>{children}</span>
-  );
-}
-
-function PSerif({ children, size = 16, weight = 400, italic, color = PRINT.cream, track = '0.04em', style: s }) {
-  return (
-    <span style={{
-      fontFamily: "'Noto Serif TC',serif",
-      fontSize: `${size}pt`, fontWeight: weight,
-      fontStyle: italic ? 'italic' : 'normal',
-      letterSpacing: track, color,
-      fontFeatureSettings: '"palt"',
-      ...s,
-    }}>{children}</span>
-  );
-}
-
-function PSans({ children, size = 10, weight = 400, color = PRINT.cream, track = '0.04em', style: s }) {
-  return (
-    <span style={{
-      fontFamily: "'Noto Sans TC',sans-serif",
-      fontSize: `${size}pt`, fontWeight: weight,
-      letterSpacing: track, color,
-      fontFeatureSettings: '"palt"',
-      ...s,
-    }}>{children}</span>
-  );
-}
-
-/* ─── Gold gradient text ─── */
-function GoldText({ children, soft = false, style: s, as: As = 'span' }) {
-  const grad = soft
-    ? 'linear-gradient(135deg, #8e6b22 0%, #c4a24a 50%, #8e6b22 100%)'
-    : 'linear-gradient(135deg, #8e6b22 0%, #c4a24a 35%, #f0d684 50%, #c4a24a 65%, #8e6b22 100%)';
-  return (
-    <As style={{
-      background: grad,
-      WebkitBackgroundClip: 'text', backgroundClip: 'text',
-      WebkitTextFillColor: 'transparent', color: 'transparent',
-      ...s,
-    }}>{children}</As>
-  );
-}
-
-/* ─── Paper grain overlay ─── */
-function PaperGrain({ opacity = 0.5 }) {
-  return (
-    <div style={{
-      position: 'absolute', inset: 0, pointerEvents: 'none',
-      backgroundImage: `
-        url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"),
-        radial-gradient(circle at 20% 30%, rgba(196,162,74,0.04) 0.5px, transparent 1.5px),
-        radial-gradient(circle at 80% 70%, rgba(196,162,74,0.05) 0.5px, transparent 1.5px)
-      `,
-      backgroundSize: '180px 180px, 70px 70px, 90px 90px',
-      mixBlendMode: 'overlay', opacity,
-    }} />
-  );
-}
-
-/* ─── Corner ticks ─── */
-function PTick({ pos, len = 6, color = PRINT.gold, opacity = 0.55, flipX, flipY, weight = 0.5 }) {
-  const t = `${flipX ? 'scaleX(-1)' : ''} ${flipY ? 'scaleY(-1)' : ''}`.trim();
-  return (
-    <div style={{ position: 'absolute', ...pos, width: len, height: len, transform: t, opacity }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, width: len, height: weight, background: color }} />
-      <div style={{ position: 'absolute', top: 0, left: 0, width: weight, height: len, background: color }} />
-    </div>
-  );
-}
-
-/* ─── Crop marks ─── */
-function PCropMarks({ color = 'rgba(196,162,74,0.3)', len = 8, inset = 3 }) {
-  const s = (pos) => ({ position: 'absolute', ...pos, background: color, pointerEvents: 'none' });
-  return (
-    <>
-      <div style={s({ top: inset, left: inset, width: len, height: 0.5 })} />
-      <div style={s({ top: inset, left: inset, width: 0.5, height: len })} />
-      <div style={s({ top: inset, right: inset, width: len, height: 0.5 })} />
-      <div style={s({ top: inset, right: inset, width: 0.5, height: len })} />
-      <div style={s({ bottom: inset, left: inset, width: len, height: 0.5 })} />
-      <div style={s({ bottom: inset, left: inset, width: 0.5, height: len })} />
-      <div style={s({ bottom: inset, right: inset, width: len, height: 0.5 })} />
-      <div style={s({ bottom: inset, right: inset, width: 0.5, height: len })} />
-    </>
-  );
-}
-
-/* ─── Page frame ─── */
-function PPage({ wMm, hMm, bg, children, marks = true, grain = true, style: s }) {
-  return (
-    <div style={{
-      width: `${wMm}mm`, height: `${hMm}mm`,
-      background: bg || `linear-gradient(165deg, ${PRINT.bgWarm} 0%, ${PRINT.bg} 50%, ${PRINT.bgDeep} 100%)`,
-      color: PRINT.cream,
-      position: 'relative', overflow: 'hidden',
-      fontFamily: "'Noto Sans TC',sans-serif",
-      ...s,
-    }}>
-      {grain && <PaperGrain opacity={0.45} />}
-      {children}
-      {marks && <PCropMarks />}
-    </div>
-  );
-}
-
-/* ─── Thin rule ─── */
-function PRule({ width = '24mm', color = PRINT.goldFaint, height = 0.5, style: s }) {
-  return <div style={{ width, height, background: color, ...s }} />;
-}
-
-/* ─── Watermark ─── */
-function PWatermark({ ch = '8', size = 480, color = 'rgba(196,162,74,0.05)', pos = { left: '50%', top: '50%' }, italic = false }) {
-  return (
-    <div style={{
-      position: 'absolute', ...pos,
-      transform: `translate(-50%, -50%) ${italic ? 'skewX(-6deg)' : ''}`,
-      fontFamily: "'Noto Serif TC',serif",
-      fontWeight: 500, fontSize: size, lineHeight: 0.78,
-      color, letterSpacing: '-0.06em',
-      pointerEvents: 'none', userSelect: 'none', whiteSpace: 'nowrap',
-      fontStyle: italic ? 'italic' : 'normal',
-    }}>{ch}</div>
-  );
-}
-
-/* ─── Pill label ─── */
-function PillLabel({ children, sparkle = true, size = 7, gap = 4, padding = '3pt 9pt' }) {
-  return (
-    <div style={{
-      display: 'inline-flex', alignItems: 'center', gap,
-      padding, border: `0.6pt solid ${PRINT.goldDim}`,
-      background: 'rgba(196,162,74,0.04)',
-      borderRadius: 999,
-    }}>
-      {sparkle && (
-        <svg width={size + 1} height={size + 1} viewBox="0 0 16 16" style={{ flex: '0 0 auto' }}>
-          <path d="M8 0 L9 6 L15 8 L9 10 L8 16 L7 10 L1 8 L7 6 Z" fill={PRINT.gold} />
-          <circle cx="3" cy="3" r="0.8" fill={PRINT.gold} opacity="0.6"/>
-          <circle cx="13" cy="13" r="0.8" fill={PRINT.gold} opacity="0.6"/>
-        </svg>
-      )}
-      <PMono size={size} color={PRINT.gold} track="0.32em" weight={700}>{children}</PMono>
-    </div>
-  );
-}
-
-/* ─── Title block ─── */
-function TitleBlock({ en = 'Mark Journal', zh = '集印探索', size = 1, align = 'center', italic = true }) {
-  const fs = 36 * size;
-  return (
-    <div style={{
-      display: 'flex', flexDirection: 'column',
-      alignItems: align === 'left' ? 'flex-start' : (align === 'right' ? 'flex-end' : 'center'),
-    }}>
-      <div style={{
-        fontFamily: "'Noto Serif TC',serif",
-        fontSize: `${fs}pt`, fontWeight: 400, color: PRINT.cream,
-        fontStyle: italic ? 'italic' : 'normal',
-        letterSpacing: '0.01em', lineHeight: 1.05,
-      }}>{en}</div>
-      {zh && (
-        <div style={{ marginTop: 4 * size,
-          fontFamily: "'Noto Serif TC',serif", fontWeight: 300,
-          fontSize: `${fs * 0.32}pt`,
-          color: PRINT.creamDim, letterSpacing: '0.42em', paddingLeft: '0.4em',
-        }}>{zh}</div>
-      )}
-    </div>
-  );
-}
-
-/* ─── Icon mask (recolor SVG) — uses inline SVG for html2canvas compat ─── */
-function PMaskIcon({ src, size = 40, color = PRINT.cream, opacity = 1, style: s }) {
-  const markup = useSvgInline(src, color);
-  const base = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: size, height: size, opacity, flexShrink: 0, ...s };
-  if (markup) return <span style={base} dangerouslySetInnerHTML={{ __html: markup }} />;
-  return (
-    <span style={{
-      ...base,
-      backgroundColor: color,
-      WebkitMaskImage: `url('${src}')`, WebkitMaskSize: 'contain',
-      WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center',
-      maskImage: `url('${src}')`, maskSize: 'contain',
-      maskRepeat: 'no-repeat', maskPosition: 'center',
-    }} />
-  );
-}
-
-/* ─── Infinity badge (double ring) ─── */
-function InfinityBadge({ size = 80, fg = PRINT.gold, accent = PRINT.gold, stroke = 1.4, inner = true }) {
-  const W = 200, H = 100;
-  const r = 42, cy = 50, cx1 = 55, cx2 = 145;
-  return (
-    <svg width={size} height={size * (H / W)} viewBox={`0 0 ${W} ${H}`} overflow="visible">
-      <circle cx={cx1} cy={cy} r={r + 5} fill="none" stroke={fg} strokeWidth={stroke * 0.4} opacity={0.32} />
-      <circle cx={cx2} cy={cy} r={r + 5} fill="none" stroke={fg} strokeWidth={stroke * 0.4} opacity={0.32} />
-      <circle cx={cx1} cy={cy} r={r} fill="none" stroke={fg} strokeWidth={stroke} strokeLinecap="round" />
-      <circle cx={cx2} cy={cy} r={r} fill="none" stroke={fg} strokeWidth={stroke} strokeLinecap="round" />
-      <g transform="translate(100 50)">
-        <circle r={2.6} fill={accent} />
-        {inner && <circle r={7} fill="none" stroke={accent} strokeWidth={0.6} opacity={0.5} />}
-      </g>
-    </svg>
-  );
-}
-
-/* ─── Co-brand lockup ─── */
-function PCoBrand({ height = 11, gap = 8 }) {
-  const filt = 'brightness(0) invert(1) opacity(0.85)';
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap }}>
-      <img src="assets/tsutaya-logo.svg" alt="TSUTAYA"
-        style={{ height: height * 1.1, filter: filt, display: 'block' }} />
-      <span style={{ fontFamily: "'Noto Sans TC',sans-serif",
-        fontSize: `${height * 0.85}pt`, color: PRINT.creamFaint }}>×</span>
-      <img src="assets/wired-tokyo-logo.svg" alt="WIRED TOKYO"
-        style={{ height: height * 1.25, filter: filt, display: 'block' }} />
-    </div>
-  );
-}
-
-/* ─── Nexus Life wordmark — uses inline SVG for html2canvas compat ─── */
-function NexusWordmark({ width = 140, color = PRINT.cream, sub = true, align = 'center' }) {
-  const markup = useSvgInline('assets/nexus-life-logo.svg', color);
-  const aspect = 862.33 / 150.7;
-  const h = width / aspect;
-  return (
-    <div style={{
-      display: 'inline-flex', flexDirection: 'column',
-      alignItems: align === 'left' ? 'flex-start' : (align === 'right' ? 'flex-end' : 'center'),
-      gap: 4,
-    }}>
-      {markup
-        ? <span style={{ display: 'block', width, height: h }} dangerouslySetInnerHTML={{ __html: markup }} />
-        : <span style={{
-            display: 'block', width, height: h,
-            backgroundColor: color,
-            WebkitMaskImage: `url('assets/nexus-life-logo.svg')`,
-            WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center',
-            maskImage: `url('assets/nexus-life-logo.svg')`,
-            maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center',
-          }} />
-      }
-      {sub && (
-        <div style={{
-          fontFamily: "'Noto Sans TC',sans-serif",
-          fontSize: `${Math.max(5, h * 0.22)}pt`, color: PRINT.creamDim,
-          fontWeight: 600, letterSpacing: '0.42em',
-          paddingLeft: '0.42em', lineHeight: 1.2,
-        }}>
-          8TH&nbsp;ANNIVERSARY
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ─── Nexus Life inline mark ─── */
-function PNexusMark({ size = 1, align = 'center' }) {
-  const fs = 28 * size;
-  return (
-    <div style={{
-      display: 'inline-flex', flexDirection: 'column',
-      alignItems: align === 'left' ? 'flex-start' : 'center',
-    }}>
-      <h1 style={{
-        fontFamily: "'Noto Serif TC',serif",
-        fontSize: `${fs}pt`, lineHeight: 0.88,
-        letterSpacing: '-0.02em', fontWeight: 500,
-        margin: 0, textAlign: align, color: PRINT.cream,
-      }}>
-        <GoldText>Nexus</GoldText>
-        <span style={{ fontStyle: 'italic', color: PRINT.cream, fontWeight: 400 }}> Life.</span>
-      </h1>
-    </div>
-  );
-}
-
-/* ─── Simulated QR code ─── */
-function PBigQR({ size = '50mm', label, seed = 7, withBrackets = true }) {
-  const N = 25;
-  const cells = [];
-  let s = seed;
-  const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
-  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) cells.push(rand() > 0.5);
-  const setBlock = (cx, cy) => {
-    for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) {
-      const edge = x===0||x===6||y===0||y===6;
-      const inner = x>=2&&x<=4&&y>=2&&y<=4;
-      cells[(cy+y)*N+(cx+x)] = edge||inner;
-    }
-    for (let y = -1; y < 8; y++) for (let x = -1; x < 8; x++) {
-      if (x===-1||x===7||y===-1||y===7) {
-        if (cx+x>=0&&cx+x<N&&cy+y>=0&&cy+y<N) cells[(cy+y)*N+(cx+x)] = false;
-      }
-    }
-  };
-  setBlock(0,0); setBlock(N-7,0); setBlock(0,N-7);
-  for (let y = 0; y < 5; y++) for (let x = 0; x < 5; x++) {
-    const edge = x===0||x===4||y===0||y===4;
-    const inner = x===2&&y===2;
-    cells[(N-7+y)*N+(N-7+x)] = edge||inner;
-  }
-  return (
-    <div style={{
-      width: size, height: size,
-      background: `radial-gradient(circle at 30% 25%, ${PRINT.paperLt} 0%, ${PRINT.paper} 65%, ${PRINT.paperDim} 100%)`,
-      padding: '4mm', position: 'relative',
-      border: `0.6pt solid ${PRINT.goldDim}`,
-      boxShadow: '0 1pt 2pt rgba(255,255,255,0.4) inset, 0 -1pt 2pt rgba(58,42,29,0.15) inset, 0 6mm 18mm -6mm rgba(0,0,0,0.55)',
-    }}>
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.35,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E")`,
-        mixBlendMode: 'multiply',
-      }} />
-      {withBrackets && (
-        <>
-          <PTick pos={{ top: '-1.5mm', left: '-1.5mm' }} len={9} color={PRINT.gold} opacity={0.85} weight={0.8} />
-          <PTick pos={{ top: '-1.5mm', right: '-1.5mm' }} len={9} color={PRINT.gold} opacity={0.85} flipX weight={0.8} />
-          <PTick pos={{ bottom: '-1.5mm', left: '-1.5mm' }} len={9} color={PRINT.gold} opacity={0.85} flipY weight={0.8} />
-          <PTick pos={{ bottom: '-1.5mm', right: '-1.5mm' }} len={9} color={PRINT.gold} opacity={0.85} flipX flipY weight={0.8} />
-        </>
-      )}
-      <svg width="100%" height="100%" viewBox={`0 0 ${N} ${N}`} style={{ display: 'block', position: 'relative' }}>
-        {cells.map((on, i) => on && (
-          <rect key={i} x={i%N} y={Math.floor(i/N)} width="1" height="1" fill={PRINT.brown}/>
-        ))}
-      </svg>
-    </div>
-  );
-}
-
-/* ─── Real QR code component ─── */
-const STATIC_QRCODES = {
-  "https://taichung-8th-anniversary.vercel.app/?id=cef53d02-f621-4a0f-8ac5-6d086fd8548a": "<svg width=\"100%\" height=\"100%\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 39 39\" shape-rendering=\"crispEdges\"><path fill=\"#ede1c8\" d=\"M0 0h39v39H0z\"/><path stroke=\"#3a2a1d\" d=\"M1 1.5h7m1 0h1m1 0h1m2 0h1m1 0h1m3 0h1m2 0h3m1 0h1m3 0h7M1 2.5h1m5 0h1m1 0h1m2 0h5m2 0h1m1 0h1m2 0h3m4 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m9 0h1m2 0h1m4 0h4m2 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h1m2 0h1m2 0h1m1 0h2m1 0h2m1 0h4m1 0h1m2 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m2 0h4m1 0h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m3 0h1m3 0h1m1 0h4m2 0h1m3 0h1m1 0h1m1 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h1m1 0h4m1 0h3m1 0h1m4 0h1m1 0h3M1 9.5h1m1 0h2m1 0h3m1 0h1m1 0h1m1 0h1m2 0h3m1 0h2m1 0h1m3 0h2m1 0h1m2 0h1m1 0h2M2 10.5h1m1 0h1m3 0h1m2 0h1m2 0h1m1 0h1m2 0h2m1 0h1m1 0h4m1 0h2m4 0h2M1 11.5h1m2 0h6m1 0h1m1 0h1m3 0h3m1 0h4m4 0h1m4 0h2M2 12.5h1m3 0h1m1 0h2m1 0h1m2 0h2m1 0h1m1 0h2m2 0h5m6 0h2M1 13.5h2m3 0h4m2 0h2m2 0h3m4 0h1m1 0h2m3 0h8M1 14.5h1m1 0h1m4 0h1m6 0h7m3 0h1m2 0h7m2 0h1M4 15.5h1m2 0h1m1 0h2m1 0h3m3 0h4m1 0h1m6 0h1m2 0h1m1 0h1M1 16.5h4m1 0h1m1 0h2m2 0h1m2 0h2m2 0h1m2 0h3m3 0h6m2 0h1M2 17.5h1m4 0h2m1 0h1m3 0h2m3 0h2m1 0h2m2 0h2m2 0h1m3 0h2m1 0h1M1 18.5h1m3 0h1m5 0h1m1 0h1m1 0h2m6 0h3m1 0h5m4 0h2M2 19.5h1m1 0h2m1 0h4m3 0h1m1 0h1m1 0h2m2 0h2m1 0h1m2 0h1m2 0h2m3 0h2M3 20.5h3m3 0h2m1 0h4m2 0h1m4 0h2m2 0h2m3 0h3m1 0h1M1 21.5h3m3 0h1m3 0h1m2 0h9m4 0h1m2 0h1m1 0h2m3 0h1M1 22.5h3m2 0h1m2 0h1m1 0h1m5 0h1m1 0h6m2 0h1m1 0h1m4 0h1M2 23.5h1m1 0h2m1 0h6m2 0h1m2 0h2m1 0h2m1 0h2m1 0h1m2 0h1m1 0h1m3 0h1M2 24.5h1m3 0h1m3 0h1m1 0h1m3 0h1m9 0h2m1 0h3m1 0h3M1 25.5h2m2 0h5m1 0h2m1 0h1m2 0h3m6 0h1m2 0h3m1 0h1m1 0h1m1 0h1M3 26.5h1m2 0h1m4 0h1m3 0h2m1 0h3m2 0h1m3 0h2m1 0h5m1 0h2M2 27.5h1m3 0h3m1 0h4m1 0h1m1 0h2m1 0h1m1 0h2m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2M1 28.5h1m2 0h2m3 0h3m1 0h1m1 0h3m2 0h3m2 0h1m2 0h1m1 0h2m2 0h1m2 0h1M3 29.5h3m1 0h2m1 0h1m3 0h2m3 0h1m2 0h3m1 0h1m2 0h7M9 30.5h5m2 0h3m2 0h1m2 0h2m3 0h1m3 0h1m1 0h3M1 31.5h7m1 0h1m1 0h2m3 0h1m2 0h1m1 0h3m3 0h1m1 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h1m1 0h4m2 0h2m2 0h1m1 0h3m2 0h2m3 0h1m2 0h1M1 33.5h1m1 0h3m1 0h1m3 0h1m4 0h1m1 0h1m1 0h5m4 0h6M1 34.5h1m1 0h3m1 0h1m1 0h2m2 0h2m5 0h1m1 0h1m1 0h1m1 0h2m1 0h3m1 0h1m1 0h3M1 35.5h1m1 0h3m1 0h1m1 0h2m1 0h1m4 0h3m2 0h1m1 0h1m2 0h1m2 0h2m1 0h2M1 36.5h1m5 0h1m2 0h2m1 0h3m3 0h3m3 0h2m1 0h1m1 0h1m1 0h4M1 37.5h7m1 0h1m2 0h1m3 0h1m1 0h1m1 0h1m2 0h1m1 0h2m1 0h1m2 0h1m1 0h5\"/></svg>\n",
-  "https://taichung-8th-anniversary.vercel.app/?id=307fa785-0b6d-4804-b102-91c99feff219": "<svg width=\"100%\" height=\"100%\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 39 39\" shape-rendering=\"crispEdges\"><path fill=\"#ede1c8\" d=\"M0 0h39v39H0z\"/><path stroke=\"#3a2a1d\" d=\"M1 1.5h7m2 0h2m1 0h5m2 0h1m3 0h1m4 0h1m1 0h7M1 2.5h1m5 0h1m6 0h1m3 0h1m2 0h2m3 0h3m2 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h1m3 0h3m3 0h1m2 0h2m3 0h2m2 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h3m1 0h2m1 0h4m1 0h1m2 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h2m3 0h2m1 0h8m4 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h3m2 0h1m2 0h1m1 0h1m5 0h2m1 0h1m2 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h2m2 0h1m1 0h1m4 0h3m1 0h1m4 0h1M1 9.5h1m1 0h5m2 0h1m1 0h1m2 0h2m1 0h1m1 0h2m2 0h3m2 0h1m1 0h5M2 10.5h2m12 0h1m2 0h2m1 0h6m4 0h1m2 0h2M2 11.5h2m3 0h5m2 0h1m1 0h2m3 0h1m1 0h1m1 0h1m1 0h7m1 0h3M1 12.5h2m1 0h2m2 0h2m4 0h1m5 0h1m1 0h1m4 0h3m1 0h2m4 0h1M4 13.5h2m1 0h2m3 0h1m1 0h1m2 0h2m4 0h1m1 0h2m3 0h8M2 14.5h1m1 0h3m2 0h3m2 0h2m1 0h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m3 0h1M6 15.5h6m1 0h6m2 0h2m2 0h10m2 0h1M3 16.5h2m1 0h1m3 0h3m1 0h1m1 0h1m2 0h1m2 0h3m3 0h2m2 0h2m2 0h1M1 17.5h1m2 0h5m3 0h1m3 0h3m1 0h1m3 0h1m1 0h3m1 0h4m1 0h2M1 18.5h2m2 0h2m2 0h1m2 0h1m1 0h4m1 0h8m7 0h3M3 19.5h2m1 0h2m3 0h5m2 0h2m1 0h3m1 0h1m2 0h2m1 0h1m4 0h2M2 20.5h2m4 0h2m1 0h2m1 0h4m1 0h1m2 0h2m1 0h1m2 0h4m5 0h1M2 21.5h2m1 0h3m2 0h1m2 0h1m1 0h1m2 0h1m2 0h1m1 0h1m1 0h7m1 0h3M1 22.5h1m3 0h2m2 0h2m2 0h3m1 0h1m1 0h6m2 0h1m1 0h1m4 0h1M1 23.5h1m1 0h1m1 0h1m1 0h1m1 0h8m5 0h1m4 0h2m2 0h4m2 0h1M1 24.5h2m6 0h1m3 0h2m2 0h1m2 0h1m1 0h1m2 0h1m2 0h1m1 0h4m3 0h1M5 25.5h1m1 0h1m1 0h1m8 0h1m2 0h1m4 0h1m2 0h1m1 0h3m1 0h1m1 0h1M1 26.5h1m1 0h2m1 0h1m1 0h1m1 0h3m2 0h2m2 0h2m1 0h4m4 0h1M1 27.5h1m3 0h1m1 0h3m4 0h1m1 0h1m1 0h2m1 0h1m3 0h1m1 0h2m3 0h3m1 0h2M1 28.5h1m2 0h1m3 0h1m2 0h2m2 0h2m5 0h1m2 0h1m2 0h1m1 0h2m2 0h1m1 0h2M1 29.5h1m1 0h2m1 0h2m5 0h1m1 0h2m1 0h1m1 0h2m1 0h5m1 0h5m1 0h1m1 0h1M9 30.5h1m1 0h2m1 0h1m4 0h6m1 0h1m1 0h2m3 0h2m1 0h1M1 31.5h7m5 0h1m2 0h1m1 0h1m2 0h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h2m1 0h1m2 0h3m1 0h1m2 0h1m4 0h1m1 0h1m3 0h2m2 0h1M1 33.5h1m1 0h3m1 0h1m1 0h3m1 0h1m3 0h2m2 0h1m2 0h1m1 0h1m1 0h6m1 0h1m1 0h1M1 34.5h1m1 0h3m1 0h1m1 0h8m2 0h2m1 0h1m1 0h4m1 0h3m1 0h1m1 0h3M1 35.5h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m4 0h1m3 0h1m2 0h1m7 0h2M1 36.5h1m5 0h1m9 0h1m3 0h3m5 0h3m1 0h2m2 0h1M1 37.5h7m1 0h1m1 0h1m1 0h4m1 0h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h1m2 0h1m1 0h3\"/></svg>\n",
-  "https://taichung-8th-anniversary.vercel.app/?id=28235074-fc63-42ef-b2e8-1c148651a98a": "<svg width=\"100%\" height=\"100%\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 39 39\" shape-rendering=\"crispEdges\"><path fill=\"#ede1c8\" d=\"M0 0h39v39H0z\"/><path stroke=\"#3a2a1d\" d=\"M1 1.5h7m2 0h2m1 0h1m2 0h2m5 0h1m1 0h1m1 0h1m3 0h7M1 2.5h1m5 0h1m4 0h3m2 0h2m2 0h2m1 0h1m1 0h2m1 0h1m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h1m3 0h2m2 0h1m1 0h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h1m3 0h2m3 0h1m2 0h1m1 0h1m1 0h2m4 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h1m2 0h6m4 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h1m2 0h4m1 0h2m6 0h1m2 0h1m2 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h4m3 0h9m1 0h2m1 0h1M1 9.5h1m1 0h5m2 0h1m1 0h1m1 0h2m3 0h2m3 0h1m4 0h1m1 0h5M1 10.5h1m4 0h1m4 0h2m1 0h1m1 0h2m1 0h2m1 0h1m2 0h4m1 0h3m2 0h2M1 11.5h2m2 0h1m1 0h1m1 0h2m3 0h2m4 0h1m2 0h1m3 0h5m1 0h1m1 0h3M1 12.5h1m4 0h1m1 0h1m1 0h3m2 0h1m1 0h1m3 0h2m1 0h2m1 0h1m3 0h1m1 0h1m3 0h1M1 13.5h1m2 0h1m1 0h3m1 0h2m1 0h2m2 0h2m4 0h4m1 0h1m1 0h8M2 14.5h2m5 0h7m1 0h1m2 0h1m3 0h1m1 0h2m1 0h1m2 0h1m3 0h1M2 15.5h2m1 0h3m1 0h1m2 0h1m3 0h2m1 0h1m1 0h2m2 0h1m2 0h7m2 0h1M4 16.5h3m2 0h4m2 0h2m1 0h2m3 0h2m2 0h4m1 0h2m2 0h1M5 17.5h3m1 0h1m1 0h1m1 0h4m2 0h2m1 0h8m2 0h1m2 0h2M4 18.5h3m5 0h2m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m7 0h3M4 19.5h1m1 0h2m3 0h2m1 0h1m1 0h1m1 0h3m1 0h2m4 0h2m1 0h2m3 0h2M1 20.5h1m1 0h1m1 0h2m1 0h1m1 0h2m4 0h1m2 0h1m2 0h2m1 0h1m4 0h2m5 0h1M2 21.5h2m3 0h2m1 0h1m5 0h1m1 0h1m2 0h1m1 0h1m1 0h3m1 0h3m1 0h3M3 22.5h1m2 0h1m2 0h1m5 0h1m1 0h8m1 0h2m1 0h1m4 0h1M2 23.5h1m1 0h1m1 0h4m5 0h2m5 0h1m5 0h1m1 0h5m2 0h1M3 24.5h1m4 0h1m2 0h2m1 0h1m2 0h1m1 0h2m1 0h2m1 0h4m1 0h4m3 0h1M1 25.5h2m4 0h2m1 0h4m1 0h1m2 0h2m3 0h1m2 0h1m4 0h1m1 0h1m1 0h1m1 0h1M1 26.5h4m3 0h3m2 0h1m5 0h1m2 0h1m1 0h2m3 0h1M1 27.5h1m1 0h3m1 0h1m2 0h3m3 0h1m1 0h3m6 0h3m4 0h1m1 0h2M1 28.5h1m1 0h1m2 0h1m1 0h1m1 0h2m3 0h3m4 0h1m1 0h2m2 0h1m1 0h2m2 0h1m2 0h1M1 29.5h1m1 0h1m1 0h5m2 0h3m3 0h1m1 0h2m1 0h11m1 0h1m1 0h1M9 30.5h5m5 0h3m1 0h2m3 0h2m3 0h2m1 0h1M1 31.5h7m2 0h3m3 0h1m1 0h1m2 0h2m6 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h1m1 0h1m2 0h4m5 0h1m2 0h2m1 0h1m3 0h2m2 0h1M1 33.5h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h2m2 0h2m1 0h2m1 0h2m2 0h6m1 0h1m1 0h1M1 34.5h1m1 0h3m1 0h1m1 0h3m4 0h1m2 0h1m2 0h1m1 0h4m1 0h3m1 0h1m1 0h2M1 35.5h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m1 0h2m3 0h1m6 0h1m8 0h1M1 36.5h1m5 0h1m2 0h1m1 0h4m1 0h1m2 0h1m1 0h4m5 0h1m1 0h2m2 0h1M1 37.5h7m1 0h5m2 0h1m1 0h1m1 0h1m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m2 0h2\"/></svg>\n",
-  "https://taichung-8th-anniversary.vercel.app/?id=ebf9986d-3393-4b78-a444-0c537b6f9866": "<svg width=\"100%\" height=\"100%\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 39 39\" shape-rendering=\"crispEdges\"><path fill=\"#ede1c8\" d=\"M0 0h39v39H0z\"/><path stroke=\"#3a2a1d\" d=\"M1 1.5h7m5 0h1m1 0h1m4 0h1m3 0h1m2 0h1m3 0h7M1 2.5h1m5 0h1m3 0h1m6 0h1m2 0h2m3 0h4m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h2m3 0h2m1 0h2m3 0h1m3 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h3m2 0h1m1 0h3m2 0h1m1 0h4m1 0h1m2 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h2m3 0h1m4 0h6m4 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h1m3 0h1m1 0h1m2 0h1m3 0h1m2 0h2m1 0h1m2 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h3m1 0h2m1 0h1m3 0h5m2 0h1m1 0h1M1 9.5h1m1 0h5m4 0h1m1 0h2m2 0h1m1 0h2m2 0h3m2 0h1m1 0h5M2 10.5h3m1 0h1m3 0h2m1 0h4m2 0h2m1 0h6m2 0h1m4 0h2M3 11.5h2m2 0h2m4 0h2m1 0h1m4 0h1m1 0h1m1 0h1m1 0h5m1 0h1m1 0h3M1 12.5h3m4 0h1m2 0h6m4 0h2m2 0h1m1 0h3m1 0h2m4 0h1M1 13.5h1m1 0h2m1 0h2m1 0h10m4 0h4m3 0h8M2 14.5h2m2 0h1m1 0h1m1 0h2m5 0h1m2 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h1m3 0h1M1 15.5h4m2 0h1m3 0h1m1 0h2m1 0h4m1 0h3m1 0h1m2 0h2m2 0h3m2 0h1M1 16.5h1m1 0h1m1 0h2m3 0h1m3 0h3m2 0h1m2 0h1m1 0h1m2 0h7m2 0h1M2 17.5h7m1 0h2m1 0h1m2 0h1m1 0h4m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h2M1 18.5h3m4 0h1m1 0h4m1 0h1m1 0h1m2 0h1m1 0h6m2 0h1m1 0h1m1 0h3M1 19.5h1m1 0h2m2 0h2m2 0h1m3 0h2m1 0h2m1 0h3m4 0h1m2 0h1m1 0h1m2 0h2M1 20.5h1m1 0h1m5 0h1m2 0h1m1 0h1m4 0h2m1 0h3m3 0h4m5 0h1M2 21.5h1m4 0h3m1 0h2m1 0h1m3 0h1m2 0h1m1 0h1m1 0h7m1 0h3M1 22.5h4m4 0h1m1 0h2m4 0h1m1 0h6m2 0h1m1 0h1m4 0h1M1 23.5h3m1 0h3m1 0h1m2 0h1m3 0h1m1 0h1m3 0h2m2 0h1m1 0h1m3 0h3m2 0h1M1 24.5h1m2 0h1m1 0h1m1 0h1m1 0h1m4 0h1m1 0h1m1 0h2m1 0h1m2 0h1m1 0h2m1 0h4m3 0h1M1 25.5h2m1 0h2m1 0h1m2 0h3m4 0h2m7 0h1m4 0h1m1 0h1m1 0h1m1 0h1M1 26.5h2m1 0h1m6 0h2m3 0h2m1 0h7m3 0h2m1 0h1M1 27.5h1m3 0h1m1 0h1m2 0h3m1 0h2m1 0h3m5 0h1m1 0h2m3 0h1m1 0h1m1 0h2M1 28.5h1m1 0h1m2 0h1m1 0h1m3 0h2m1 0h1m6 0h1m1 0h2m3 0h4m1 0h1m2 0h1M1 29.5h1m3 0h1m1 0h1m1 0h6m1 0h1m1 0h1m2 0h1m1 0h1m1 0h9m1 0h1m1 0h1M9 30.5h3m3 0h1m3 0h6m1 0h1m1 0h2m3 0h2m1 0h1M1 31.5h7m2 0h1m1 0h2m1 0h2m1 0h1m2 0h3m3 0h1m1 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h2m5 0h2m1 0h1m2 0h1m4 0h1m1 0h1m3 0h2m2 0h1M1 33.5h1m1 0h3m1 0h1m1 0h7m1 0h1m1 0h1m1 0h1m2 0h3m1 0h6m1 0h1m1 0h1M1 34.5h1m1 0h3m1 0h1m1 0h1m1 0h4m1 0h1m3 0h1m1 0h1m1 0h1m1 0h2m1 0h3m1 0h1m1 0h3M1 35.5h1m1 0h3m1 0h1m1 0h3m2 0h1m1 0h1m4 0h1m3 0h1m2 0h1m7 0h2M1 36.5h1m5 0h1m3 0h1m2 0h3m4 0h3m5 0h1m3 0h1m3 0h1M1 37.5h7m1 0h3m3 0h2m1 0h1m1 0h1m2 0h1m1 0h2m1 0h1m2 0h1m1 0h5\"/></svg>\n",
-  "https://taichung-8th-anniversary.vercel.app/?id=e015052e-c04a-48af-9d15-662b18d6d166": "<svg width=\"100%\" height=\"100%\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 39 39\" shape-rendering=\"crispEdges\"><path fill=\"#ede1c8\" d=\"M0 0h39v39H0z\"/><path stroke=\"#3a2a1d\" d=\"M1 1.5h7m4 0h1m1 0h2m3 0h1m1 0h1m2 0h1m3 0h2m1 0h7M1 2.5h1m5 0h1m3 0h1m5 0h2m1 0h1m1 0h1m1 0h4m3 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m4 0h1m2 0h2m3 0h3m1 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h2m2 0h1m4 0h1m1 0h2m1 0h1m1 0h2m4 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h3m1 0h6m4 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h2m1 0h1m2 0h1m6 0h2m1 0h1m2 0h1m2 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h4m4 0h5m1 0h2m1 0h1m2 0h1M1 9.5h1m1 0h5m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m3 0h5M1 10.5h2m3 0h1m3 0h3m3 0h1m2 0h1m2 0h7m2 0h1m3 0h2M1 11.5h1m3 0h1m1 0h1m3 0h2m1 0h3m3 0h2m1 0h3m1 0h1m1 0h3m3 0h3M1 12.5h1m1 0h1m1 0h2m3 0h1m1 0h2m2 0h1m5 0h1m2 0h1m1 0h3m1 0h1m1 0h1m3 0h1M3 13.5h3m1 0h3m4 0h2m1 0h2m1 0h1m2 0h4m1 0h1m1 0h8M1 14.5h2m1 0h1m3 0h1m2 0h3m3 0h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m3 0h1M2 15.5h1m1 0h1m1 0h3m2 0h2m1 0h1m1 0h2m1 0h1m1 0h2m2 0h1m2 0h3m1 0h3m2 0h1M1 16.5h1m7 0h2m3 0h3m1 0h1m5 0h1m1 0h5m1 0h2m2 0h1M3 17.5h1m1 0h3m1 0h1m1 0h7m1 0h2m1 0h3m3 0h2m1 0h2m2 0h2M2 18.5h2m5 0h3m2 0h1m1 0h1m4 0h2m2 0h2m4 0h1m2 0h3M1 19.5h1m2 0h1m2 0h2m2 0h1m1 0h1m4 0h3m1 0h3m6 0h1m4 0h2M2 20.5h1m2 0h2m2 0h2m1 0h1m2 0h1m3 0h1m2 0h2m4 0h4m5 0h1M2 21.5h1m2 0h3m1 0h1m1 0h6m1 0h1m1 0h2m1 0h1m1 0h7m1 0h3M1 22.5h2m1 0h2m3 0h1m1 0h3m3 0h1m1 0h6m2 0h1m1 0h1m4 0h1M1 23.5h1m2 0h2m1 0h3m3 0h2m1 0h1m2 0h1m2 0h2m3 0h2m1 0h1m1 0h3m2 0h1M1 24.5h1m1 0h2m1 0h1m2 0h1m2 0h4m1 0h4m4 0h2m1 0h1m1 0h4m3 0h1M4 25.5h2m1 0h5m3 0h1m1 0h1m3 0h3m1 0h2m2 0h1m1 0h2m2 0h1m1 0h1M1 26.5h3m2 0h1m6 0h1m1 0h1m5 0h3m1 0h1m1 0h2m1 0h2M1 27.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h2m1 0h3m3 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h2M1 28.5h1m1 0h2m4 0h2m2 0h1m1 0h2m5 0h1m2 0h1m2 0h1m1 0h3m1 0h1m1 0h2M1 29.5h1m2 0h1m2 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h5m1 0h1m1 0h1M9 30.5h3m1 0h1m1 0h1m2 0h7m3 0h2m3 0h2m1 0h1M1 31.5h7m7 0h2m2 0h1m1 0h3m3 0h1m1 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h4m1 0h1m1 0h3m7 0h1m2 0h1m3 0h2m2 0h1M1 33.5h1m1 0h3m1 0h1m1 0h2m2 0h2m4 0h1m1 0h1m2 0h2m1 0h7m1 0h1m1 0h1M1 34.5h1m1 0h3m1 0h1m1 0h1m3 0h1m2 0h2m3 0h4m1 0h2m1 0h3m1 0h1m1 0h2M1 35.5h1m1 0h3m1 0h1m1 0h1m2 0h3m1 0h1m3 0h1m3 0h2m2 0h1m8 0h1M1 36.5h1m5 0h1m2 0h2m4 0h1m4 0h3m1 0h1m2 0h2m1 0h1m1 0h1m3 0h1M1 37.5h7m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1m4 0h1m1 0h2m4 0h1m1 0h5\"/></svg>\n",
-  "https://taichung-8th-anniversary.vercel.app/?id=55f33124-d27d-4414-80e7-a468a62f1977": "<svg width=\"100%\" height=\"100%\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 39 39\" shape-rendering=\"crispEdges\"><path fill=\"#ede1c8\" d=\"M0 0h39v39H0z\"/><path stroke=\"#3a2a1d\" d=\"M1 1.5h7m3 0h1m1 0h1m1 0h1m3 0h3m1 0h3m1 0h1m3 0h7M1 2.5h1m5 0h1m3 0h1m1 0h1m2 0h1m1 0h1m3 0h1m3 0h3m2 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m1 0h1m2 0h2m3 0h3m1 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h4m1 0h1m2 0h2m1 0h2m1 0h4m1 0h1m2 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h1m9 0h3m1 0h2m4 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h1m1 0h1m1 0h1m5 0h1m2 0h1m2 0h2m1 0h1m2 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h3m1 0h4m3 0h3m1 0h1m4 0h1M1 9.5h1m1 0h5m4 0h1m1 0h1m3 0h4m2 0h3m4 0h5M3 10.5h1m5 0h2m1 0h1m1 0h3m3 0h1m1 0h6m1 0h2m4 0h2M4 11.5h1m2 0h3m2 0h3m1 0h1m6 0h1m1 0h1m1 0h5m1 0h1m1 0h3M1 12.5h2m6 0h1m1 0h2m1 0h3m3 0h3m4 0h3m1 0h2m4 0h1M1 13.5h1m1 0h2m1 0h6m1 0h6m4 0h1m1 0h2m3 0h8M1 14.5h3m1 0h2m1 0h1m1 0h2m2 0h1m2 0h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m3 0h1M1 15.5h1m1 0h5m5 0h1m1 0h4m2 0h2m2 0h5m1 0h4m2 0h1M3 16.5h1m1 0h1m5 0h1m4 0h1m2 0h1m2 0h1m1 0h1m2 0h4m1 0h2m2 0h1M1 17.5h1m1 0h7m3 0h9m1 0h2m1 0h3m2 0h1m1 0h1m1 0h2M1 18.5h1m4 0h1m2 0h3m5 0h1m2 0h1m1 0h1m1 0h3m3 0h1m1 0h1m1 0h3M1 19.5h1m1 0h1m3 0h1m3 0h2m2 0h5m2 0h2m4 0h1m2 0h2m3 0h2M1 20.5h1m1 0h1m4 0h2m2 0h1m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m2 0h5m4 0h1M2 21.5h1m4 0h3m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h7m1 0h3M1 22.5h5m3 0h1m1 0h2m1 0h1m2 0h1m1 0h6m2 0h1m1 0h1m4 0h1M1 23.5h1m1 0h1m2 0h2m1 0h1m1 0h2m1 0h3m1 0h2m2 0h2m3 0h2m2 0h4m2 0h1M4 24.5h1m1 0h1m1 0h1m2 0h1m2 0h2m1 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h1m1 0h2m3 0h1M1 25.5h1m3 0h3m1 0h2m1 0h1m5 0h1m2 0h1m4 0h1m2 0h1m1 0h3m1 0h1m1 0h1M1 26.5h1m2 0h1m7 0h1m3 0h2m1 0h2m1 0h4m4 0h1M1 27.5h1m2 0h2m1 0h1m1 0h7m2 0h2m1 0h1m3 0h1m1 0h2m3 0h1m1 0h1m1 0h2M1 28.5h1m1 0h1m2 0h1m8 0h2m5 0h1m7 0h3m1 0h1m2 0h1M1 29.5h1m3 0h1m1 0h1m1 0h3m1 0h2m1 0h1m1 0h1m2 0h1m1 0h1m1 0h9m1 0h1m1 0h1M9 30.5h3m3 0h1m3 0h6m1 0h1m1 0h2m3 0h2m1 0h1M1 31.5h7m3 0h3m2 0h1m1 0h1m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h1m5 0h3m1 0h1m2 0h2m3 0h1m1 0h1m3 0h2m2 0h1M1 33.5h1m1 0h3m1 0h1m1 0h5m1 0h1m1 0h1m1 0h1m4 0h1m1 0h1m1 0h6m1 0h1m1 0h1M1 34.5h1m1 0h3m1 0h1m1 0h1m1 0h4m1 0h1m3 0h3m1 0h4m1 0h3m1 0h1m1 0h3M1 35.5h1m1 0h3m1 0h1m1 0h3m2 0h1m1 0h1m4 0h1m3 0h1m2 0h1m7 0h2M1 36.5h1m5 0h1m3 0h2m1 0h3m4 0h3m5 0h1m1 0h1m1 0h2m2 0h1M1 37.5h7m1 0h3m3 0h2m1 0h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h2m1 0h1m1 0h3\"/></svg>\n",
-  "https://taichung-8th-anniversary.vercel.app/?id=aa22f6c4-3d79-48e3-ab10-820c513aa2ff": "<svg width=\"100%\" height=\"100%\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 39 39\" shape-rendering=\"crispEdges\"><path fill=\"#ede1c8\" d=\"M0 0h39v39H0z\"/><path stroke=\"#3a2a1d\" d=\"M1 1.5h7m3 0h4m1 0h2m2 0h1m3 0h1m4 0h1m1 0h7M1 2.5h1m5 0h1m2 0h1m2 0h2m3 0h1m2 0h2m3 0h4m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h3m1 0h2m1 0h2m1 0h2m1 0h2m3 0h1m3 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h1m5 0h1m1 0h2m2 0h1m1 0h4m1 0h1m2 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h3m4 0h1m2 0h6m4 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h3m1 0h2m1 0h1m5 0h1m2 0h1m1 0h2m2 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h1m4 0h1m2 0h1m2 0h5m4 0h1M1 9.5h1m1 0h5m4 0h1m3 0h1m1 0h3m2 0h4m2 0h1m1 0h5M2 10.5h2m8 0h1m1 0h1m1 0h1m3 0h3m1 0h4m2 0h1m4 0h2M5 11.5h1m1 0h1m2 0h2m3 0h2m6 0h1m3 0h5m1 0h1m1 0h3M1 12.5h1m2 0h3m2 0h2m2 0h1m1 0h1m1 0h1m4 0h1m1 0h2m1 0h3m1 0h1m5 0h1M1 13.5h3m2 0h2m1 0h1m2 0h2m2 0h3m4 0h1m1 0h2m3 0h8M4 14.5h3m1 0h3m1 0h3m2 0h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m3 0h1M1 15.5h2m2 0h8m1 0h4m1 0h1m1 0h1m3 0h5m1 0h4m2 0h1M2 16.5h4m2 0h5m2 0h2m5 0h1m1 0h1m2 0h3m2 0h2m2 0h1M2 17.5h7m1 0h1m1 0h2m2 0h1m1 0h4m2 0h1m1 0h1m1 0h1m1 0h4m1 0h2M3 18.5h2m1 0h1m1 0h7m2 0h1m2 0h1m1 0h6m6 0h3M2 19.5h1m2 0h1m1 0h1m1 0h2m1 0h3m1 0h1m1 0h2m2 0h2m4 0h1m2 0h2m3 0h2M1 20.5h1m1 0h1m1 0h2m2 0h1m2 0h3m2 0h1m1 0h2m1 0h2m4 0h4m5 0h1M3 21.5h3m1 0h1m2 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h1m1 0h7m1 0h3M1 22.5h3m2 0h1m2 0h1m1 0h1m2 0h1m2 0h1m1 0h6m1 0h2m1 0h1m4 0h1M1 23.5h1m1 0h1m3 0h2m1 0h2m1 0h1m2 0h1m1 0h2m2 0h1m5 0h1m1 0h5m2 0h1M1 24.5h1m2 0h2m2 0h1m1 0h1m1 0h3m2 0h1m2 0h1m1 0h2m1 0h1m1 0h2m3 0h2m3 0h1M1 25.5h1m2 0h5m1 0h3m1 0h1m3 0h1m2 0h1m3 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1M1 26.5h4m3 0h3m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m5 0h1m1 0h1M1 27.5h1m1 0h5m1 0h1m2 0h1m1 0h3m1 0h2m5 0h1m1 0h3m2 0h1m1 0h1m1 0h2M1 28.5h1m1 0h3m3 0h5m1 0h1m6 0h1m2 0h1m4 0h2m2 0h1m2 0h1M1 29.5h1m1 0h1m1 0h5m3 0h2m1 0h1m1 0h1m1 0h2m1 0h11m1 0h3M9 30.5h2m1 0h1m6 0h6m1 0h1m1 0h2m3 0h2m1 0h1M1 31.5h7m3 0h2m3 0h1m2 0h1m1 0h2m4 0h1m1 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h1m4 0h4m4 0h1m4 0h1m1 0h1m3 0h2m2 0h1M1 33.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m2 0h2m2 0h1m2 0h1m1 0h1m1 0h6m1 0h1m1 0h1M1 34.5h1m1 0h3m1 0h1m1 0h2m2 0h2m4 0h2m1 0h1m1 0h4m1 0h3m1 0h1m1 0h3M1 35.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h3m3 0h1m3 0h1m2 0h1m7 0h2M1 36.5h1m5 0h1m4 0h2m1 0h2m4 0h3m4 0h4m1 0h1m3 0h1M1 37.5h7m1 0h1m2 0h1m3 0h1m1 0h1m1 0h1m2 0h1m1 0h2m6 0h5\"/></svg>\n",
-  "https://taichung-8th-anniversary.vercel.app/?id=27b1d93f-ab44-4722-8e72-dc1b2fa2dee8": "<svg width=\"100%\" height=\"100%\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 39 39\" shape-rendering=\"crispEdges\"><path fill=\"#ede1c8\" d=\"M0 0h39v39H0z\"/><path stroke=\"#3a2a1d\" d=\"M1 1.5h7m3 0h2m1 0h2m1 0h1m2 0h1m2 0h3m3 0h1m1 0h7M1 2.5h1m5 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m3 0h1m3 0h4m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h3m1 0h2m1 0h1m2 0h2m1 0h2m3 0h2m2 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h1m5 0h1m1 0h2m2 0h1m1 0h4m1 0h1m2 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h3m2 0h1m1 0h1m2 0h3m1 0h2m4 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h1m3 0h1m2 0h1m1 0h2m2 0h1m2 0h2m1 0h1m2 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h3m5 0h1m1 0h4m1 0h1m4 0h1M1 9.5h1m1 0h5m4 0h5m1 0h1m1 0h1m2 0h4m4 0h5M2 10.5h2m2 0h1m1 0h2m1 0h4m1 0h1m2 0h4m1 0h4m1 0h2m4 0h2M4 11.5h2m1 0h7m1 0h2m4 0h1m1 0h1m1 0h1m1 0h5m1 0h1m1 0h3M1 12.5h1m2 0h3m1 0h1m1 0h1m4 0h2m5 0h1m1 0h2m1 0h3m1 0h1m5 0h1M1 13.5h3m2 0h2m1 0h1m3 0h1m3 0h2m4 0h1m1 0h2m3 0h8M4 14.5h3m1 0h3m1 0h2m3 0h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m3 0h1M6 15.5h4m1 0h2m2 0h4m2 0h3m1 0h1m1 0h3m1 0h4m2 0h1M1 16.5h1m1 0h3m2 0h3m1 0h1m3 0h1m2 0h1m2 0h3m3 0h6m2 0h1M1 17.5h3m3 0h3m1 0h2m3 0h3m1 0h2m2 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h2M2 18.5h3m1 0h1m3 0h3m1 0h2m3 0h2m1 0h6m4 0h1m1 0h3M2 19.5h4m1 0h4m3 0h1m1 0h4m1 0h3m1 0h1m2 0h1m2 0h3m2 0h2M1 20.5h1m2 0h3m5 0h3m1 0h2m1 0h2m1 0h4m3 0h4m4 0h1M3 21.5h3m1 0h2m1 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h1m1 0h7m1 0h3M2 22.5h2m1 0h2m2 0h1m1 0h1m2 0h1m2 0h1m1 0h6m2 0h1m1 0h1m4 0h1M1 23.5h1m1 0h1m1 0h4m1 0h1m2 0h1m2 0h1m2 0h1m3 0h1m3 0h2m1 0h5m2 0h1M1 24.5h2m1 0h1m1 0h1m1 0h1m1 0h4m1 0h1m1 0h1m2 0h1m1 0h2m1 0h1m2 0h1m2 0h3m3 0h1M4 25.5h1m2 0h2m2 0h2m1 0h1m3 0h2m6 0h1m4 0h3m1 0h1m1 0h1M1 26.5h1m4 0h1m3 0h1m1 0h1m2 0h1m1 0h1m2 0h6m3 0h2M1 27.5h1m1 0h5m1 0h1m3 0h7m7 0h3m3 0h2m1 0h2M1 28.5h1m2 0h2m4 0h4m1 0h3m3 0h2m1 0h1m5 0h2m2 0h1m2 0h1M1 29.5h1m3 0h5m2 0h3m1 0h1m1 0h1m2 0h1m1 0h1m1 0h9m1 0h3M9 30.5h2m1 0h1m1 0h1m4 0h6m1 0h1m1 0h2m3 0h2m1 0h1M1 31.5h7m4 0h1m1 0h1m1 0h1m1 0h2m1 0h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h2m5 0h2m1 0h1m2 0h1m4 0h1m1 0h1m3 0h2m2 0h1M1 33.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m5 0h1m1 0h1m1 0h6m1 0h1m1 0h1M1 34.5h1m1 0h3m1 0h1m1 0h7m1 0h1m1 0h4m1 0h4m1 0h3m1 0h1m1 0h3M1 35.5h1m1 0h3m1 0h1m1 0h1m2 0h1m2 0h2m4 0h1m3 0h1m2 0h1m7 0h2M1 36.5h1m5 0h1m4 0h1m2 0h3m3 0h3m5 0h1m3 0h2m2 0h1M1 37.5h7m1 0h1m6 0h1m1 0h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h2m1 0h1m1 0h3\"/></svg>\n",
-  "https://taichung-8th-anniversary.vercel.app/?id=e382e9f5-23e4-4f88-bcea-483a08b7f090": "<svg width=\"100%\" height=\"100%\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 39 39\" shape-rendering=\"crispEdges\"><path fill=\"#ede1c8\" d=\"M0 0h39v39H0z\"/><path stroke=\"#3a2a1d\" d=\"M1 1.5h7m2 0h1m1 0h1m1 0h1m5 0h1m3 0h1m2 0h1m3 0h7M1 2.5h1m5 0h1m5 0h2m2 0h2m2 0h2m3 0h3m2 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h1m3 0h5m1 0h1m2 0h2m3 0h1m3 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h3m2 0h1m1 0h4m1 0h1m2 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h1m5 0h1m1 0h1m1 0h6m4 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h1m1 0h1m3 0h1m1 0h1m1 0h1m5 0h2m1 0h1m2 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h2m2 0h3m3 0h4m1 0h1m2 0h1m1 0h1M1 9.5h1m1 0h5m2 0h5m1 0h1m1 0h3m2 0h5m1 0h1m1 0h5M2 10.5h1m1 0h1m8 0h1m2 0h1m3 0h3m1 0h3m3 0h1m4 0h2M2 11.5h3m2 0h2m1 0h3m1 0h1m1 0h1m4 0h1m1 0h1m1 0h1m1 0h5m3 0h3M1 12.5h5m6 0h3m5 0h1m1 0h1m2 0h1m1 0h3m1 0h1m1 0h1m3 0h1M4 13.5h2m1 0h2m5 0h1m2 0h2m4 0h4m3 0h8M2 14.5h1m1 0h3m2 0h3m2 0h2m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m3 0h1M1 15.5h2m4 0h3m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m3 0h1m1 0h3m1 0h4m2 0h1M1 16.5h1m1 0h2m5 0h1m1 0h1m3 0h1m2 0h1m2 0h3m2 0h3m2 0h2m2 0h1M4 17.5h7m1 0h3m1 0h3m1 0h2m1 0h2m1 0h1m1 0h1m1 0h4m1 0h2M1 18.5h1m2 0h2m2 0h2m2 0h1m1 0h4m1 0h2m1 0h1m1 0h4m6 0h3M6 19.5h3m2 0h1m1 0h4m1 0h2m2 0h2m1 0h1m2 0h2m1 0h3m2 0h2M2 20.5h2m7 0h2m1 0h4m1 0h1m2 0h2m1 0h1m2 0h4m5 0h1M2 21.5h1m2 0h3m2 0h1m2 0h1m1 0h1m2 0h1m1 0h2m1 0h9m1 0h3M6 22.5h1m2 0h1m3 0h3m1 0h1m1 0h6m2 0h1m1 0h1m4 0h1M3 23.5h1m1 0h1m1 0h1m1 0h2m1 0h3m1 0h1m1 0h2m2 0h2m3 0h2m1 0h5m2 0h1M1 24.5h2m2 0h1m3 0h2m2 0h2m2 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h4m3 0h1M5 25.5h1m1 0h1m2 0h1m3 0h1m3 0h2m1 0h1m1 0h1m2 0h1m2 0h1m1 0h3m1 0h1m1 0h1M1 26.5h2m1 0h1m1 0h1m1 0h1m1 0h2m4 0h1m3 0h1m1 0h1m1 0h2m4 0h1M1 27.5h1m3 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m5 0h1m1 0h2m3 0h1m1 0h1m1 0h2M1 28.5h1m7 0h1m1 0h2m2 0h2m4 0h2m1 0h1m4 0h4m1 0h1m1 0h2M1 29.5h1m1 0h2m1 0h3m4 0h1m1 0h2m1 0h1m2 0h1m1 0h1m1 0h9m1 0h1m1 0h1M9 30.5h1m1 0h2m6 0h6m1 0h1m1 0h2m3 0h2m1 0h1M1 31.5h7m3 0h1m1 0h2m1 0h1m1 0h1m2 0h2m4 0h1m1 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h4m2 0h3m4 0h2m3 0h1m1 0h1m3 0h2m2 0h1M1 33.5h1m1 0h3m1 0h1m1 0h1m7 0h2m2 0h1m2 0h3m1 0h6m1 0h1m1 0h1M1 34.5h1m1 0h3m1 0h1m1 0h2m2 0h4m2 0h2m1 0h1m1 0h1m1 0h2m1 0h3m1 0h1m1 0h3M1 35.5h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m4 0h1m3 0h1m2 0h1m7 0h2M1 36.5h1m5 0h1m4 0h2m3 0h1m3 0h3m4 0h2m3 0h1m3 0h1M1 37.5h7m1 0h1m1 0h1m1 0h4m1 0h1m1 0h1m2 0h1m1 0h2m3 0h2m1 0h5\"/></svg>\n",
-  "https://taichung-8th-anniversary.vercel.app/?id=1a0a514b-6147-4108-ad81-b599d75bac82": "<svg width=\"100%\" height=\"100%\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 39 39\" shape-rendering=\"crispEdges\"><path fill=\"#ede1c8\" d=\"M0 0h39v39H0z\"/><path stroke=\"#3a2a1d\" d=\"M1 1.5h7m7 0h1m1 0h1m7 0h1m1 0h1m3 0h7M1 2.5h1m5 0h1m3 0h1m3 0h4m1 0h3m1 0h1m1 0h4m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h7m3 0h1m1 0h3m3 0h1m1 0h1m1 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h6m2 0h2m2 0h1m1 0h1m1 0h2m4 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h2m2 0h6m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h1m2 0h3m1 0h2m1 0h1m2 0h2m1 0h2m1 0h1m2 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h1m2 0h1m1 0h3m1 0h4m1 0h2m2 0h1m1 0h1M1 9.5h1m1 0h5m3 0h1m1 0h2m1 0h1m3 0h1m1 0h1m1 0h2m3 0h1m1 0h5M1 10.5h1m2 0h1m1 0h1m1 0h4m3 0h2m3 0h4m2 0h1m1 0h2m2 0h1m2 0h2M2 11.5h3m1 0h2m3 0h4m1 0h1m3 0h1m2 0h1m1 0h1m1 0h2m1 0h2m3 0h3M10 12.5h2m2 0h1m1 0h1m4 0h2m2 0h1m1 0h2m2 0h1m5 0h1M4 13.5h1m1 0h3m2 0h1m2 0h2m1 0h2m4 0h1m1 0h2m1 0h1m1 0h8M1 14.5h2m1 0h1m4 0h2m1 0h2m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m3 0h1M2 15.5h1m1 0h1m1 0h3m2 0h2m2 0h3m3 0h2m2 0h5m1 0h4m2 0h1M3 16.5h4m1 0h1m2 0h1m1 0h1m1 0h2m1 0h2m4 0h1m3 0h6m2 0h1M2 17.5h2m1 0h1m1 0h4m2 0h1m1 0h2m3 0h1m2 0h2m1 0h1m1 0h1m2 0h3m1 0h2M1 18.5h2m2 0h2m1 0h1m1 0h1m1 0h1m1 0h4m2 0h3m3 0h1m3 0h1m3 0h3M2 19.5h4m1 0h1m1 0h1m4 0h2m2 0h3m1 0h2m1 0h1m2 0h1m2 0h2m3 0h2M1 20.5h2m2 0h1m3 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h5m4 0h2m5 0h1M5 21.5h8m3 0h1m1 0h1m2 0h1m1 0h9m1 0h3M1 22.5h2m2 0h2m1 0h1m3 0h3m2 0h1m1 0h6m2 0h1m1 0h1m4 0h1M3 23.5h5m1 0h2m2 0h2m1 0h1m5 0h1m4 0h2m1 0h5m2 0h1M1 24.5h1m1 0h1m1 0h2m3 0h2m1 0h1m3 0h2m1 0h1m4 0h4m1 0h4m3 0h1M2 25.5h1m2 0h1m1 0h3m4 0h2m3 0h1m1 0h3m1 0h1m5 0h1m1 0h1m1 0h1m1 0h1M1 26.5h1m2 0h2m2 0h1m2 0h3m1 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m1 0h2m1 0h1M1 27.5h1m1 0h2m2 0h2m9 0h3m3 0h2m1 0h2m3 0h1m1 0h1m1 0h2M1 28.5h1m1 0h1m1 0h1m4 0h2m3 0h3m4 0h1m2 0h1m2 0h4m2 0h1m2 0h1M1 29.5h1m3 0h3m2 0h1m7 0h1m1 0h2m1 0h1m1 0h9m1 0h1M9 30.5h1m2 0h2m4 0h7m3 0h2m3 0h2m1 0h1M1 31.5h7m2 0h2m1 0h4m2 0h1m1 0h3m5 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h1m2 0h1m1 0h5m10 0h1m3 0h2m2 0h1M1 33.5h1m1 0h3m1 0h1m1 0h4m6 0h1m4 0h2m1 0h7m1 0h1m1 0h1M1 34.5h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h3m2 0h1m2 0h2m1 0h3m1 0h3m1 0h1m1 0h2M1 35.5h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m2 0h2m2 0h2m2 0h1m8 0h1M1 36.5h1m5 0h1m2 0h3m3 0h2m3 0h5m3 0h1m1 0h1m1 0h2m2 0h1M1 37.5h7m1 0h5m2 0h1m1 0h1m4 0h4m1 0h1m1 0h2m1 0h1m1 0h3\"/></svg>\n",
-  "https://taichung-8th-anniversary.vercel.app/?id=07cc10ab-f4e4-449b-b27a-22ad5e6c48d6": "<svg width=\"100%\" height=\"100%\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 39 39\" shape-rendering=\"crispEdges\"><path fill=\"#ede1c8\" d=\"M0 0h39v39H0z\"/><path stroke=\"#3a2a1d\" d=\"M1 1.5h7m3 0h1m1 0h2m1 0h1m3 0h1m3 0h1m2 0h1m3 0h7M1 2.5h1m5 0h1m2 0h1m1 0h3m1 0h1m1 0h1m3 0h1m3 0h3m2 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h3m2 0h1m4 0h1m1 0h3m3 0h1m1 0h1m1 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h1m2 0h1m2 0h1m1 0h2m2 0h1m1 0h4m1 0h1m2 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h1m1 0h1m4 0h1m2 0h6m4 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h1m3 0h4m8 0h1m1 0h2m2 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h1m1 0h1m2 0h1m2 0h1m2 0h3m1 0h1m4 0h1M1 9.5h1m1 0h5m3 0h2m1 0h3m1 0h1m1 0h1m3 0h4m3 0h5M2 10.5h1m3 0h1m1 0h2m1 0h1m1 0h2m1 0h1m2 0h8m2 0h1m2 0h1m2 0h2M5 11.5h1m1 0h2m1 0h2m3 0h2m4 0h1m1 0h1m1 0h1m1 0h7m1 0h3M1 12.5h1m2 0h3m3 0h1m1 0h2m1 0h1m1 0h1m4 0h1m1 0h2m1 0h3m1 0h1m5 0h1M1 13.5h3m2 0h2m1 0h1m2 0h2m2 0h3m4 0h1m1 0h2m3 0h8M1 14.5h1m2 0h3m1 0h2m2 0h3m2 0h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m3 0h1M5 15.5h1m1 0h3m2 0h1m2 0h3m3 0h1m3 0h1m1 0h3m1 0h4m2 0h1M2 16.5h3m3 0h2m2 0h1m1 0h1m1 0h1m5 0h1m1 0h1m2 0h4m1 0h2m2 0h1M2 17.5h2m1 0h1m1 0h3m2 0h2m1 0h6m3 0h3m1 0h1m2 0h1m1 0h1m1 0h2M3 18.5h2m3 0h3m2 0h2m5 0h5m1 0h2m2 0h1m1 0h1m1 0h3M2 19.5h1m1 0h2m1 0h4m3 0h1m1 0h1m1 0h2m2 0h2m4 0h1m2 0h3m2 0h2M1 20.5h1m2 0h3m1 0h2m2 0h3m1 0h2m1 0h2m1 0h2m1 0h1m4 0h3m4 0h1M3 21.5h3m1 0h2m1 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h9m1 0h3M2 22.5h2m1 0h2m2 0h3m2 0h1m2 0h1m1 0h6m2 0h1m1 0h1m4 0h1M2 23.5h2m1 0h4m1 0h1m2 0h1m2 0h1m1 0h1m4 0h1m3 0h2m2 0h4m2 0h1M1 24.5h1m2 0h3m1 0h1m3 0h3m2 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h4m3 0h1M1 25.5h2m3 0h5m1 0h2m1 0h1m2 0h1m2 0h1m1 0h1m2 0h1m4 0h3m1 0h1m1 0h1M1 26.5h2m1 0h1m3 0h1m1 0h1m1 0h1m4 0h1m1 0h2m1 0h1m1 0h2m3 0h2M1 27.5h1m1 0h1m1 0h4m3 0h5m1 0h2m5 0h1m1 0h3m4 0h1m1 0h2M1 28.5h1m3 0h1m2 0h4m3 0h2m3 0h1m1 0h1m5 0h1m1 0h2m2 0h1m2 0h1M1 29.5h1m3 0h5m3 0h2m3 0h1m2 0h1m1 0h1m1 0h9m1 0h3M9 30.5h2m1 0h1m6 0h6m1 0h1m1 0h2m3 0h2m1 0h1M1 31.5h7m2 0h3m2 0h2m1 0h2m1 0h2m4 0h1m1 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h1m4 0h1m1 0h2m4 0h2m3 0h1m1 0h1m3 0h2m2 0h1M1 33.5h1m1 0h3m1 0h1m1 0h2m3 0h2m1 0h3m1 0h1m2 0h1m1 0h1m1 0h6m1 0h1m1 0h1M1 34.5h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m5 0h1m1 0h1m1 0h4m1 0h3m1 0h1m1 0h3M1 35.5h1m1 0h3m1 0h1m1 0h1m5 0h2m4 0h1m3 0h1m2 0h1m7 0h2M1 36.5h1m5 0h1m5 0h1m1 0h3m3 0h3m4 0h2m1 0h1m1 0h2m2 0h1M1 37.5h7m1 0h1m2 0h1m3 0h1m1 0h1m1 0h1m2 0h1m1 0h2m4 0h1m1 0h1m1 0h3\"/></svg>\n",
-  "https://liff.line.me/2009815115-CHcrof7l": "<svg width=\"100%\" height=\"100%\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 31 31\" shape-rendering=\"crispEdges\"><path fill=\"#ede1c8\" d=\"M0 0h31v31H0z\"/><path stroke=\"#3a2a1d\" d=\"M1 1.5h7m1 0h4m2 0h1m1 0h4m2 0h7M1 2.5h1m5 0h1m1 0h3m2 0h1m2 0h2m2 0h1m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m3 0h1m1 0h1m2 0h3m1 0h1m2 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h1m5 0h2m4 0h1m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m3 0h2m2 0h3m3 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m2 0h1m2 0h2m2 0h1m2 0h2m1 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h3m1 0h1m1 0h3m2 0h1M1 9.5h1m1 0h2m1 0h3m3 0h3m3 0h2m3 0h1m2 0h1m1 0h2M1 10.5h5m5 0h2m1 0h1m2 0h1m2 0h1m1 0h2m1 0h1m3 0h1M1 11.5h4m1 0h4m1 0h2m1 0h1m1 0h1m1 0h2m2 0h4m1 0h2M1 12.5h3m1 0h1m3 0h2m2 0h1m2 0h1m2 0h3m2 0h1m4 0h1M2 13.5h1m3 0h2m1 0h3m3 0h2m9 0h2M5 14.5h1m2 0h2m1 0h1m3 0h2m2 0h2m2 0h1m3 0h3M2 15.5h3m2 0h1m1 0h2m1 0h3m3 0h5m2 0h1m1 0h3M2 16.5h1m1 0h3m3 0h2m3 0h1m1 0h2m2 0h2m1 0h2m2 0h1M1 17.5h8m1 0h1m1 0h2m1 0h1m1 0h1m1 0h4m1 0h3m1 0h1M2 18.5h2m2 0h1m1 0h4m3 0h3m1 0h1m1 0h1m2 0h1m1 0h3M1 19.5h1m1 0h1m2 0h3m5 0h3m5 0h4m1 0h1M4 20.5h3m1 0h2m1 0h1m1 0h8m1 0h1m1 0h2m1 0h1M2 21.5h2m1 0h3m3 0h5m1 0h1m1 0h1m1 0h7M9 22.5h1m1 0h1m4 0h1m2 0h1m1 0h1m3 0h5M1 23.5h7m1 0h3m3 0h2m1 0h1m1 0h2m1 0h1m1 0h2m1 0h1M1 24.5h1m5 0h1m1 0h1m1 0h2m1 0h2m2 0h1m1 0h2m3 0h2m1 0h2M1 25.5h1m1 0h3m1 0h1m3 0h1m4 0h2m1 0h1m1 0h5m1 0h1M1 26.5h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h5m1 0h3m1 0h1M1 27.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m5 0h1m2 0h1m1 0h1M1 28.5h1m5 0h1m2 0h1m1 0h2m1 0h5m1 0h1m1 0h1m1 0h2m1 0h1M1 29.5h7m1 0h1m1 0h1m2 0h1m2 0h5m1 0h1m1 0h1m2 0h1\"/></svg>\n",
-};
-
-function PQRCode({ url, size = '50mm', withBrackets = true }) {
-  const svgHtml = STATIC_QRCODES[url] || null;
-
-  const isPixel = typeof size === 'string' && size.endsWith('px');
-  const pad = isPixel ? Math.max(4, Math.round(parseInt(size) * 0.055)) + 'px' : '3.5%';
-  const tLen = isPixel ? Math.max(5, Math.round(parseInt(size) * 0.1)) : 9;
-
-  return (
-    <div style={{
-      width: size, height: size,
-      background: `radial-gradient(circle at 30% 25%, ${PRINT.paperLt} 0%, ${PRINT.paper} 65%, ${PRINT.paperDim} 100%)`,
-      padding: pad, position: 'relative',
-      border: `0.6pt solid ${PRINT.goldDim}`,
-      boxShadow: '0 1pt 2pt rgba(255,255,255,0.4) inset, 0 -1pt 2pt rgba(58,42,29,0.15) inset, 0 6mm 18mm -6mm rgba(0,0,0,0.55)',
-      boxSizing: 'border-box',
-    }}>
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.3,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E")`,
-        mixBlendMode: 'multiply' }} />
-      {withBrackets && (<>
-        <PTick pos={{ top: '-1.5mm', left: '-1.5mm' }} len={tLen} color={PRINT.gold} opacity={0.85} weight={0.8} />
-        <PTick pos={{ top: '-1.5mm', right: '-1.5mm' }} len={tLen} color={PRINT.gold} opacity={0.85} flipX weight={0.8} />
-        <PTick pos={{ bottom: '-1.5mm', left: '-1.5mm' }} len={tLen} color={PRINT.gold} opacity={0.85} flipY weight={0.8} />
-        <PTick pos={{ bottom: '-1.5mm', right: '-1.5mm' }} len={tLen} color={PRINT.gold} opacity={0.85} flipX flipY weight={0.8} />
-      </>)}
-      {svgHtml
-        ? <div style={{ width: '100%', height: '100%', position: 'relative' }} dangerouslySetInnerHTML={{ __html: svgHtml }} />
-        : <div style={{ width: '100%', height: '100%', background: PRINT.paper, opacity: 0.4 }} />
-      }
-    </div>
-  );
-}
-
-/* ─── Stamp emblem (cream circular stamp face) ─── */
-function StampEmblem({ icon, size = 60, iconColor = PRINT.red, ticks = true }) {
-  return (
-    <div style={{
-      position: 'relative', width: size, height: size,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}>
-      <div style={{
-        width: '100%', height: '100%', borderRadius: '50%',
-        background: `radial-gradient(circle at 30% 25%, ${PRINT.paperLt} 0%, ${PRINT.paper} 55%, ${PRINT.paperDim} 100%)`,
-        border: `0.6pt solid ${PRINT.goldDim}`,
-        boxShadow: `inset 0 1pt 2pt rgba(255,255,255,0.5), inset 0 -1pt 2pt rgba(58,42,29,0.18), 0 1pt 3pt rgba(0,0,0,0.35)`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.4,
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E")`,
-          mixBlendMode: 'multiply',
-        }} />
-        {icon && <PMaskIcon src={icon} color={iconColor} opacity={0.92} style={{ width: '58%', height: '58%' }} />}
-      </div>
-      {ticks && (
-        <>
-          <PTick pos={{ top: -2, left: -2 }} len={5} color={PRINT.gold} opacity={0.75} weight={0.6} />
-          <PTick pos={{ top: -2, right: -2 }} len={5} color={PRINT.gold} opacity={0.75} flipX weight={0.6} />
-          <PTick pos={{ bottom: -2, left: -2 }} len={5} color={PRINT.gold} opacity={0.75} flipY weight={0.6} />
-          <PTick pos={{ bottom: -2, right: -2 }} len={5} color={PRINT.gold} opacity={0.75} flipX flipY weight={0.6} />
-        </>
-      )}
-    </div>
-  );
-}
-
-/* ─── URLs ─── */
-const LIFF_URL = 'https://liff.line.me/2009815115-CHcrof7l';
-
-/* ─── Station data ─── */
-const STAMP_POINTS = [
-  { n: '01', area: '靈感補給站',   element: '無限', icon: 'assets/icon-01-infinity.svg', loc: '入口主題陳列區（2F）',
-    copy: '第一站掃了，今晚 20:00 的和牛就開始等你了。',
-    url: 'https://taichung-8th-anniversary.vercel.app/?id=cef53d02-f621-4a0f-8ac5-6d086fd8548a' },
-  { n: '02', area: '日常儀式感',   element: '陶杯', icon: 'assets/icon-02-cup.svg',      loc: '職人雜貨區（2F）',
-    copy: '把生活過得有質感的人，本來就值得一頓 NT$ 2,300 的和牛。',
-    url: 'https://taichung-8th-anniversary.vercel.app/?id=307fa785-0b6d-4804-b102-91c99feff219' },
-  { n: '03', area: '都市放空點',   element: '風',   icon: 'assets/icon-03-wind.svg',     loc: '戶外座位區（3F）',
-    copy: '吹個風，讓今晚的和牛自己找上來。',
-    url: 'https://taichung-8th-anniversary.vercel.app/?id=28235074-fc63-42ef-b2e8-1c148651a98a' },
-  { n: '04', area: '白日夢實驗室', element: '橡實', icon: 'assets/icon-04-acorn.svg',    loc: '兒童繪本書櫃（3F）',
-    copy: '白日夢成真的方式：把這站也掃了。',
-    url: 'https://taichung-8th-anniversary.vercel.app/?id=ebf9986d-3393-4b78-a444-0c537b6f9866' },
-  { n: '05', area: '打卡神級背景', element: '書',   icon: 'assets/icon-05-book.svg',     loc: '樓梯書牆（3F）',
-    copy: '拍完照，順手掃了，今晚的故事更好說。',
-    url: 'https://taichung-8th-anniversary.vercel.app/?id=e015052e-c04a-48af-9d15-662b18d6d166' },
-  { n: '06', area: '放鬆充電站',   element: '咖啡', icon: 'assets/icon-06-coffee.svg',   loc: '吧檯區（2F）',
-    copy: '一杯咖啡配和牛想像，剛剛好的週年獎勵。',
-    url: 'https://taichung-8th-anniversary.vercel.app/?id=55f33124-d27d-4414-80e7-a468a62f1977' },
-  { n: '07', area: '絕美光影濾鏡', element: '光點', icon: 'assets/icon-07-flare.svg',    loc: '天井吊燈區（3F）',
-    copy: '光這麼美，和牛這麼值，今天都可以是你的。',
-    url: 'https://taichung-8th-anniversary.vercel.app/?id=aa22f6c4-3d79-48e3-ab10-820c513aa2ff' },
-  { n: '08', area: '情報交流道',   element: '花朵', icon: 'assets/icon-08-flower.svg',   loc: '告示牌（1F）',
-    copy: '第 8 站。集滿了。今晚 20:00，輪到你了。',
-    url: 'https://taichung-8th-anniversary.vercel.app/?id=27b1d93f-ab44-4722-8e72-dc1b2fa2dee8' },
-];
-
-const HIDDEN_EGGS = [
-  { id: 'A', area: '夥伴', element: '墨鏡松鼠 ∞', icon: 'assets/icon-04-acorn.svg', loc: '員工身上（隨機）',
-    copy: '找到牠了？你的運氣今晚可以繼續發揮。',
-    url: 'https://taichung-8th-anniversary.vercel.app/?id=e382e9f5-23e4-4f88-bcea-483a08b7f090' },
-  { id: 'B', area: '野生小夥伴', element: '墨鏡蜂鳥 ∞', icon: 'assets/icon-03-wind.svg', loc: '戶外座位桌上',
-    copy: '蜂鳥只停在不趕路的人身邊。你值得今晚那份和牛。',
-    url: 'https://taichung-8th-anniversary.vercel.app/?id=1a0a514b-6147-4108-ad81-b599d75bac82' },
-  { id: 'C', area: '野生大夥伴', element: '墨鏡麋鹿 ∞', icon: 'assets/icon-08-flower.svg', loc: '電梯告示',
-    copy: '找到麋鹿的人，今晚 20:00 記得守著手機。',
-    url: 'https://taichung-8th-anniversary.vercel.app/?id=07cc10ab-f4e4-449b-b27a-22ad5e6c48d6' },
-];
-
-/* ─── Stamp Standee / Companion card — A4 ─── */
-function StampStandee({ data, isEgg = false }) {
-  const num = isEgg ? data.id : data.n;
-  const langSub = isEgg
-    ? '見つけた人だけが知っている。 ／ Only those who found them know.'
-    : 'ここで、ひと呼吸。 ／ Pause here for a moment.';
-
-  /* per-station reward hint */
-  const hintMap = {
-    '01': '入站即入選。',
-    '02': '掃完，機率又往上走了一點。',
-    '03': '放空這一刻，拿下今晚機會。',
-    '04': '一個掃描，一個抽獎資格。',
-    '05': '掃完 5 站，還剩 3 站就集滿了。',
-    '06': '今晚 20:00，你可以不只是想像。',
-    '07': '倒數第二站了。',
-    '08': '8 站集滿 → 每日抽獎資格到手。',
-    'A':  '領取抽獎券，今晚的和牛機率更高。',
-    'B':  '領取抽獎券，今晚的和牛機率更高。',
-    'C':  '領取抽獎券，今晚的和牛機率更高。',
-  };
-  const hint = hintMap[num] || '';
-
-  return (
-    <PPage wMm={210} hMm={297}>
-      <PWatermark ch={num} size={480} color="rgba(196,162,74,0.035)" pos={{ left: '50%', top: '48%' }} />
-
-      <PTick pos={{ top: '6mm', left: '6mm' }} len={9} weight={0.5} />
-      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={9} weight={0.5} />
-      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={9} weight={0.5} />
-      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={9} weight={0.5} />
-
-      {/* Co-brand */}
-      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <PCoBrand height={9} gap={8} />
-      </div>
-
-      {/* Pill */}
-      <div style={{ position: 'absolute', top: '22mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <PillLabel size={5.5}>{isEgg ? 'INFINITY · 無限夥伴' : 'PHYSICAL JOURNEY'}</PillLabel>
-      </div>
-
-      {/* Title */}
-      <div style={{ position: 'absolute', top: '30mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <TitleBlock en="Mark Journal" zh="集印探索" size={0.7} italic />
-      </div>
-
-      {/* QR hero */}
-      <div style={{ position: 'absolute', top: '50mm', left: '50%', transform: 'translateX(-50%)' }}>
-        <PQRCode size="70mm" url={data.url} />
-      </div>
-
-      {/* Station line */}
-      <div style={{ position: 'absolute', top: '128mm', left: 0, right: 0, textAlign: 'center' }}>
-        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.cream, fontWeight: 400, letterSpacing: '0.32em', fontStyle: 'italic' }}>
-          {isEgg ? `Egg ${data.id}` : `№ ${num}`}
-        </span>
-        <span style={{ margin: '0 10px', color: PRINT.gold, fontSize: '10pt', fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif" }}>∞</span>
-        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.cream, fontWeight: 400, letterSpacing: '0.18em' }}>
-          {data.element}
-        </span>
-      </div>
-
-      {/* Area + location */}
-      <div style={{ position: 'absolute', top: '137mm', left: 0, right: 0, textAlign: 'center' }}>
-        <PMono size={7} color={PRINT.gold} track="0.28em" weight={700}>{data.area}</PMono>
-        <span style={{ color: PRINT.goldDim, margin: '0 6px', fontSize: '7pt' }}>·</span>
-        <PMono size={7} color={PRINT.creamFaint} track="0.2em" weight={500}>{data.loc}</PMono>
-      </div>
-
-      {/* Divider */}
-      <div style={{ position: 'absolute', top: '144mm', left: '18mm', right: '18mm', height: 0.5, background: 'rgba(232,201,125,0.2)' }} />
-
-      {/* Action tagline — big, emotional */}
-      <div style={{ position: 'absolute', top: '150mm', left: '18mm', right: '18mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '15pt', lineHeight: 1.55, letterSpacing: '0.06em', color: PRINT.cream, fontWeight: 400 }}>
-          {data.copy}
-        </p>
-      </div>
-
-      {/* Wagyu strip image */}
-      <div style={{ position: 'absolute', top: '176mm', left: '16mm', right: '16mm', height: '16mm', overflow: 'hidden', border: '0.4pt solid rgba(232,201,125,0.2)' }}>
-        <img src="assets/image_steak_02.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,15,28,0.25) 0%, transparent 40%, rgba(8,15,28,0.35) 100%)' }} />
-      </div>
-
-      {/* Prize reward block */}
-      <div style={{ position: 'absolute', top: '196mm', left: '16mm', right: '16mm', background: 'linear-gradient(160deg, #0e1a33 0%, #050a18 100%)', border: `0.6pt solid ${PRINT.goldDim}`, padding: '5mm 7mm', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: 8, top: 2, fontFamily: "'Noto Serif TC',serif", fontSize: '52pt', color: 'rgba(232,201,125,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
-        <div style={{ position: 'relative' }}>
-          <PMono size={5.5} color={PRINT.gold} track="0.4em" weight={700}>掃描集印 · 獲得今晚抽獎資格</PMono>
-          <div style={{ marginTop: 4 }}>
-            <PSans size={8.5} color={PRINT.creamDim} weight={400} track="0.06em">{hint}</PSans>
-          </div>
-          <div style={{ marginTop: 6, borderTop: `0.5pt solid rgba(232,201,125,0.2)`, paddingTop: 4 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.cream, fontWeight: 500, letterSpacing: '0.04em' }}>日本和牛牛排雙人套餐</span>
-          </div>
-          <div style={{ marginTop: 2 }}>
-            <PMono size={5.5} color={PRINT.gold} track="0.3em" weight={500}>NT$ 2,300 ‧ 共 8 份 ‧ 5/24–5/31 每晚 20:00 抽出</PMono>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div style={{ position: 'absolute', bottom: '10mm', left: 0, right: 0, textAlign: 'center' }}>
-        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '6.5pt', letterSpacing: '0.18em', color: PRINT.creamFaint, lineHeight: 1.6, fontWeight: 300 }}>
-          {langSub}
-        </div>
-        <div style={{ marginTop: 2 }}>
-          <PMono size={5.5} color={PRINT.gold} track="0.4em" weight={700}>SCAN · 集滿 8 站‧天天有機會</PMono>
-        </div>
-      </div>
-    </PPage>
-  );
-}
-
-/* ═══════════════════════════════════════════════
-   12 · 櫃檯說明立卡 · A4 210 × 297 mm
-═══════════════════════════════════════════════ */
-function CounterCard() {
-  return (
-    <PPage wMm={210} hMm={297}>
-      <PWatermark ch="∞" size={780} color="rgba(232,201,125,0.05)" pos={{ left: '52%', top: '52%' }} italic />
-
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 35%, rgba(201,168,76,0.07) 0%, transparent 60%)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', inset: '8mm', border: `0.6pt solid rgba(232,201,125,0.2)` }} />
-      <PTick pos={{ top: '8mm', left: '8mm' }} len={10} />
-      <PTick pos={{ top: '8mm', right: '8mm' }} flipX len={10} />
-      <PTick pos={{ bottom: '8mm', left: '8mm' }} flipY len={10} />
-      <PTick pos={{ bottom: '8mm', right: '8mm' }} flipX flipY len={10} />
-
-      {/* Header */}
-      <div style={{ position: 'absolute', top: '14mm', left: '14mm', right: '14mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <PCoBrand height={11} />
-        <PMono size={7} color={PRINT.gold} track="0.36em" weight={700}>2026.04.25 — 05.31</PMono>
-      </div>
-      <div style={{ position: 'absolute', top: '21mm', left: '14mm', right: '14mm', height: 0.5, background: 'rgba(232,201,125,0.22)' }} />
-
-      {/* Eyebrow */}
-      <div style={{ position: 'absolute', top: '26mm', left: '14mm', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <PRule width="8mm" color={PRINT.gold} height={1} />
-        <PMono size={7} color={PRINT.creamMute} track="0.36em" weight={600}>COUNTER INFO · 櫃檯說明 · 台中市政店</PMono>
-      </div>
-
-      {/* Nexus Life mark */}
-      <div style={{ position: 'absolute', top: '34mm', left: '14mm' }}>
-        <PNexusMark size={2.0} align="left" />
-      </div>
-
-      {/* Wagyu image strip */}
-      <div style={{ position: 'absolute', top: '44mm', left: '14mm', right: '14mm', height: '21mm', overflow: 'hidden', border: '0.5pt solid rgba(232,201,125,0.22)', boxShadow: '0 3mm 10mm -3mm rgba(0,0,0,0.5)' }}>
-        <img src="assets/image_steak_04.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 28%', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,15,28,0.3) 0%, transparent 35%, rgba(8,15,28,0.4) 100%)' }} />
-      </div>
-
-      {/* Infinity badge + tagline */}
-      <div style={{ position: 'absolute', top: '70mm', left: '14mm', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <InfinityBadge size={42} fg={PRINT.gold} accent={PRINT.gold} stroke={1.0} />
-        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.creamDim, letterSpacing: '0.32em', fontWeight: 300 }}>
-          無限日常　∞　連結生活
-        </span>
-      </div>
-
-      {/* Hero quote */}
-      <div style={{ position: 'absolute', top: '88mm', left: '14mm', right: '14mm' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '22pt', lineHeight: 1.5, letterSpacing: '0.06em', color: PRINT.cream, fontWeight: 400 }}>
-          用 <GoldText style={{ fontWeight: 600 }}>8 天</GoldText>，<br/>
-          把一個紀念日<span style={{ fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif", color: PRINT.gold }}>過完整</span>。
-        </p>
-      </div>
-
-      {/* 3 modules */}
-      <div style={{ position: 'absolute', top: '134mm', left: '14mm', right: '14mm' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-          <PMono size={7} color={PRINT.gold} track="0.36em" weight={700}>THREE MODULES · 三大模組</PMono>
-          <PRule width="auto" style={{ flex: 1 }} color={PRINT.goldFaint} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginTop: 8 }}>
-          {[
-            { n: '01', tag: 'DAILY RITUAL', zh: '每日專屬儀式', desc: '每日完成儀式，獲得 Infinity Day 抽獎券' },
-            { n: '02', tag: 'MARK JOURNAL', zh: '集印探索',     desc: '館內掃描 8 個主路點位印章，解鎖當日抽獎' },
-            { n: '03', tag: 'INFINITY DAY', zh: '加碼抽獎',     desc: '每晚 20:00，現場抽出 NT$2,300 和牛套餐' },
-          ].map(m => (
-            <div key={m.n} style={{ border: '0.5pt solid rgba(232,201,125,0.22)', background: 'rgba(232,201,125,0.025)', padding: '5mm 4.5mm', minHeight: '40mm' }}>
-              <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '22pt', fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em' }}>
-                <GoldText>{m.n}</GoldText>
-              </div>
-              <div style={{ marginTop: 5 }}><PMono size={6} color={PRINT.gold} track="0.3em" weight={700}>{m.tag}</PMono></div>
-              <div style={{ marginTop: 3 }}>
-                <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', color: PRINT.cream, letterSpacing: '0.08em', fontWeight: 400 }}>{m.zh}</span>
-              </div>
-              <p style={{ margin: '4mm 0 0', fontFamily: "'Noto Sans TC',sans-serif", fontSize: '7.5pt', lineHeight: 1.7, color: PRINT.creamMute, letterSpacing: '0.04em' }}>{m.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Grand prize callout */}
-      <div style={{ position: 'absolute', top: '196mm', left: '14mm', right: '14mm', background: 'linear-gradient(160deg, #0e1a33 0%, #050a18 100%)', border: '0.6pt solid rgba(232,201,125,0.35)', padding: '8mm 8mm', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: -8, top: -16, fontFamily: "'Noto Serif TC',serif", fontSize: '110pt', color: 'rgba(232,201,125,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
-        <div style={{ display: 'flex', gap: 10, position: 'relative' }}>
-          <div style={{ flex: 1 }}>
-            <PMono size={6.5} color={PRINT.goldDim} track="0.36em" weight={700}>GRAND PRIZE WEEK · 大獎週</PMono>
-            <div style={{ marginTop: 4, marginBottom: 4 }}>
-              <PMono size={5} color={PRINT.goldDim} track="0.3em" weight={500}>8 個夜晚 ‧ 8 份和牛 ‧ 每晚都有一位幸運者</PMono>
-            </div>
-            <div style={{ marginTop: 4 }}>
-              <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '19pt', color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排雙人套餐</span>
-            </div>
-            <div style={{ marginTop: 1 }}>
-              <span style={{ fontFamily: "'Noto Serif TC',serif", fontStyle: 'italic', fontSize: '10pt', color: PRINT.creamMute, letterSpacing: '0.02em' }}>日本和牛ステーキ ペアセット · WIRED TOKYO</span>
-            </div>
-            <div style={{ marginTop: 5 }}>
-              <PMono size={7} color={PRINT.gold} track="0.28em" weight={500}>5 / 24 — 5 / 31 ‧ 每日 20:00 抽出 ‧ 共 8 份 ‧ NT$ 2,300</PMono>
-            </div>
-          </div>
-          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-            <PQRCode size="24mm" url={LIFF_URL} />
-            <PMono size={5} color={PRINT.goldDim} track="0.28em">SCAN TO JOIN</PMono>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div style={{ position: 'absolute', bottom: '14mm', left: '14mm', right: '14mm', borderTop: '0.5pt solid rgba(232,201,125,0.22)', paddingTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <div>
-          <PMono size={6} color={PRINT.creamFaint} track="0.3em" weight={600}>LOCATION</PMono>
-          <div style={{ marginTop: 1 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.cream, letterSpacing: '0.08em' }}>台中市政店</span>
-          </div>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <PMono size={6} color={PRINT.creamFaint} track="0.3em" weight={600}>EVENT PERIOD</PMono>
-          <div style={{ marginTop: 1 }}><PMono size={8} color={PRINT.gold} track="0.3em" weight={700}>NEXUS.LIFE · 8TH</PMono></div>
-        </div>
-      </div>
-    </PPage>
-  );
-}
-
-/* ═══════════════════════════════════════════════
-   13 · 獎品看板 P1 · A4 210 × 297 mm
-═══════════════════════════════════════════════ */
-function PrizeBoardHero() {
-  return (
-    <PPage wMm={210} hMm={297}>
-      <PWatermark ch="8" size={1100} color="rgba(196,162,74,0.035)" pos={{ left: '50%', top: '50%' }} />
-
-      <PTick pos={{ top: '8mm', left: '8mm' }} len={12} weight={0.7} />
-      <PTick pos={{ top: '8mm', right: '8mm' }} flipX len={12} weight={0.7} />
-      <PTick pos={{ bottom: '8mm', left: '8mm' }} flipY len={12} weight={0.7} />
-      <PTick pos={{ bottom: '8mm', right: '8mm' }} flipX flipY len={12} weight={0.7} />
-
-      {/* Co-brand */}
-      <div style={{ position: 'absolute', top: '14mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <PCoBrand height={10} gap={10} />
-      </div>
-
-      {/* Invitation pill */}
-      <div style={{ position: 'absolute', top: '30mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <PillLabel size={7}>PRIVATE INVITATION · 八週年邀請</PillLabel>
-      </div>
-
-      {/* Hero title */}
-      <div style={{ position: 'absolute', top: '40mm', left: 0, right: 0, textAlign: 'center' }}>
-        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '52pt', fontStyle: 'italic', color: PRINT.cream, fontWeight: 400, letterSpacing: '0.02em', lineHeight: 1.05 }}>
-          Nexus <span style={{ fontStyle: 'italic' }}>Life.</span>
-        </div>
-        <div style={{ marginTop: 6 }}>
-          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', color: PRINT.creamDim, letterSpacing: '0.42em', fontWeight: 300, paddingLeft: '0.42em' }}>
-            無 限 日 常　∞　連 結 生 活
-          </span>
-        </div>
-      </div>
-
-      {/* Hero ∞ stamp */}
-      <div style={{ position: 'absolute', top: '78mm', left: '50%', transform: 'translateX(-50%)' }}>
-        <div style={{
-          width: '94mm', height: '94mm', borderRadius: '50%',
-          background: `radial-gradient(circle at 30% 25%, ${PRINT.paperLt} 0%, ${PRINT.paper} 60%, ${PRINT.paperDim} 100%)`,
-          border: `0.8pt solid ${PRINT.goldDim}`,
-          boxShadow: 'inset 0 2pt 4pt rgba(255,255,255,0.5), inset 0 -2pt 4pt rgba(58,42,29,0.18), 0 6mm 24mm -6mm rgba(0,0,0,0.65)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          position: 'relative', overflow: 'hidden',
-        }}>
-          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.5, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")`, mixBlendMode: 'multiply' }} />
-          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '300pt', lineHeight: 0.8, color: PRINT.brown, fontStyle: 'italic', letterSpacing: '-0.06em', fontWeight: 400, position: 'relative', textShadow: '0 1pt 0 rgba(255,255,255,0.4)' }}>∞</div>
-          <div style={{ position: 'absolute', inset: '8mm', borderRadius: '50%', border: `0.5pt dashed rgba(196,162,74,0.45)`, pointerEvents: 'none' }} />
-        </div>
-        <PTick pos={{ top: '-3mm', left: '-3mm' }} len={12} color={PRINT.gold} opacity={0.85} weight={0.8} />
-        <PTick pos={{ top: '-3mm', right: '-3mm' }} len={12} color={PRINT.gold} opacity={0.85} flipX weight={0.8} />
-        <PTick pos={{ bottom: '-3mm', left: '-3mm' }} len={12} color={PRINT.gold} opacity={0.85} flipY weight={0.8} />
-        <PTick pos={{ bottom: '-3mm', right: '-3mm' }} len={12} color={PRINT.gold} opacity={0.85} flipX flipY weight={0.8} />
-      </div>
-
-      {/* Hero message */}
-      <div style={{ position: 'absolute', top: '188mm', left: 0, right: 0, textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '22pt', lineHeight: 1.55, letterSpacing: '0.1em', color: PRINT.cream, fontWeight: 400 }}>
-          用 <GoldText style={{ fontWeight: 600 }}>8 天</GoldText>，把一個紀念日<br/>
-          <span style={{ fontStyle: 'italic', color: PRINT.gold, fontWeight: 500 }}>過完整</span>。
-        </p>
-      </div>
-
-      {/* 3 modules row */}
-      <div style={{ position: 'absolute', top: '232mm', left: '16mm', right: '16mm', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, borderTop: `0.5pt solid ${PRINT.goldDim}`, borderBottom: `0.5pt solid ${PRINT.goldDim}`, padding: '6mm 0' }}>
-        {[
-          { en: 'Daily Ritual',  zh: '每日專屬儀式' },
-          { en: 'Mark Journal',  zh: '集印探索'     },
-          { en: 'Infinity Day',  zh: '加碼抽獎'     },
-        ].map((m, i) => (
-          <div key={m.en} style={{ textAlign: 'center', borderLeft: i === 0 ? 'none' : `0.4pt solid ${PRINT.goldFaint}`, padding: '0 4mm' }}>
-            <div><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '14pt', fontStyle: 'italic', color: PRINT.gold, fontWeight: 500, letterSpacing: '0.04em' }}>{m.en}</span></div>
-            <div style={{ marginTop: 3 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.cream, letterSpacing: '0.2em', fontWeight: 400 }}>{m.zh}</span></div>
-          </div>
-        ))}
-      </div>
-
-      {/* Grand prize strip */}
-      <div style={{ position: 'absolute', top: '258mm', left: '16mm', right: '16mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <PMono size={6} color={PRINT.gold} track="0.4em" weight={700}>GRAND PRIZE WEEK</PMono>
-          <div style={{ marginTop: 2 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 500 }}>5 / 24 — 5 / 31</span>
-            <span style={{ color: PRINT.creamMute, fontSize: '8pt', marginLeft: 6, letterSpacing: '0.1em' }}>每日 20:00 抽出</span>
-          </div>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <PMono size={6} color={PRINT.creamFaint} track="0.4em" weight={600}>EVENT PERIOD</PMono>
-          <div style={{ marginTop: 2 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 500 }}>2026.04.25 — 05.31</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div style={{ position: 'absolute', bottom: '12mm', left: '16mm', right: '16mm', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldMute}`, paddingTop: 6 }}>
-        <NexusWordmark width={130} align="left" />
-        <PQRCode size="20mm" url={LIFF_URL} />
-      </div>
-    </PPage>
-  );
-}
-
-/* ═══════════════════════════════════════════════
-   14 · 獎品看板 P2 大獎詳情 · A4
-═══════════════════════════════════════════════ */
-function PrizeBoardDetail() {
-  return (
-    <PPage wMm={210} hMm={297}>
-      <div style={{ position: 'absolute', inset: '8mm', border: '0.6pt solid rgba(232,201,125,0.22)' }} />
-      <PTick pos={{ top: '8mm', left: '8mm' }} len={10} />
-      <PTick pos={{ top: '8mm', right: '8mm' }} flipX len={10} />
-      <PTick pos={{ bottom: '8mm', left: '8mm' }} flipY len={10} />
-      <PTick pos={{ bottom: '8mm', right: '8mm' }} flipX flipY len={10} />
-
-      {/* Header */}
-      <div style={{ position: 'absolute', top: '14mm', left: '14mm', right: '14mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <PMono size={6.5} color={PRINT.creamMute} track="0.36em" weight={600}>
-          Nexus <span style={{ fontStyle: 'italic', textTransform: 'none' }}>Life.</span> · 8TH ANNIVERSARY
-        </PMono>
-        <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>POSTER · 02 / 02</PMono>
-      </div>
-      <div style={{ position: 'absolute', top: '20mm', left: '14mm', right: '14mm', height: 0.5, background: 'rgba(232,201,125,0.22)' }} />
-
-      {/* Eyebrow */}
-      <div style={{ position: 'absolute', top: '26mm', left: '14mm' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <PRule width="8mm" color={PRINT.gold} height={1} />
-          <PMono size={7} color={PRINT.creamMute} track="0.36em" weight={600}>無限日常　∞　連結生活</PMono>
-        </div>
-      </div>
-
-      {/* Module chapter */}
-      <div style={{ position: 'absolute', top: '33mm', left: '14mm', display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '14pt', color: PRINT.gold, lineHeight: 1, fontStyle: 'italic' }}>∞</span>
-        <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>INFINITY DAY · 加碼大獎</PMono>
-      </div>
-
-      {/* Hero photo placeholder (warm gradient to simulate photo) */}
-      <div style={{ position: 'absolute', top: '42mm', left: '14mm', right: '14mm', height: '108mm', overflow: 'hidden', border: '0.6pt solid rgba(232,201,125,0.35)', boxShadow: '0 16mm 28mm -10mm rgba(0,0,0,0.6)' }}>
-        <img src="assets/image_steak_03.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 35%', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(11,20,36,0.25) 0%, transparent 25%, transparent 55%, rgba(11,20,36,0.85) 100%)' }} />
-        <PTick pos={{ top: 6, left: 6 }} />
-        <PTick pos={{ top: 6, right: 6 }} flipX />
-        <PTick pos={{ bottom: 6, left: 6 }} flipY />
-        <PTick pos={{ bottom: 6, right: 6 }} flipX flipY />
-        {/* Badge */}
-        <div style={{ position: 'absolute', top: 8, left: 8, padding: '3pt 7pt', background: 'rgba(11,20,36,0.78)', border: '0.5pt solid rgba(232,201,125,0.5)', backdropFilter: 'blur(6px)' }}>
-          <PMono size={6} color={PRINT.gold} track="0.34em" weight={700}>A5 JAPANESE WAGYU · GRAND PRIZE</PMono>
-        </div>
-        {/* Value */}
-        <div style={{ position: 'absolute', bottom: 8, right: 8, textAlign: 'right' }}>
-          <PMono size={5.5} color={PRINT.goldDim} track="0.3em" weight={700}>VALUE</PMono>
-          <div style={{ marginTop: 1 }}>
-            <GoldText style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '24pt', fontWeight: 600, letterSpacing: '0.02em', display: 'inline-block' }}>NT$&nbsp;2,300</GoldText>
-          </div>
-        </div>
-      </div>
-
-      {/* Title */}
-      <div style={{ position: 'absolute', top: '156mm', left: '14mm', right: '14mm' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '26pt', lineHeight: 1.25, letterSpacing: '0.06em', color: PRINT.cream, fontWeight: 500 }}>
-          日本和牛<br/><GoldText style={{ fontWeight: 600 }}>牛排雙人套餐</GoldText>
-        </p>
-        <div style={{ marginTop: 4 }}>
-          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', fontStyle: 'italic', color: PRINT.creamMute, letterSpacing: '0.04em' }}>
-            日本和牛ステーキ ペアセット ‧ WIRED TOKYO
-          </span>
-        </div>
-      </div>
-
-      {/* Hero quote */}
-      <div style={{ position: 'absolute', top: '194mm', left: '14mm', right: '14mm' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', lineHeight: 1.85, letterSpacing: '0.08em', color: PRINT.creamDim, fontWeight: 300 }}>
-          有些美味，不需要被說服。<br/>只要在剛好的時間，端上桌。
-        </p>
-      </div>
-
-      {/* Flavor notes */}
-      <div style={{ position: 'absolute', top: '224mm', left: '14mm', right: '14mm' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-          <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>FLAVOR NOTES</PMono>
-          <PRule width="auto" style={{ flex: 1 }} color={PRINT.goldFaint} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <div>
-            <PMono size={6} color={PRINT.creamFaint} track="0.32em" weight={600}>·  TOP NOTE</PMono>
-            <p style={{ margin: '2pt 0 0', fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', lineHeight: 1.75, color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 400 }}>
-              番茄的鮮味，<br/>讓肉香更立體。
-            </p>
-          </div>
-          <div>
-            <PMono size={6} color={PRINT.creamFaint} track="0.32em" weight={600}>·  FINISH</PMono>
-            <p style={{ margin: '2pt 0 0', fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', lineHeight: 1.75, color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 400 }}>
-              橙醋的酸感，<br/>讓尾韻更乾淨。
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div style={{ position: 'absolute', bottom: '14mm', left: '14mm', right: '14mm', borderTop: '0.5pt solid rgba(232,201,125,0.22)', paddingTop: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <PMono size={6.5} color={PRINT.gold} track="0.34em" weight={700}>LIMITED · 限量 8 份</PMono>
-          <div style={{ marginTop: 2 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 500 }}>
-              2026 / 5 / 24 — 5 / 31&nbsp;<span style={{ color: PRINT.creamMute, fontWeight: 300 }}>‧ 每日 20:00 抽出 1 位</span>
-            </span>
-          </div>
-        </div>
-        <PQRCode size="24mm" url={LIFF_URL} />
-      </div>
-    </PPage>
-  );
-}
-
-/* ═══════════════════════════════════════════════
-   15–18 · 桌面卡 A–D · A6 雙面 · 105 × 148 mm
-═══════════════════════════════════════════════ */
-function TableCard({ letter, line }) {
-  return (
-    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-      {/* FRONT — ∞ hero */}
-      <PPage wMm={105} hMm={148}>
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.1) 0%, transparent 60%)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', inset: '5mm', border: '0.5pt solid rgba(232,201,125,0.22)' }} />
-        <PTick pos={{ top: '5mm', left: '5mm' }} />
-        <PTick pos={{ top: '5mm', right: '5mm' }} flipX />
-        <PTick pos={{ bottom: '5mm', left: '5mm' }} flipY />
-        <PTick pos={{ bottom: '5mm', right: '5mm' }} flipX flipY />
-
-        <div style={{ position: 'absolute', top: '9mm', left: 0, right: 0, textAlign: 'center' }}>
-          <PMono size={5.5} color={PRINT.gold} track="0.42em" weight={700}>VARIANT · {letter}</PMono>
-        </div>
-
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-          <GoldText soft style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '200pt', lineHeight: 0.78, fontWeight: 400, letterSpacing: '-0.06em', display: 'inline-block' }}>∞</GoldText>
-          <div style={{ marginTop: 6 }}><PMono size={6} color={PRINT.creamFaint} track="0.42em">INFINITY · 無限</PMono></div>
-        </div>
-
-        <div style={{ position: 'absolute', bottom: '9mm', left: 0, right: 0, textAlign: 'center' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <PMono size={5} color={PRINT.creamFaint} track="0.32em">FRONT</PMono>
-            <PRule width="6mm" color={PRINT.goldFaint} />
-            <PMono size={5} color={PRINT.creamFaint} track="0.32em">A6</PMono>
-          </div>
-        </div>
-      </PPage>
-
-      {/* BACK — tasting beat */}
-      <PPage wMm={105} hMm={148}>
-        <div style={{ position: 'absolute', inset: '5mm', border: '0.5pt solid rgba(232,201,125,0.22)' }} />
-        <PTick pos={{ top: '5mm', left: '5mm' }} />
-        <PTick pos={{ top: '5mm', right: '5mm' }} flipX />
-        <PTick pos={{ bottom: '5mm', left: '5mm' }} flipY />
-        <PTick pos={{ bottom: '5mm', right: '5mm' }} flipX flipY />
-
-        <div style={{ position: 'absolute', top: '9mm', left: '9mm', right: '9mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <PMono size={5.5} color={PRINT.creamMute} track="0.34em">
-            Nexus <span style={{ fontStyle:'italic',textTransform:'none'}}>Life.</span>
-          </PMono>
-          <PMono size={5.5} color={PRINT.gold} track="0.4em" weight={700}>{letter}</PMono>
-        </div>
-
-        <div style={{ position: 'absolute', top: '50%', left: '8mm', right: '8mm', transform: 'translateY(-58%)', textAlign: 'center' }}>
-          <div style={{ marginBottom: 8 }}><InfinityBadge size={42} fg={PRINT.gold} accent={PRINT.gold} stroke={1.1} /></div>
-          <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '20pt', lineHeight: 1.55, letterSpacing: '0.22em', color: PRINT.cream, fontWeight: 400 }}>
-            {line}
-          </p>
-        </div>
-
-        <div style={{ position: 'absolute', bottom: '30mm', left: 0, right: 0, textAlign: 'center' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <PRule width="8mm" color={PRINT.goldFaint} />
-            <PMono size={5.5} color={PRINT.gold} track="0.4em" weight={700}>TASTING&nbsp;NOTE&nbsp;·&nbsp;{letter}</PMono>
-            <PRule width="8mm" color={PRINT.goldFaint} />
-          </div>
-        </div>
-
-        <div style={{ position: 'absolute', bottom: '9mm', left: '9mm', right: '9mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '0.5pt solid rgba(232,201,125,0.22)', paddingTop: 4 }}>
-          <PCoBrand height={6.5} />
-          <PQRCode size="14mm" url={LIFF_URL} />
-        </div>
-      </PPage>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════
-   19 · 主視覺海報 · A4 210 × 297 mm
-═══════════════════════════════════════════════ */
-function MainPoster() {
-  return (
-    <PPage wMm={210} hMm={297}>
-      {/* Gigantic 8 watermark */}
-      <div style={{ position: 'absolute', left: '50%', top: '40%', transform: 'translate(-50%, -50%)', fontFamily: "'Noto Serif TC',serif", fontWeight: 500, fontSize: '900pt', lineHeight: 0.78, color: 'rgba(232,201,125,0.04)', letterSpacing: '-0.06em', pointerEvents: 'none', userSelect: 'none' }}>8</div>
-
-      {/* Vignette */}
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 35%, rgba(201,168,76,0.1) 0%, transparent 55%), linear-gradient(180deg, rgba(11,20,36,0) 60%, rgba(8,15,28,0.6) 100%)', pointerEvents: 'none' }} />
-
-      {/* Outer frame */}
-      <div style={{ position: 'absolute', inset: '6mm', border: '0.8pt solid rgba(232,201,125,0.28)' }} />
-      <div style={{ position: 'absolute', inset: '8mm', border: '0.5pt solid rgba(232,201,125,0.1)' }} />
-      <PTick pos={{ top: '6mm', left: '6mm' }} len={9} weight={0.5} />
-      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={9} weight={0.5} />
-      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={9} weight={0.5} />
-      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={9} weight={0.5} />
-
-      {/* Header */}
-      <div style={{ position: 'absolute', top: '11mm', left: '12mm', right: '12mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <PCoBrand height={8} gap={6} />
-        <div style={{ textAlign: 'right' }}>
-          <PMono size={5} color={PRINT.gold} track="0.36em" weight={700}>2026.04.25 — 05.31</PMono>
-          <div style={{ marginTop: 1 }}><PMono size={4} color={PRINT.creamFaint} track="0.4em" weight={500}>TAICHUNG CITYHALL</PMono></div>
-        </div>
-      </div>
-      <div style={{ position: 'absolute', top: '17mm', left: '12mm', right: '12mm', height: 0.5, background: 'rgba(232,201,125,0.25)' }} />
-
-      {/* Eyebrow */}
-      <div style={{ position: 'absolute', top: '21mm', left: 0, right: 0, textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-          <PRule width="9mm" color={PRINT.gold} height={0.6} />
-          <PMono size={6} color={PRINT.gold} track="0.46em" weight={700}>8TH ANNIVERSARY · 八週年紀念</PMono>
-          <PRule width="9mm" color={PRINT.gold} height={0.6} />
-        </div>
-      </div>
-
-      {/* Nexus Life mark */}
-      <div style={{ position: 'absolute', top: '28mm', left: 0, right: 0, textAlign: 'center' }}>
-        <PNexusMark size={2.0} />
-      </div>
-
-      {/* Tagline */}
-      <div style={{ position: 'absolute', top: '58mm', left: 0, right: 0, textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
-          <PRule width="6mm" color={PRINT.goldDim} height={0.4} />
-          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '9pt', fontWeight: 300, color: PRINT.creamDim, letterSpacing: '0.32em' }}>無限日常　∞　連結生活</span>
-          <PRule width="6mm" color={PRINT.goldDim} height={0.4} />
-        </div>
-      </div>
-
-      {/* Hero copy */}
-      <div style={{ position: 'absolute', top: '72mm', left: 0, right: 0, textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '23pt', lineHeight: 1.32, letterSpacing: '0.08em', color: PRINT.cream, fontWeight: 400 }}>
-          用 <GoldText style={{ fontWeight: 700 }}>8 天</GoldText>，把一個紀念日<br/>
-          <span style={{ fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif", color: PRINT.gold, fontWeight: 500 }}>過完整</span>。
-        </p>
-      </div>
-
-      {/* Wagyu hero image */}
-      <div style={{ position: 'absolute', top: '100mm', left: '12mm', right: '12mm', height: '26mm', overflow: 'hidden', border: '0.5pt solid rgba(232,201,125,0.25)', boxShadow: '0 4mm 12mm -3mm rgba(0,0,0,0.55)' }}>
-        <img src="assets/IMG_9445.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 45%', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(8,15,28,0.45) 0%, transparent 35%, transparent 65%, rgba(8,15,28,0.45) 100%)' }} />
-      </div>
-
-      {/* 3 modules block */}
-      <div style={{ position: 'absolute', top: '130mm', left: '12mm', right: '12mm', borderTop: '0.5pt solid rgba(232,201,125,0.28)', borderBottom: '0.5pt solid rgba(232,201,125,0.28)', padding: '6mm 0', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-        {[
-          { n: '01', en: 'Daily Ritual',  zh: '每日專屬儀式', desc: '每日完成儀式 · 累積抽獎券' },
-          { n: '02', en: 'Mark Journal',  zh: '集印探索',     desc: '館內掃描 8 個主路印章' },
-          { n: '03', en: 'Infinity Day',  zh: '加碼抽獎',     desc: '每晚 20:00，現場抽出 NT$2,300 和牛套餐' },
-        ].map((m, i, arr) => (
-          <React.Fragment key={m.en}>
-            <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '15pt', fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em' }}>
-                <GoldText>{m.n}</GoldText>
-              </div>
-              <div style={{ marginTop: 2 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '8pt', fontStyle: 'italic', color: PRINT.gold, fontWeight: 500, letterSpacing: '0.04em' }}>{m.en}</span></div>
-              <div style={{ marginTop: 1 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '7pt', color: PRINT.cream, letterSpacing: '0.2em' }}>{m.zh}</span></div>
-              <div style={{ marginTop: 2 }}><PSans size={4} color={PRINT.creamMute} weight={300} track="0.06em">{m.desc}</PSans></div>
-            </div>
-            {i < arr.length - 1 && <div style={{ width: 0.4, alignSelf: 'stretch', background: 'rgba(232,201,125,0.22)' }} />}
-          </React.Fragment>
-        ))}
-      </div>
-
-      {/* Grand prize callout */}
-      <div style={{ position: 'absolute', top: '175mm', left: '12mm', right: '12mm', background: 'linear-gradient(160deg, #0e1a33 0%, #050a18 100%)', border: '0.6pt solid rgba(232,201,125,0.4)', padding: '5mm 6mm', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: 6, top: 2, fontFamily: "'Noto Serif TC',serif", fontSize: '70pt', color: 'rgba(232,201,125,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
-        <div style={{ display: 'flex', position: 'relative', alignItems: 'center', gap: 6 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '10pt', color: PRINT.gold, lineHeight: 1, fontStyle: 'italic' }}>∞</span>
-              <PMono size={5} color={PRINT.goldDim} track="0.4em" weight={700}>GRAND PRIZE WEEK · 大獎</PMono>
-            </div>
-            <div style={{ marginTop: 4, marginBottom: 4 }}>
-              <PMono size={5} color={PRINT.goldDim} track="0.3em" weight={500}>8 個夜晚 ‧ 8 份和牛 ‧ 每晚都有一位幸運者</PMono>
-            </div>
-            <div style={{ marginTop: 2 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '14pt', color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排雙人套餐</span></div>
-            <div style={{ marginTop: 1 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontStyle: 'italic', fontSize: '5pt', color: PRINT.creamMute, letterSpacing: '0.04em' }}>日本和牛ステーキ ペアセット · WIRED TOKYO</span></div>
-            <div style={{ marginTop: 2 }}><PMono size={4} color={PRINT.gold} track="0.3em" weight={500}>5 / 24 — 5 / 31 ‧ 每日 20:00 抽出 1 位 ‧ 共 8 份 ‧ NT$ 2,300</PMono></div>
-          </div>
-          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-            <PQRCode size="16mm" url={LIFF_URL} />
-            <PMono size={3} color={PRINT.goldDim} track="0.32em">立即參加 · JOIN</PMono>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div style={{ position: 'absolute', bottom: '9mm', left: '12mm', right: '12mm', borderTop: '0.5pt solid rgba(232,201,125,0.22)', paddingTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <PMono size={4} color={PRINT.creamFaint} track="0.34em" weight={600}>TSUTAYA BOOKSTORE × WIRED TOKYO · 台中市政店</PMono>
-        <PMono size={4} color={PRINT.gold} track="0.34em" weight={700}>NEXUS.LIFE / 8TH</PMono>
-      </div>
-    </PPage>
-  );
-}
-
-/* ═══════════════════════════════════════════════
-   20 · 電子海報 · 1080 × 1920 px (9:16)
-═══════════════════════════════════════════════ */
-function DigitalPoster() {
-  return (
-    <div style={{
-      width: 1080, height: 1920,
-      background: `linear-gradient(165deg, ${PRINT.bgWarm} 0%, ${PRINT.bg} 50%, ${PRINT.bgDeep} 100%)`,
-      color: PRINT.cream,
-      position: 'relative', overflow: 'hidden',
-      fontFamily: "'Noto Sans TC',sans-serif",
-    }}>
-      <PaperGrain opacity={0.35} />
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 35%, rgba(201,168,76,0.08) 0%, transparent 55%), linear-gradient(180deg, rgba(11,20,36,0) 60%, rgba(8,15,28,0.5) 100%)', pointerEvents: 'none' }} />
-
-      {/* Gigantic 8 watermark */}
-      <div style={{ position: 'absolute', left: '50%', top: '42%', transform: 'translate(-50%, -50%)', fontFamily: "'Noto Serif TC',serif", fontWeight: 500, fontSize: '1800px', lineHeight: 0.78, color: 'rgba(232,201,125,0.04)', letterSpacing: '-0.06em', pointerEvents: 'none', userSelect: 'none' }}>8</div>
-
-      {/* Outer frame */}
-      <div style={{ position: 'absolute', inset: 60, border: '1px solid rgba(232,201,125,0.28)' }} />
-
-      {/* Header */}
-      <div style={{ position: 'absolute', top: 96, left: 90, right: 90, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <PCoBrand height={28} gap={18} />
-        <div style={{ textAlign: 'right' }}>
-          <PMono size={14} color={PRINT.gold} track="0.36em" weight={700}>2026.04.25 — 05.31</PMono>
-          <div style={{ marginTop: 4 }}><PMono size={11} color={PRINT.creamFaint} track="0.4em" weight={500}>TAICHUNG CITYHALL</PMono></div>
-        </div>
-      </div>
-      <div style={{ position: 'absolute', top: 164, left: 90, right: 90, height: 1, background: 'rgba(232,201,125,0.25)' }} />
-
-      {/* Eyebrow */}
-      <div style={{ position: 'absolute', top: 196, left: 0, right: 0, textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16 }}>
-          <div style={{ width: 80, height: 1.5, background: PRINT.gold }} />
-          <PMono size={15} color={PRINT.gold} track="0.46em" weight={700}>8TH ANNIVERSARY · 八週年紀念</PMono>
-          <div style={{ width: 80, height: 1.5, background: PRINT.gold }} />
-        </div>
-      </div>
-
-      {/* Nexus Life mark */}
-      <div style={{ position: 'absolute', top: 270, left: 0, right: 0, textAlign: 'center' }}>
-        <PNexusMark size={6.5} />
-      </div>
-
-      {/* Wagyu hero image */}
-      <div style={{ position: 'absolute', top: 430, left: 90, right: 90, height: 220, overflow: 'hidden', border: '1px solid rgba(232,201,125,0.3)', boxShadow: '0 20px 60px -10px rgba(0,0,0,0.65)' }}>
-        <img src="assets/image_steak_01.png" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,15,28,0.35) 0%, transparent 30%, transparent 60%, rgba(8,15,28,0.6) 100%)' }} />
-      </div>
-
-      {/* Tagline */}
-      <div style={{ position: 'absolute', top: 680, left: 0, right: 0, textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
-          <div style={{ width: 50, height: 1, background: PRINT.goldDim }} />
-          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '32pt', fontWeight: 300, color: PRINT.creamDim, letterSpacing: '0.32em' }}>無限日常　∞　連結生活</span>
-          <div style={{ width: 50, height: 1, background: PRINT.goldDim }} />
-        </div>
-      </div>
-
-      {/* Hero copy */}
-      <div style={{ position: 'absolute', top: 780, left: 0, right: 0, textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '72pt', lineHeight: 1.32, letterSpacing: '0.08em', color: PRINT.cream, fontWeight: 400 }}>
-          用 <GoldText style={{ fontWeight: 700 }}>8 天</GoldText>，把一個紀念日<br/>
-          <span style={{ fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif", color: PRINT.gold, fontWeight: 500 }}>過完整</span>。
-        </p>
-      </div>
-
-      {/* 3 modules */}
-      <div style={{ position: 'absolute', top: 1160, left: 90, right: 90, borderTop: '1px solid rgba(232,201,125,0.28)', borderBottom: '1px solid rgba(232,201,125,0.28)', padding: '50px 0', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-        {[
-          { n: '01', en: 'Daily Ritual',  zh: '每日專屬儀式', desc: '每日完成儀式 · 累積抽獎券' },
-          { n: '02', en: 'Mark Journal',  zh: '集印探索',     desc: '館內掃描 8 個主路印章' },
-          { n: '03', en: 'Infinity Day',  zh: '加碼抽獎',     desc: '每晚 20:00，現場抽出 NT$2,300 和牛套餐' },
-        ].map((m, i, arr) => (
-          <React.Fragment key={m.en}>
-            <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '48pt', fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em' }}>
-                <GoldText>{m.n}</GoldText>
-              </div>
-              <div style={{ marginTop: 8 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '26pt', fontStyle: 'italic', color: PRINT.gold, fontWeight: 500, letterSpacing: '0.04em' }}>{m.en}</span></div>
-              <div style={{ marginTop: 4 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '22pt', color: PRINT.cream, letterSpacing: '0.2em' }}>{m.zh}</span></div>
-              <div style={{ marginTop: 6 }}><PSans size={13} color={PRINT.creamMute} weight={300} track="0.06em">{m.desc}</PSans></div>
-            </div>
-            {i < arr.length - 1 && <div style={{ width: 1, alignSelf: 'stretch', background: 'rgba(232,201,125,0.22)' }} />}
-          </React.Fragment>
-        ))}
-      </div>
-
-      {/* Grand prize callout */}
-      <div style={{ position: 'absolute', top: 1500, left: 90, right: 90, background: 'linear-gradient(160deg, #0e1a33 0%, #050a18 100%)', border: '1px solid rgba(232,201,125,0.4)', padding: '40px 50px', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: 20, top: 10, fontFamily: "'Noto Serif TC',serif", fontSize: '220pt', color: 'rgba(232,201,125,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
-        <div style={{ display: 'flex', position: 'relative', alignItems: 'center', gap: 30 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '32pt', color: PRINT.gold, lineHeight: 1, fontStyle: 'italic' }}>∞</span>
-              <PMono size={13} color={PRINT.goldDim} track="0.4em" weight={700}>GRAND PRIZE WEEK · 大獎</PMono>
-            </div>
-            <div style={{ marginTop: 4, marginBottom: 4 }}>
-              <PMono size={5} color={PRINT.goldDim} track="0.3em" weight={500}>8 個夜晚 ‧ 8 份和牛 ‧ 每晚都有一位幸運者</PMono>
-            </div>
-            <div style={{ marginTop: 10 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '44pt', color: PRINT.cream, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排雙人套餐</span></div>
-            <div style={{ marginTop: 4 }}><span style={{ fontFamily: "'Noto Serif TC',serif", fontStyle: 'italic', fontSize: '18pt', color: PRINT.creamMute, letterSpacing: '0.04em' }}>日本和牛ステーキ ペアセット · WIRED TOKYO</span></div>
-            <div style={{ marginTop: 8 }}><PMono size={13} color={PRINT.gold} track="0.3em" weight={500}>5 / 24 — 5 / 31 ‧ 每日 20:00 抽出 1 位 ‧ 共 8 份 ‧ NT$ 2,300</PMono></div>
-          </div>
-          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            <PQRCode size="130px" url={LIFF_URL} />
-            <PMono size={9} color={PRINT.goldDim} track="0.32em">立即參加 · JOIN</PMono>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div style={{ position: 'absolute', bottom: 80, left: 90, right: 90, borderTop: '1px solid rgba(232,201,125,0.22)', paddingTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <PMono size={11} color={PRINT.creamFaint} track="0.34em" weight={600}>TSUTAYA BOOKSTORE × WIRED TOKYO · 台中市政店</PMono>
-        <PMono size={11} color={PRINT.gold} track="0.34em" weight={700}>NEXUS.LIFE / 8TH</PMono>
-      </div>
-    </div>
-  );
-}
 
 /* ═══════════════════════════════════════════════
    Design Canvas — section + artboard scaffold
@@ -1465,7 +186,7 @@ function DCArtboard({ label, dims, children, scale }) {
           </div>
         </div>
         <div
-          className={`dc-artboard-frame dc-zoom`}
+          className="dc-artboard-frame dc-zoom"
           style={scale ? { transform: `scale(${scale})`, transformOrigin: 'top left', marginBottom: `calc(${scale * 100 - 100}% - ${(1-scale)*0}px)` } : {}}
           onClick={() => setFocused(true)}
         >
@@ -1478,7 +199,7 @@ function DCArtboard({ label, dims, children, scale }) {
           <div className="dc-focus-inner" onClick={e => e.stopPropagation()}>
             <button className="dc-focus-close" onClick={() => setFocused(false)}>ESC · 關閉</button>
             <div className="dc-focus-label">{label}{dims ? ` · ${dims}` : ''}</div>
-            <div style={{ overflow: 'auto', maxWidth: '90vw', maxHeight: '80vh' }}>
+            <div style={{ overflow: 'auto', maxWidth: '95vw', maxHeight: '90vh', display: 'flex', gap: 20 }}>
               {children}
             </div>
           </div>
@@ -1492,7 +213,6 @@ function DCArtboard({ label, dims, children, scale }) {
    Main App
 ═══════════════════════════════════════════════ */
 function PrintApp() {
-  const totalPieces = 19;
   const [dlState, setDlState] = useState({ running: false, current: 0, total: 0 });
 
   const downloadAll = useCallback(async () => {
@@ -1501,30 +221,102 @@ function PrintApp() {
     setDlState({ running: true, current: 0, total });
 
     const zip = new JSZip();
+    const { jsPDF } = window.jspdf;
 
     for (let i = 0; i < artboards.length; i++) {
       const ab = artboards[i];
       const labelEl = ab.querySelector('.dc-artboard-label');
-      const frameEl = ab.querySelector('.dc-artboard-frame');
       const label = labelEl ? labelEl.textContent.trim() : `artboard-${i + 1}`;
-      const filename = `${String(i + 1).padStart(2, '0')}_${label.replace(/[\/\\:*?"<>|·‧]/g, '_').replace(/\s+/g, '_')}.png`;
-
+      
+      const iframes = ab.querySelectorAll('.dc-artboard-frame iframe');
       setDlState({ running: true, current: i + 1, total });
 
-      try {
-        // Brief pause so async SVG state (dangerouslySetInnerHTML) settles in DOM
-        await new Promise(r => setTimeout(r, 80));
-        const canvas = await html2canvas(frameEl, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          backgroundColor: null,
-        });
-        const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-        if (blob) zip.file(filename, blob);
-      } catch (e) {
-        console.warn(`Skip ${filename}:`, e);
+      const isDigital = label.includes('Digital') || label.includes('電子') || label.includes('20 ·');
+
+      if (isDigital) {
+        // 數位輸出：導出為 PNG
+        for (let j = 0; j < iframes.length; j++) {
+          const iframe = iframes[j];
+          const suffix = iframes.length > 1 ? (j === 0 ? '_front' : '_back') : '';
+          const filename = `${String(i + 1).padStart(2, '0')}_${label.replace(/[\/\\:*?"<>|·‧]/g, '_').replace(/\s+/g, '_')}${suffix}.png`;
+
+          try {
+            const targetDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const renderTarget = targetDoc.getElementById('root').firstElementChild;
+            
+            if (!renderTarget) {
+              console.warn(`Target not found in iframe for ${filename}`);
+              continue;
+            }
+
+            const canvas = await html2canvas(renderTarget, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+              logging: false,
+              backgroundColor: null,
+            });
+            const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+            if (blob) zip.file(filename, blob);
+          } catch (e) {
+            console.warn(`Skip ${filename}:`, e);
+          }
+        }
+      } else {
+        // 印刷物：導出為 PDF (多面合併為多頁)
+        const filename = `${String(i + 1).padStart(2, '0')}_${label.replace(/[\/\\:*?"<>|·‧]/g, '_').replace(/\s+/g, '_')}.pdf`;
+        let pdfInstance = null;
+
+        for (let j = 0; j < iframes.length; j++) {
+          const iframe = iframes[j];
+          
+          // 獲取 iframe 尺寸以決定 PDF 頁面大小 (mm)
+          const styleWidth = iframe.style.width || `${iframe.offsetWidth}px`;
+          const styleHeight = iframe.style.height || `${iframe.offsetHeight}px`;
+          const widthMm = Math.round(parseFloat(styleWidth) / 3.7795) || 210;
+          const heightMm = Math.round(parseFloat(styleHeight) / 3.7795) || 297;
+          const orientation = widthMm > heightMm ? 'l' : 'p';
+
+          try {
+            const targetDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const renderTarget = targetDoc.getElementById('root').firstElementChild;
+            
+            if (!renderTarget) {
+              console.warn(`Target not found in iframe for ${filename} page ${j + 1}`);
+              continue;
+            }
+
+            // 使用 scale: 3 以利高品質印刷
+            const canvas = await html2canvas(renderTarget, {
+              scale: 3,
+              useCORS: true,
+              allowTaint: true,
+              logging: false,
+              backgroundColor: null,
+            });
+            
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+            if (!pdfInstance) {
+              pdfInstance = new jsPDF({
+                orientation: orientation,
+                unit: 'mm',
+                format: [widthMm, heightMm]
+              });
+            } else {
+              pdfInstance.addPage([widthMm, heightMm], orientation);
+            }
+
+            pdfInstance.addImage(imgData, 'JPEG', 0, 0, widthMm, heightMm);
+          } catch (e) {
+            console.warn(`Skip page ${j + 1} of ${filename}:`, e);
+          }
+        }
+
+        if (pdfInstance) {
+          const pdfBlob = pdfInstance.output('blob');
+          zip.file(filename, pdfBlob);
+        }
       }
     }
 
@@ -1557,7 +349,7 @@ function PrintApp() {
             disabled={dlState.running}
             onClick={downloadAll}
           >
-            ↓ 下載全部 PNG
+            ↓ 下載全套 (PDF/PNG)
           </button>
           <div style={{ color: 'rgba(196,162,74,0.5)', fontSize: 10, letterSpacing: '0.08em' }}>點擊任一印件可放大</div>
         </div>
@@ -1578,32 +370,55 @@ function PrintApp() {
         <DCSection
           title="01–08 · 集印點立牌 主路"
           subtitle="A4 210 × 297 mm · 8 站 · 館內主動線陳列 · 銅版紙 200gsm 建議"
-          count={`8 件 / 19`}
+          count="8 件 / 19"
         >
-          {STAMP_POINTS.map(s => (
+          {[
+            { id: '01', area: '靈感補給站', el: '無限' },
+            { id: '02', area: '日常儀式感', el: '陶杯' },
+            { id: '03', area: '都市放空點', el: '風' },
+            { id: '04', area: '白日夢實驗室', el: '橡實' },
+            { id: '05', area: '打卡神級背景', el: '書' },
+            { id: '06', area: '放鬆充電站', el: '咖啡' },
+            { id: '07', area: '絕美光影濾鏡', el: '光點' },
+            { id: '08', area: '情報交流道', el: '花朵' }
+          ].map(s => (
             <DCArtboard
-              key={s.n}
-              label={`${s.n} · ${s.area} ‧ ${s.element}`}
+              key={s.id}
+              label={`${s.id} · ${s.area} ‧ ${s.el}`}
               dims="A4 · 210 × 297 mm"
             >
-              <StampStandee data={s} />
+              <iframe
+                src={`printings/standee.html?id=${s.id}`}
+                style={{ width: `${mm(210)}px`, height: `${mm(297)}px` }}
+                className="print-iframe"
+                scrolling="no"
+              />
             </DCArtboard>
           ))}
         </DCSection>
 
-        {/* 09–11 無限夥伴 */}
+        {/* 09–11 隱蛋立牌 */}
         <DCSection
-          title="09–11 · 無限夥伴 A · B · C"
-          subtitle="A4 210 × 297 mm · 隱身各處的神秘角色‧找到就能領取抽獎券"
-          count={`3 件 / 19`}
+          title="09–11 · 集印點立牌 隱蛋 A · B · C"
+          subtitle="A4 210 × 297 mm · 員工別針 / 戶外桌 / 電梯告示 · 找到才會出現的彩蛋"
+          count="3 件 / 19"
         >
-          {HIDDEN_EGGS.map(e => (
+          {[
+            { code: 'a', id: 'A', area: '夥伴' },
+            { code: 'b', id: 'B', area: '野生小夥伴' },
+            { code: 'c', id: 'C', area: '野生大夥伴' }
+          ].map(e => (
             <DCArtboard
               key={e.id}
-              label={`無限夥伴 ${e.id} ‧ ${e.area}`}
+              label={`隱蛋 ${e.id} ‧ ${e.area}`}
               dims="A4 · 210 × 297 mm"
             >
-              <StampStandee data={e} isEgg />
+              <iframe
+                src={`printings/standee.html?id=${e.code}`}
+                style={{ width: `${mm(210)}px`, height: `${mm(297)}px` }}
+                className="print-iframe"
+                scrolling="no"
+              />
             </DCArtboard>
           ))}
         </DCSection>
@@ -1612,10 +427,15 @@ function PrintApp() {
         <DCSection
           title="12 · 櫃檯說明立卡"
           subtitle="A4 210 × 297 mm · 服務台立式 L 型壓克力插卡使用"
-          count={`1 件 / 19`}
+          count="1 件 / 19"
         >
           <DCArtboard label="12 · Counter Info Card" dims="A4 · 210 × 297 mm">
-            <CounterCard />
+            <iframe
+              src="printings/counter-card.html"
+              style={{ width: `${mm(210)}px`, height: `${mm(297)}px` }}
+              className="print-iframe"
+              scrolling="no"
+            />
           </DCArtboard>
         </DCSection>
 
@@ -1623,13 +443,23 @@ function PrintApp() {
         <DCSection
           title="13 – 14 · 獎品看板（雙面）"
           subtitle="A4 210 × 297 mm · P1 主視覺 + P2 大獎詳情 · 高磅銅版紙建議"
-          count={`2 件 / 19`}
+          count="2 件 / 19"
         >
           <DCArtboard label="13 · P1 · Hero 主視覺" dims="A4 · 210 × 297 mm">
-            <PrizeBoardHero />
+            <iframe
+              src="printings/prize-board-hero.html"
+              style={{ width: `${mm(210)}px`, height: `${mm(297)}px` }}
+              className="print-iframe"
+              scrolling="no"
+            />
           </DCArtboard>
           <DCArtboard label="14 · P2 · 大獎詳情" dims="A4 · 210 × 297 mm">
-            <PrizeBoardDetail />
+            <iframe
+              src="printings/prize-board-detail.html"
+              style={{ width: `${mm(210)}px`, height: `${mm(297)}px` }}
+              className="print-iframe"
+              scrolling="no"
+            />
           </DCArtboard>
         </DCSection>
 
@@ -1637,20 +467,31 @@ function PrintApp() {
         <DCSection
           title="15 – 18 · 桌面卡 A · B · C · D"
           subtitle="A6 105 × 148 mm · 雙面印刷 · 正面 ∞ · 背面四種風味註記"
-          count={`4 件 / 19`}
+          count="4 件 / 19"
         >
           {[
-            { letter: 'A', line: '炙燒的香，先到。' },
-            { letter: 'B', line: '鹽讓甜更明亮。'  },
-            { letter: 'C', line: '胡椒留下尾韻。'  },
-            { letter: 'D', line: '一點醬就夠。'    },
+            { letter: 'a', title: 'A', line: '炙燒的香，先到。' },
+            { letter: 'b', title: 'B', line: '鹽讓甜更明亮。'  },
+            { letter: 'c', title: 'C', line: '胡椒留下尾韻。'  },
+            { letter: 'd', title: 'D', line: '一點醬就夠。'    },
           ].map(t => (
             <DCArtboard
               key={t.letter}
-              label={`${t.letter.charCodeAt(0) - 'A'.charCodeAt(0) + 15} · 桌面卡 ${t.letter} · ${t.line}`}
+              label={`${t.letter.toUpperCase()} · 桌面卡 ${t.title} · ${t.line}`}
               dims="A6 × 2 · 雙面 · 105 × 148 mm"
             >
-              <TableCard letter={t.letter} line={t.line} />
+              <iframe
+                src={`printings/table-card-${t.letter}-front.html`}
+                style={{ width: `${mm(105)}px`, height: `${mm(148)}px` }}
+                className="print-iframe"
+                scrolling="no"
+              />
+              <iframe
+                src={`printings/table-card-${t.letter}-back.html`}
+                style={{ width: `${mm(105)}px`, height: `${mm(148)}px` }}
+                className="print-iframe"
+                scrolling="no"
+              />
             </DCArtboard>
           ))}
         </DCSection>
@@ -1659,10 +500,15 @@ function PrintApp() {
         <DCSection
           title="19 · 主視覺海報"
           subtitle="A4 直向 210 × 297 mm · 入口、電梯、展示位使用"
-          count={`1 件 / 19`}
+          count="1 件 / 19"
         >
           <DCArtboard label="19 · Main Visual · A4 210 × 297 mm" dims="A4 · 210 × 297 mm">
-            <MainPoster />
+            <iframe
+              src="printings/main-poster.html"
+              style={{ width: `${mm(210)}px`, height: `${mm(297)}px` }}
+              className="print-iframe"
+              scrolling="no"
+            />
           </DCArtboard>
         </DCSection>
 
@@ -1670,7 +516,7 @@ function PrintApp() {
         <DCSection
           title="20 · 電子海報"
           subtitle="1080 × 1920 px · 9:16 直式 · 社群投放 / 數位看板使用"
-          count={`電子版 · 非印刷`}
+          count="電子版 · 非印刷"
         >
           <DCArtboard label="20 · Digital Poster · 1080 × 1920 px" dims="1080 × 1920 px · 9:16">
             <div style={{
@@ -1678,9 +524,21 @@ function PrintApp() {
               height: `${Math.round(1920 * 0.28)}px`,
               overflow: 'hidden', position: 'relative', flexShrink: 0,
             }}>
-              <div style={{ transform: 'scale(0.28)', transformOrigin: 'top left', position: 'absolute', top: 0, left: 0 }}>
-                <DigitalPoster />
-              </div>
+              <iframe
+                src="printings/digital-poster.html"
+                style={{
+                  width: '216mm',
+                  height: '384mm',
+                  border: 'none',
+                  transform: 'scale(0.28)',
+                  transformOrigin: 'top left',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0
+                }}
+                className="print-iframe"
+                scrolling="no"
+              />
             </div>
           </DCArtboard>
         </DCSection>
