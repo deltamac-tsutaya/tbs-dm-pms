@@ -680,7 +680,7 @@
           height: "100%",
           viewBox: `0 0 ${N} ${N}`,
           style: { display: 'block', position: 'relative' }
-        }, cells.map((on, i) => on ? h('rect', { key: i, x: i%N, y: Math.floor(i/N), width: "1", height: "1", fill: PRINT.brown }) : null))
+        }, cells.map((on, i) => on ? h('rect', { key: i, x: i%N, y: Math.floor(i/N), width: "1", height: "1", fill: '#1a0e05' }) : null))
       ]);
     }
 
