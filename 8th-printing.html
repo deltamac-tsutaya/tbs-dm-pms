@@ -787,6 +787,14 @@ const {
 /* ═══════════════════════════════════════════════
    Stamp point data (with real scannable URLs)
 ═══════════════════════════════════════════════ */
+const MENU_ITEMS = [
+  { src: 'assets/menu_fries.jpg' },
+  { src: 'assets/menu_sundae.jpg' },
+  { src: 'assets/menu_tea.jpg' },
+  { src: 'assets/menu_toast.jpg' },
+  { src: 'assets/menu_cheesecake.jpg' },
+];
+
 const STAMP_POINTS_DATA = [
   { n: '01', area: '靈感補給站',   element: '無限', loc: '入口主題陳列區（2F）',
     url: 'https://taichung-8th-anniversary.vercel.app/?id=cef53d02-f621-4a0f-8ac5-6d086fd8548a',
@@ -1133,13 +1141,7 @@ function StandeeContent({ item, isEgg }) {
           <div>
             <PMono size={5.5} color={PRINT.goldDim} track="0.28em" weight={600}>優惠券亦可兌換</PMono>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2.5mm' }}>
-              {[
-                { src: 'assets/menu_fries.jpg',      label: '松露薯條' },
-                { src: 'assets/menu_sundae.jpg',     label: '法式\n香蕉聖代' },
-                { src: 'assets/menu_tea.jpg',        label: 'WIRED\n水果茶' },
-                { src: 'assets/menu_toast.jpg',      label: '抹茶\n吐司' },
-                { src: 'assets/menu_cheesecake.jpg', label: '伯爵茶\n巴斯克' },
-              ].map(d => (
+              {MENU_ITEMS.map(d => (
                 <div key={d.src} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
                   <div style={{ width: '18mm', height: '18mm', borderRadius: '50%', overflow: 'hidden',
                     border: '0.7pt solid rgba(212,168,67,0.5)' }}>
@@ -1322,6 +1324,23 @@ function PrizeHeroPage() {
           用 <GoldText style={{ fontWeight: 600 }}>8 天</GoldText>，把一個紀念日<br/>
           <span style={{ fontStyle: 'italic', color: PRINT.gold, fontWeight: 500 }}>過完整</span>。
         </p>
+      </div>
+
+      {/* Redeemable menu thumbnails */}
+      <div style={{ position: 'absolute', top: '212mm', left: '16mm', right: '16mm' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: '3mm' }}>
+          <PRule width="8mm" color={PRINT.gold} height={0.8} />
+          <PMono size={6} color={PRINT.goldDim} track="0.3em" weight={600}>優惠券亦可兌換</PMono>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          {MENU_ITEMS.map(d => (
+            <div key={d.src} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+              <div style={{ width: '14mm', height: '14mm', borderRadius: '50%', overflow: 'hidden', border: '0.6pt solid rgba(212,168,67,0.45)' }}>
+                <img src={d.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div style={{ position: 'absolute', top: '232mm', left: '16mm', right: '16mm', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, borderTop: `0.5pt solid ${PRINT.goldDim}`, borderBottom: `0.5pt solid ${PRINT.goldDim}`, padding: '6mm 0' }}>
@@ -1717,6 +1736,23 @@ function MainPosterPage() {
         </div>
       </div>
 
+      {/* Redeemable menu thumbnails */}
+      <div style={{ position: 'absolute', top: '228mm', left: '24mm', right: '24mm' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: '3mm' }}>
+          <PRule width="8mm" color={PRINT.gold} height={0.8} />
+          <PMono size={6} color={PRINT.goldDim} track="0.3em" weight={600}>優惠券亦可兌換</PMono>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          {MENU_ITEMS.map(d => (
+            <div key={d.src} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+              <div style={{ width: '14mm', height: '14mm', borderRadius: '50%', overflow: 'hidden', border: '0.6pt solid rgba(212,168,67,0.45)' }}>
+                <img src={d.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div style={{ position: 'absolute', bottom: '16mm', left: '24mm', right: '24mm', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: `0.5pt solid ${PRINT.goldDim}`, paddingTop: 10 }}>
         <div>
           <PMono size={6} color={PRINT.creamFaint} track="0.3em" weight={600}>EVENT PERIOD</PMono>
@@ -1766,6 +1802,23 @@ function DigitalPosterPage() {
           用 <GoldText style={{ fontWeight: 500 }}>8 天</GoldText> 的時間，<br/>
           把一個紀念日過得完整。
         </p>
+      </div>
+
+      {/* Redeemable menu thumbnails */}
+      <div style={{ position: 'absolute', top: '243mm', left: '28mm', right: '28mm' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: '3mm' }}>
+          <PRule width="8mm" color={PRINT.gold} height={0.8} />
+          <PMono size={6.5} color={PRINT.goldDim} track="0.3em" weight={600}>優惠券亦可兌換</PMono>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          {MENU_ITEMS.map(d => (
+            <div key={d.src} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+              <div style={{ width: '16mm', height: '16mm', borderRadius: '50%', overflow: 'hidden', border: '0.6pt solid rgba(212,168,67,0.45)' }}>
+                <img src={d.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div style={{ position: 'absolute', top: '272mm', left: '28mm', right: '28mm' }}>
