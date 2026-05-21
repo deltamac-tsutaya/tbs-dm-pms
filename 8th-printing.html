@@ -1086,96 +1086,79 @@ function StandeeContent({ item, isEgg }) {
         </div>
       </div>
 
-      {/* ── Prize preview: full-bleed dramatic image ── */}
-      <div style={{ position: 'absolute', top: '193mm', left: 0, right: 0, bottom: 0, overflow: 'hidden' }}>
-        {/* Hero steak image — full bleed */}
-        <img src={item.img || 'assets/image_steak_03.png'} alt="" style={{
-          position: 'absolute', inset: 0, width: '100%', height: '100%',
-          objectFit: 'cover', objectPosition: 'center 55%', display: 'block'
-        }} />
-        {/* Top gradient: dark for label readability */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45%',
-          background: 'linear-gradient(to bottom, rgba(8,5,2,0.92) 0%, rgba(8,5,2,0.55) 55%, transparent 100%)' }} />
-        {/* Bottom gradient: dark for footer readability */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%',
-          background: 'linear-gradient(to top, rgba(8,5,2,0.97) 0%, rgba(8,5,2,0.75) 35%, transparent 100%)' }} />
+      {/* ── Prize section: 3 clean zones, no text-on-image ── */}
 
+      {/* ZONE A: 193–230mm — dark bg, all header text */}
+      <div style={{ position: 'absolute', top: '193mm', left: 0, right: 0, height: '37mm',
+        background: 'linear-gradient(180deg, #0d0905 0%, #150c07 100%)',
+        display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 14mm' }}>
         {/* Gold top rule */}
-        <div style={{ position: 'absolute', top: 0, left: '8mm', right: '8mm', height: '0.7pt', background: 'rgba(212,168,67,0.6)' }} />
-
-        {/* Top label */}
-        <div style={{ position: 'absolute', top: '3mm', left: '14mm', right: '14mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <PMono size={9} color={PRINT.gold} track="0.36em" weight={700}>INFINITY DAY · 無限日 · 加碼抽獎</PMono>
-          <PMono size={8} color={PRINT.goldDim} track="0.22em" weight={600}>5 / 24 — 5 / 31</PMono>
+        <div style={{ position: 'absolute', top: 0, left: '8mm', right: '8mm', height: '0.7pt', background: 'rgba(212,168,67,0.55)' }} />
+        {/* Label row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2.5mm' }}>
+          <PMono size={8.5} color={PRINT.gold} track="0.34em" weight={700}>INFINITY DAY · 無限日 · 加碼抽獎</PMono>
+          <PMono size={7.5} color={PRINT.goldDim} track="0.22em" weight={600}>5 / 24 — 5 / 31</PMono>
         </div>
+        {/* Station promo */}
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '11.5pt', fontStyle: 'italic',
+          lineHeight: 1.5, letterSpacing: '0.06em', color: PRINT.cream }}>
+          {item.promo}
+        </p>
+      </div>
 
-        {/* Station-specific promo tagline */}
-        <div style={{ position: 'absolute', top: '10mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-          <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', fontStyle: 'italic',
-            lineHeight: 1.55, letterSpacing: '0.06em', color: PRINT.cream,
-            textShadow: '0 1px 8px rgba(0,0,0,0.95)' }}>
-            {item.promo}
-          </p>
-        </div>
+      {/* ZONE B: 230–263mm — pure steak image, zero text */}
+      <div style={{ position: 'absolute', top: '230mm', left: 0, right: 0, height: '33mm', overflow: 'hidden' }}>
+        <img src={item.img || 'assets/image_steak_03.png'} alt="" style={{
+          width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%', display: 'block'
+        }} />
+      </div>
 
-        {/* Prize name — centered on image */}
-        <div style={{ position: 'absolute', top: '56%', left: 0, right: 0,
-          transform: 'translateY(-68%)', textAlign: 'center', padding: '0 10mm' }}>
-          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '28pt', fontWeight: 600,
-            letterSpacing: '0.1em', lineHeight: 1.2, color: PRINT.gold,
-            textShadow: '0 3px 14px rgba(0,0,0,0.85), 0 0 50px rgba(212,168,67,0.25)' }}>
+      {/* ZONE C: 263–297mm — dark bg, prize + menu + footer */}
+      <div style={{ position: 'absolute', top: '263mm', left: 0, right: 0, bottom: 0,
+        background: 'linear-gradient(180deg, #150c07 0%, #0d0905 100%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        gap: '2.5mm', padding: '3mm 12mm 4mm' }}>
+        {/* Prize name */}
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '22pt', fontWeight: 600,
+            letterSpacing: '0.08em', lineHeight: 1.15, color: PRINT.gold }}>
             日本和牛牛排雙人套餐
           </div>
-          <div style={{ marginTop: '2mm', fontFamily: "'Noto Serif TC',serif", fontSize: '10pt',
-            color: PRINT.cream, letterSpacing: '0.1em',
-            textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}>
-            佐特製橙醋醬汁 · 價值 NT$2,300 起
-          </div>
           <div style={{ marginTop: '1.5mm', fontFamily: "'Noto Serif TC',serif", fontSize: '9pt',
-            fontStyle: 'italic', color: PRINT.creamMute, letterSpacing: '0.04em',
-            textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}>
-            和牛のステーキ トマト UMAMI ポン酢ソース
+            color: PRINT.creamMute, letterSpacing: '0.08em', fontStyle: 'italic' }}>
+            佐特製橙醋醬汁 · 和牛のステーキ UMAMI ポン酢ソース · NT$2,300 起
           </div>
         </div>
-
-        {/* Also redeemable: other menu items */}
-        <div style={{ position: 'absolute', bottom: '28mm', left: '8mm', right: '8mm' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '3mm', marginBottom: '2mm' }}>
-            <div style={{ flex: 1, height: '0.5pt', background: 'rgba(212,168,67,0.45)' }} />
-            <PMono size={6} color={PRINT.goldDim} track="0.32em" weight={600}>優惠券亦可兌換</PMono>
-            <div style={{ flex: 1, height: '0.5pt', background: 'rgba(212,168,67,0.45)' }} />
+        {/* Divider */}
+        <div style={{ width: '80%', height: '0.5pt', background: 'rgba(212,168,67,0.3)' }} />
+        {/* Also redeemable thumbnails */}
+        <div style={{ width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2.5mm', marginBottom: '1.5mm' }}>
+            <div style={{ flex: 1, height: '0.4pt', background: 'rgba(212,168,67,0.3)' }} />
+            <PMono size={5.5} color={PRINT.goldDim} track="0.3em" weight={600}>優惠券亦可兌換</PMono>
+            <div style={{ flex: 1, height: '0.4pt', background: 'rgba(212,168,67,0.3)' }} />
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '3mm' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '3.5mm' }}>
             {[
-              { src: 'assets/menu_fries.jpg',       label: '松露薯條' },
-              { src: 'assets/menu_sundae.jpg',      label: '香蕉船聖代' },
-              { src: 'assets/menu_tea.jpg',         label: '水果花草茶' },
-              { src: 'assets/menu_toast.jpg',       label: '法式吐司' },
-              { src: 'assets/menu_cheesecake.jpg',  label: '巴斯克蛋糕' },
+              { src: 'assets/menu_fries.jpg',      label: '松露薯條' },
+              { src: 'assets/menu_sundae.jpg',     label: '香蕉船聖代' },
+              { src: 'assets/menu_tea.jpg',        label: '水果花草茶' },
+              { src: 'assets/menu_toast.jpg',      label: '法式吐司' },
+              { src: 'assets/menu_cheesecake.jpg', label: '巴斯克蛋糕' },
             ].map(d => (
               <div key={d.src} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1mm' }}>
-                <div style={{ width: '10mm', height: '10mm', borderRadius: '50%', overflow: 'hidden',
-                  border: '0.6pt solid rgba(212,168,67,0.55)', boxShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
+                <div style={{ width: '11mm', height: '11mm', borderRadius: '50%', overflow: 'hidden',
+                  border: '0.7pt solid rgba(212,168,67,0.5)' }}>
                   <img src={d.src} alt={d.label} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 </div>
-                <PMono size={4.5} color={PRINT.creamMute} track="0.1em" weight={400}>{d.label}</PMono>
+                <PMono size={4.5} color={PRINT.creamMute} track="0.08em" weight={400}>{d.label}</PMono>
               </div>
             ))}
           </div>
         </div>
-
-        {/* Bottom: broadcast info */}
-        <div style={{ position: 'absolute', bottom: '17mm', left: 0, right: 0, textAlign: 'center' }}>
-          <PMono size={9} color={PRINT.cream} track="0.28em" weight={600}>每日 20:00 直播抽獎</PMono>
-        </div>
-
-        {/* Footer: logo + tagline */}
-        <div style={{ position: 'absolute', bottom: '4mm', left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5mm' }}>
-          <NexusWordmark width={95} sub={false} align="center" />
-          <PMono size={8} color={PRINT.creamMute} track="0.28em" weight={400}>
-            ここで、ひと呼吸。 ／ Pause Here for a Moment.
-          </PMono>
-        </div>
+        {/* Broadcast + footer */}
+        <PMono size={8.5} color={PRINT.cream} track="0.28em" weight={600}>每日 20:00 直播抽獎</PMono>
+        <NexusWordmark width={80} sub={false} align="center" />
       </div>
     </PPage>
   );
