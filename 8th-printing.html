@@ -291,19 +291,12 @@
       }, children);
     }
 
-    /* ─── Gold gradient text ─── */
+    /* ─── Gold text (solid color — background-clip:text unsupported by html2canvas) ─── */
     function GoldText({ children, soft, style, as }) {
       const As = as || 'span';
-      const grad = soft
-        ? 'linear-gradient(135deg, #8e6b22 0%, #c4a24a 50%, #8e6b22 100%)'
-        : 'linear-gradient(135deg, #8e6b22 0%, #c4a24a 35%, #f0d684 50%, #c4a24a 65%, #8e6b22 100%)';
       return h(As, {
         style: {
-          background: grad,
-          WebkitBackgroundClip: 'text',
-          backgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          color: 'transparent',
+          color: soft ? '#c4a24a' : '#d4a843',
           ...style,
         }
       }, children);
@@ -490,24 +483,21 @@
       ]);
     }
 
-    /* ─── Icon mask (recolor SVG) ─── */
+    /* ─── Icon recolor (img + filter — mask-image unsupported by html2canvas) ─── */
     function PMaskIcon({ src, size, color, opacity, style }) {
       const s = size || 40;
-      return h('span', {
+      const filter = color === PRINT.gold || color === '#d4a843'
+        ? 'brightness(0) sepia(1) saturate(4) hue-rotate(2deg) brightness(0.92)'
+        : 'brightness(0) invert(1)';
+      return h('img', {
+        src,
         style: {
           display: 'inline-block',
           width: s,
           height: s,
-          backgroundColor: color || PRINT.brown,
+          objectFit: 'contain',
           opacity: opacity !== undefined ? opacity : 1,
-          WebkitMaskImage: `url('${src}')`,
-          WebkitMaskSize: 'contain',
-          WebkitMaskRepeat: 'no-repeat',
-          WebkitMaskPosition: 'center',
-          maskImage: `url('${src}')`,
-          maskSize: 'contain',
-          maskRepeat: 'no-repeat',
-          maskPosition: 'center',
+          filter,
           ...style,
         }
       });
