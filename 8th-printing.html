@@ -195,8 +195,8 @@
     @keyframes dlspin { to { transform: rotate(360deg); } }
   </style>
 
-  <!-- Real QR code library -->
-  <script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js" crossorigin="anonymous"></script>
+  <!-- Real QR code library (qrcode-generator: pure browser, no bundler needed) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
@@ -842,18 +842,27 @@ function RealQR({ url, sizeMm }) {
   const sizePx = Math.round((sizeMm || 80) * 3.7795);
 
   useEffect(() => {
-    if (!canvasRef.current || !url) return;
-    QRCode.toCanvas(canvasRef.current, url, {
-      width: sizePx,
-      margin: 2,
-      color: {
-        dark:  '#f4e8cc',
-        light: 'transparent',
-      },
-      errorCorrectionLevel: 'M',
-    }, (err) => {
-      if (err) console.error('QR error:', err);
-    });
+    const canvas = canvasRef.current;
+    if (!canvas || !url || typeof qrcode === 'undefined') return;
+    try {
+      const qr = qrcode(0, 'M');
+      qr.addData(url);
+      qr.make();
+      const count = qr.moduleCount;
+      const cell = sizePx / count;
+      canvas.width = sizePx;
+      canvas.height = sizePx;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, sizePx, sizePx);
+      for (let r = 0; r < count; r++) {
+        for (let c = 0; c < count; c++) {
+          ctx.fillStyle = qr.isDark(r, c) ? '#f4e8cc' : 'transparent';
+          ctx.fillRect(Math.floor(c * cell), Math.floor(r * cell), Math.ceil(cell), Math.ceil(cell));
+        }
+      }
+    } catch (e) {
+      console.warn('QR generation failed:', e);
+    }
   }, [url, sizePx]);
 
   return (
