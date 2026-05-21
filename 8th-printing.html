@@ -680,7 +680,7 @@
           height: "100%",
           viewBox: `0 0 ${N} ${N}`,
           style: { display: 'block', position: 'relative' }
-        }, cells.map((on, i) => on ? h('rect', { key: i, x: i%N, y: Math.floor(i/N), width: "1", height: "1", fill: PRINT.brown }) : null))
+        }, cells.map((on, i) => on ? h('rect', { key: i, x: i%N, y: Math.floor(i/N), width: "1", height: "1", fill: '#1a0e05' }) : null))
       ]);
     }
 
@@ -1087,7 +1087,7 @@ function StandeeContent({ item, isEgg }) {
 
         {/* Top label */}
         <div style={{ position: 'absolute', top: '3mm', left: '14mm', right: '14mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>GRAND PRIZE WEEK · 大獎週</PMono>
+          <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>INFINITY DAY · 無限日 · 加碼抽獎</PMono>
           <PMono size={7} color={PRINT.goldDim} track="0.22em" weight={600}>5 / 24 — 5 / 31</PMono>
         </div>
 
@@ -1196,7 +1196,7 @@ function CounterCardPage() {
         <div style={{ position: 'absolute', right: -8, top: -16, fontFamily: "'Noto Serif TC',serif", fontSize: '110pt', color: 'rgba(168,132,56,0.07)', lineHeight: 0.8, fontStyle: 'italic' }}>∞</div>
         <div style={{ display: 'flex', gap: 10, position: 'relative' }}>
           <div style={{ flex: 1 }}>
-            <PMono size={6.5} color={PRINT.goldDim} track="0.36em" weight={700}>GRAND PRIZE WEEK · 大獎週</PMono>
+            <PMono size={6.5} color={PRINT.goldDim} track="0.36em" weight={700}>INFINITY DAY · 無限日 · 加碼抽獎</PMono>
             <div style={{ marginTop: 4 }}>
               <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '19pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排雙人套餐</span>
             </div>
@@ -1218,7 +1218,7 @@ function CounterCardPage() {
         <div>
           <PMono size={6} color={PRINT.creamFaint} track="0.3em" weight={600}>LOCATION</PMono>
           <div style={{ marginTop: 1 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.08em' }}>台中市政店 ‧ 4F</span>
+            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.08em' }}>台中市政店</span>
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
@@ -1303,7 +1303,7 @@ function PrizeHeroPage() {
 
       <div style={{ position: 'absolute', top: '258mm', left: '16mm', right: '16mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <PMono size={6} color={PRINT.gold} track="0.4em" weight={700}>GRAND PRIZE WEEK</PMono>
+          <PMono size={6} color={PRINT.gold} track="0.4em" weight={700}>INFINITY DAY · 無限日</PMono>
           <div style={{ marginTop: 2 }}>
             <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>5 / 24 — 5 / 31</span>
             <span style={{ color: PRINT.brown, fontSize: '8pt', marginLeft: 6, letterSpacing: '0.1em' }}>每日 20:00 抽出</span>
@@ -1365,7 +1365,7 @@ function PrizeDetailPage() {
         <PTick pos={{ bottom: 6, left: 6 }} flipY />
         <PTick pos={{ bottom: 6, right: 6 }} flipX flipY />
         <div style={{ position: 'absolute', top: 8, left: 8, padding: '3pt 7pt', background: 'rgba(255,255,255,0.85)', border: '0.5pt solid rgba(168,132,56,0.5)', backdropFilter: 'blur(6px)' }}>
-          <PMono size={6} color={PRINT.gold} track="0.34em" weight={700}>A5 JAPANESE WAGYU · GRAND PRIZE</PMono>
+          <PMono size={6} color={PRINT.gold} track="0.34em" weight={700}>A5 JAPANESE WAGYU · INFINITY DAY</PMono>
         </div>
         <div style={{ position: 'absolute', bottom: 8, right: 8, textAlign: 'right' }}>
           <PMono size={5.5} color={PRINT.goldDim} track="0.3em" weight={700}>VALUE</PMono>
@@ -1432,38 +1432,44 @@ function PrizeDetailPage() {
 /* ═══════════════════════════════════════════════
    15–18 · Table cards (A6 · front + back)
 ═══════════════════════════════════════════════ */
-function TableCardAFront() {
+function TableCardA() {
   return (
     <PPage wMm={105} hMm={148}>
-      <PWatermark ch="8" size={320} color="rgba(196,162,74,0.035)" pos={{ left: '50%', top: '50%' }} />
+      <PWatermark ch="8" size={300} color="rgba(196,162,74,0.03)" pos={{ left: '50%', top: '50%' }} />
       <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
       <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
       <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
       <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
-      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+      <div style={{ position: 'absolute', top: '9mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
         <PCoBrand height={7.5} gap={7} />
       </div>
-      <div style={{ position: 'absolute', top: '22mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+      <div style={{ position: 'absolute', top: '19mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
         <PillLabel size={6}>DAILY RITUAL ‧ 每日專屬儀式</PillLabel>
       </div>
-      <div style={{ position: 'absolute', top: '38mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <InfinityBadge size={28} fg={PRINT.gold} accent={PRINT.gold} stroke={1.0} />
-      </div>
-      <div style={{ position: 'absolute', top: '56mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '12.5pt', lineHeight: 1.55, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
+      <div style={{ position: 'absolute', top: '27mm', left: '10mm', right: '10mm', height: '0.4pt', background: 'rgba(212,168,67,0.2)' }} />
+      <div style={{ position: 'absolute', top: '30mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', lineHeight: 1.5, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
           用 <GoldText style={{ fontWeight: 600 }}>8 天</GoldText>，<br/>
           把一個紀念日過完整。
         </p>
       </div>
-      <div style={{ position: 'absolute', top: '88mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '7.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.04em', fontWeight: 300 }}>
-          每天點亮 1 個日常儀式，<br/>
-          即可解鎖當日 Infinity Day 抽獎。<br/>
-          和牛雙人套餐、經典商品，等著你。
+      <div style={{ position: 'absolute', top: '50mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '7pt', lineHeight: 1.75, color: PRINT.brown, letterSpacing: '0.04em', fontWeight: 300 }}>
+          每天點亮 1 個日常儀式，即可解鎖 Infinity Day 抽獎。<br/>
+          咖啡不是必需，但那一刻的空白是。
         </p>
       </div>
-      <div style={{ position: 'absolute', bottom: '16mm', left: 0, right: 0, textAlign: 'center' }}>
-        <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>SCAN TO START ‧ 掃描開始</PMono>
+      <div style={{ position: 'absolute', top: '64mm', left: '50%', transform: 'translateX(-50%)' }}>
+        <PBigQR size="40mm" seed={101} />
+      </div>
+      <div style={{ position: 'absolute', top: '107mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <PMono size={5.5} color={PRINT.goldDim} track="0.28em" weight={600}>WIRED TOKYO ‧ Coffee & Relax</PMono>
+      </div>
+      <div style={{ position: 'absolute', top: '114mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <PMono size={6.5} color={PRINT.gold} track="0.34em" weight={700}>SCAN TO START ‧ 掃描開始</PMono>
+      </div>
+      <div style={{ position: 'absolute', top: '122mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <PMono size={5.5} color={PRINT.creamMute} track="0.2em">ANNIVERSARY SPECIAL ‧ 憑券享 8 折優惠</PMono>
       </div>
       <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
         <NexusWordmark width={50} sub={false} align="left" />
@@ -1473,79 +1479,44 @@ function TableCardAFront() {
   );
 }
 
-function TableCardABack() {
+function TableCardB() {
   return (
     <PPage wMm={105} hMm={148}>
-      <PWatermark ch="咖啡" size={170} color="rgba(196,162,74,0.022)" pos={{ left: '50%', top: '50%' }} />
+      <PWatermark ch="8" size={300} color="rgba(196,162,74,0.03)" pos={{ left: '50%', top: '50%' }} />
       <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
       <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
       <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
       <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
-      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+      <div style={{ position: 'absolute', top: '9mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
         <PCoBrand height={7.5} gap={7} />
       </div>
-      <div style={{ position: 'absolute', top: '22mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.1em' }}>
-          WIRED TOKYO
-        </span>
-        <div style={{ marginTop: 2 }}>
-          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '8pt', fontStyle: 'italic', color: PRINT.brown, letterSpacing: '0.06em' }}>
-            Coffee & Relax
-          </span>
-        </div>
-      </div>
-      <div style={{ position: 'absolute', top: '44mm', left: '50%', transform: 'translateX(-50%)' }}>
-        <PBigQR size="46mm" seed={101} />
-      </div>
-      <div style={{ position: 'absolute', top: '98mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '8.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.08em', fontWeight: 300 }}>
-          咖啡不是必需，但那一刻的空白是。<br/>
-          在這裡，用一杯暖熱，把時間拉長。
-        </p>
-      </div>
-      <div style={{ position: 'absolute', bottom: '15mm', left: 0, right: 0, textAlign: 'center' }}>
-        <PMono size={6.5} color={PRINT.gold} track="0.26em" weight={700}>ANNIVERSARY SPECIAL ‧ 憑券享 8 折優惠</PMono>
-      </div>
-      <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
-        <NexusWordmark width={50} sub={false} align="left" />
-        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 01</PMono>
-      </div>
-    </PPage>
-  );
-}
-
-function TableCardBFront() {
-  return (
-    <PPage wMm={105} hMm={148}>
-      <PWatermark ch="8" size={320} color="rgba(196,162,74,0.035)" pos={{ left: '50%', top: '50%' }} />
-      <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
-      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
-      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
-      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
-      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <PCoBrand height={7.5} gap={7} />
-      </div>
-      <div style={{ position: 'absolute', top: '22mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+      <div style={{ position: 'absolute', top: '19mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
         <PillLabel size={6}>MARK JOURNAL ‧ 集印探索</PillLabel>
       </div>
-      <div style={{ position: 'absolute', top: '38mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <InfinityBadge size={28} fg={PRINT.gold} accent={PRINT.gold} stroke={1.0} />
-      </div>
-      <div style={{ position: 'absolute', top: '56mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '12.5pt', lineHeight: 1.55, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
+      <div style={{ position: 'absolute', top: '27mm', left: '10mm', right: '10mm', height: '0.4pt', background: 'rgba(212,168,67,0.2)' }} />
+      <div style={{ position: 'absolute', top: '30mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', lineHeight: 1.5, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
           尋找館內 <GoldText style={{ fontWeight: 600 }}>8 個</GoldText> 印章，<br/>
           解鎖你的探索地圖。
         </p>
       </div>
-      <div style={{ position: 'absolute', top: '88mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '7.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.04em', fontWeight: 300 }}>
-          館內設有 8 處主路點位印章與 3 處隱蛋印章。<br/>
-          掃描並收集印章，<br/>
-          集滿即可解鎖當日大獎抽獎資格。
+      <div style={{ position: 'absolute', top: '50mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '7pt', lineHeight: 1.75, color: PRINT.brown, letterSpacing: '0.04em', fontWeight: 300 }}>
+          館內 8 處主路點位 + 3 處隱蛋，掃描集章。<br/>
+          天井落下的光，比任何濾鏡都溫柔。
         </p>
       </div>
-      <div style={{ position: 'absolute', bottom: '16mm', left: 0, right: 0, textAlign: 'center' }}>
-        <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>SCAN TO EXPLORE ‧ 掃描探索</PMono>
+      <div style={{ position: 'absolute', top: '64mm', left: '50%', transform: 'translateX(-50%)' }}>
+        <PBigQR size="40mm" seed={102} />
+      </div>
+      <div style={{ position: 'absolute', top: '107mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <PMono size={5.5} color={PRINT.goldDim} track="0.28em" weight={600}>TSUTAYA BOOKSTORE ‧ Space & Light</PMono>
+      </div>
+      <div style={{ position: 'absolute', top: '114mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <PMono size={6.5} color={PRINT.gold} track="0.34em" weight={700}>SCAN TO EXPLORE ‧ 掃描探索</PMono>
+      </div>
+      <div style={{ position: 'absolute', top: '122mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <PMono size={5.5} color={PRINT.creamMute} track="0.2em">ANNIVERSARY SPECIAL ‧ 憑券享書籍折抵</PMono>
       </div>
       <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
         <NexusWordmark width={50} sub={false} align="left" />
@@ -1555,79 +1526,44 @@ function TableCardBFront() {
   );
 }
 
-function TableCardBBack() {
+function TableCardC() {
   return (
     <PPage wMm={105} hMm={148}>
-      <PWatermark ch="日光" size={170} color="rgba(196,162,74,0.022)" pos={{ left: '50%', top: '50%' }} />
+      <PWatermark ch="∞" size={260} color="rgba(196,162,74,0.03)" pos={{ left: '50%', top: '50%' }} />
       <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
       <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
       <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
       <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
-      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+      <div style={{ position: 'absolute', top: '9mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
         <PCoBrand height={7.5} gap={7} />
       </div>
-      <div style={{ position: 'absolute', top: '22mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.1em' }}>
-          TSUTAYA BOOKSTORE
-        </span>
-        <div style={{ marginTop: 2 }}>
-          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '8pt', fontStyle: 'italic', color: PRINT.brown, letterSpacing: '0.06em' }}>
-            Space & Light
-          </span>
-        </div>
+      <div style={{ position: 'absolute', top: '19mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <PillLabel size={6}>INFINITY DAY ‧ 無限日 · 加碼抽獎</PillLabel>
       </div>
-      <div style={{ position: 'absolute', top: '44mm', left: '50%', transform: 'translateX(-50%)' }}>
-        <PBigQR size="46mm" seed={102} />
-      </div>
-      <div style={{ position: 'absolute', top: '98mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '8.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.08em', fontWeight: 300 }}>
-          天井落下的光，比任何濾鏡都溫柔。<br/>
-          在這裡，光影在書頁上寫著無聲的詩。
-        </p>
-      </div>
-      <div style={{ position: 'absolute', bottom: '15mm', left: 0, right: 0, textAlign: 'center' }}>
-        <PMono size={6.5} color={PRINT.gold} track="0.26em" weight={700}>ANNIVERSARY SPECIAL ‧ 憑券享書籍折抵</PMono>
-      </div>
-      <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
-        <NexusWordmark width={50} sub={false} align="left" />
-        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 02</PMono>
-      </div>
-    </PPage>
-  );
-}
-
-function TableCardCFront() {
-  return (
-    <PPage wMm={105} hMm={148}>
-      <PWatermark ch="8" size={320} color="rgba(196,162,74,0.035)" pos={{ left: '50%', top: '50%' }} />
-      <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
-      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
-      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
-      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
-      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <PCoBrand height={7.5} gap={7} />
-      </div>
-      <div style={{ position: 'absolute', top: '22mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <PillLabel size={6}>GRAND PRIZE WEEK ‧ 大獎週</PillLabel>
-      </div>
-      <div style={{ position: 'absolute', top: '38mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <InfinityBadge size={28} fg={PRINT.gold} accent={PRINT.gold} stroke={1.0} />
-      </div>
-      <div style={{ position: 'absolute', top: '56mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', lineHeight: 1.55, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
+      <div style={{ position: 'absolute', top: '27mm', left: '10mm', right: '10mm', height: '0.4pt', background: 'rgba(212,168,67,0.2)' }} />
+      <div style={{ position: 'absolute', top: '30mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', lineHeight: 1.5, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
           和牛雙人套餐，<br/>
           每日 <GoldText style={{ fontWeight: 600 }}>20:00</GoldText> 準時抽。
         </p>
       </div>
-      <div style={{ position: 'absolute', top: '88mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '7.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.04em', fontWeight: 300 }}>
-          5/24 至 5/31，大獎週登場。<br/>
-          持有抽獎券，即可參與每日抽獎。<br/>
-          天天抽出 WIRED TOKYO 和牛雙人套餐。
+      <div style={{ position: 'absolute', top: '50mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '7pt', lineHeight: 1.75, color: PRINT.brown, letterSpacing: '0.04em', fontWeight: 300 }}>
+          5/24 — 5/31，持有抽獎券即可參與每日抽獎。<br/>
+          有些想法，隨風而來，又隨風而去。
         </p>
       </div>
-      <div style={{ position: 'absolute', bottom: '16mm', left: 0, right: 0, textAlign: 'center' }}>
-        <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>SCAN TO JOIN ‧ 掃描參與</PMono>
+      <div style={{ position: 'absolute', top: '64mm', left: '50%', transform: 'translateX(-50%)' }}>
+        <PBigQR size="40mm" seed={103} />
+      </div>
+      <div style={{ position: 'absolute', top: '107mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <PMono size={5.5} color={PRINT.goldDim} track="0.28em" weight={600}>WIRED TOKYO ‧ Wind & Mind</PMono>
+      </div>
+      <div style={{ position: 'absolute', top: '114mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <PMono size={6.5} color={PRINT.gold} track="0.34em" weight={700}>SCAN TO JOIN ‧ 掃描參與</PMono>
+      </div>
+      <div style={{ position: 'absolute', top: '122mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <PMono size={5.5} color={PRINT.creamMute} track="0.2em">ANNIVERSARY SPECIAL ‧ 憑券享限定飲品加購</PMono>
       </div>
       <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
         <NexusWordmark width={50} sub={false} align="left" />
@@ -1637,120 +1573,44 @@ function TableCardCFront() {
   );
 }
 
-function TableCardCBack() {
+function TableCardD() {
   return (
     <PPage wMm={105} hMm={148}>
-      <PWatermark ch="風動" size={170} color="rgba(196,162,74,0.022)" pos={{ left: '50%', top: '50%' }} />
+      <PWatermark ch="閱讀" size={200} color="rgba(196,162,74,0.025)" pos={{ left: '50%', top: '50%' }} />
       <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
       <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
       <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
       <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
-      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+      <div style={{ position: 'absolute', top: '9mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
         <PCoBrand height={7.5} gap={7} />
       </div>
-      <div style={{ position: 'absolute', top: '22mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.1em' }}>
-          TSUTAYA BOOKSTORE
-        </span>
-        <div style={{ marginTop: 2 }}>
-          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '8pt', fontStyle: 'italic', color: PRINT.brown, letterSpacing: '0.06em' }}>
-            Wind & Mind
-          </span>
-        </div>
-      </div>
-      <div style={{ position: 'absolute', top: '44mm', left: '50%', transform: 'translateX(-50%)' }}>
-        <PBigQR size="46mm" seed={103} />
-      </div>
-      <div style={{ position: 'absolute', top: '98mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '8.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.08em', fontWeight: 300 }}>
-          有些想法，隨風而來，又隨風而去。<br/>
-          在這裡，我們學會與不確定性溫柔共處。
-        </p>
-      </div>
-      <div style={{ position: 'absolute', bottom: '15mm', left: 0, right: 0, textAlign: 'center' }}>
-        <PMono size={6.5} color={PRINT.gold} track="0.26em" weight={700}>ANNIVERSARY SPECIAL ‧ 憑券享限定飲品加購</PMono>
-      </div>
-      <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
-        <NexusWordmark width={50} sub={false} align="left" />
-        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 03</PMono>
-      </div>
-    </PPage>
-  );
-}
-
-function TableCardDFront() {
-  return (
-    <PPage wMm={105} hMm={148}>
-      <PWatermark ch="8" size={320} color="rgba(196,162,74,0.035)" pos={{ left: '50%', top: '50%' }} />
-      <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
-      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
-      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
-      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
-      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <PCoBrand height={7.5} gap={7} />
-      </div>
-      <div style={{ position: 'absolute', top: '22mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+      <div style={{ position: 'absolute', top: '19mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
         <PillLabel size={6}>TSUTAYA BOOKSTORE ‧ 台中市政店</PillLabel>
       </div>
-      <div style={{ position: 'absolute', top: '38mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <InfinityBadge size={28} fg={PRINT.gold} accent={PRINT.gold} stroke={1.0} />
-      </div>
-      <div style={{ position: 'absolute', top: '56mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', lineHeight: 1.55, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
+      <div style={{ position: 'absolute', top: '27mm', left: '10mm', right: '10mm', height: '0.4pt', background: 'rgba(212,168,67,0.2)' }} />
+      <div style={{ position: 'absolute', top: '30mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', lineHeight: 1.5, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
           八週年特別企劃，<br/>
           期待與你在此相遇。
         </p>
       </div>
-      <div style={{ position: 'absolute', top: '88mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '7.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.04em', fontWeight: 300 }}>
-          自 2018 年起，我們在此陪伴你的日常。<br/>
-          在這值得紀念的時刻，<br/>
+      <div style={{ position: 'absolute', top: '50mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '7pt', lineHeight: 1.75, color: PRINT.brown, letterSpacing: '0.04em', fontWeight: 300 }}>
+          翻開一本書，就是開啟一段對話。<br/>
           邀請你一同探索生活的無限可能。
         </p>
       </div>
-      <div style={{ position: 'absolute', bottom: '16mm', left: 0, right: 0, textAlign: 'center' }}>
-        <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>JOIN US NOW ‧ 立即加入</PMono>
+      <div style={{ position: 'absolute', top: '64mm', left: '50%', transform: 'translateX(-50%)' }}>
+        <PBigQR size="40mm" seed={104} />
       </div>
-      <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
-        <NexusWordmark width={50} sub={false} align="left" />
-        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 04</PMono>
+      <div style={{ position: 'absolute', top: '107mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <PMono size={5.5} color={PRINT.goldDim} track="0.28em" weight={600}>TSUTAYA BOOKSTORE ‧ Books & Beyond</PMono>
       </div>
-    </PPage>
-  );
-}
-
-function TableCardDBack() {
-  return (
-    <PPage wMm={105} hMm={148}>
-      <PWatermark ch="閱讀" size={170} color="rgba(196,162,74,0.022)" pos={{ left: '50%', top: '50%' }} />
-      <PTick pos={{ top: '6mm', left: '6mm' }} len={6} weight={0.6} />
-      <PTick pos={{ top: '6mm', right: '6mm' }} flipX len={6} weight={0.6} />
-      <PTick pos={{ bottom: '6mm', left: '6mm' }} flipY len={6} weight={0.6} />
-      <PTick pos={{ bottom: '6mm', right: '6mm' }} flipX flipY len={6} weight={0.6} />
-      <div style={{ position: 'absolute', top: '10mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <PCoBrand height={7.5} gap={7} />
+      <div style={{ position: 'absolute', top: '114mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <PMono size={6.5} color={PRINT.gold} track="0.34em" weight={700}>JOIN US NOW ‧ 立即加入</PMono>
       </div>
-      <div style={{ position: 'absolute', top: '22mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.1em' }}>
-          TSUTAYA BOOKSTORE
-        </span>
-        <div style={{ marginTop: 2 }}>
-          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '8pt', fontStyle: 'italic', color: PRINT.brown, letterSpacing: '0.06em' }}>
-            Books & Beyond
-          </span>
-        </div>
-      </div>
-      <div style={{ position: 'absolute', top: '44mm', left: '50%', transform: 'translateX(-50%)' }}>
-        <PBigQR size="46mm" seed={104} />
-      </div>
-      <div style={{ position: 'absolute', top: '98mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '8.5pt', lineHeight: 1.8, color: PRINT.brown, letterSpacing: '0.08em', fontWeight: 300 }}>
-          翻開一本書，就是開啟一段對話。<br/>
-          在這裡，每個字句都可能與你的日常產生共鳴。
-        </p>
-      </div>
-      <div style={{ position: 'absolute', bottom: '15mm', left: 0, right: 0, textAlign: 'center' }}>
-        <PMono size={6.5} color={PRINT.gold} track="0.26em" weight={700}>ANNIVERSARY SPECIAL ‧ 憑券享書籍折抵</PMono>
+      <div style={{ position: 'absolute', top: '122mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
+        <PMono size={5.5} color={PRINT.creamMute} track="0.2em">ANNIVERSARY SPECIAL ‧ 憑券享書籍折抵</PMono>
       </div>
       <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
         <NexusWordmark width={50} sub={false} align="left" />
@@ -1777,31 +1637,23 @@ function MainPosterPage() {
         <PCoBrand height={11} gap={10} />
       </div>
 
-      <div style={{ position: 'absolute', top: '32mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <PillLabel size={7.5}>8TH ANNIVERSARY ‧ 八週年特別企劃</PillLabel>
+      <div style={{ position: 'absolute', top: '32mm', left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4mm' }}>
+        <NexusWordmark width={370} sub={true} align="center" />
+        <PMono size={9} color={PRINT.goldDim} track="0.48em">無限日常　∞　連結生活</PMono>
       </div>
 
-      <div style={{ position: 'absolute', top: '44mm', left: 0, right: 0, textAlign: 'center' }}>
-        <h1 style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '46pt', fontWeight: 300, color: PRINT.brown, letterSpacing: '0.12em', lineHeight: 1.25 }}>
-          無限日常　<span style={{ fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif", color: PRINT.gold }}>∞</span><br/>連結生活
-        </h1>
-        <div style={{ marginTop: 8 }}>
-          <NexusWordmark width={220} sub={false} align="center" />
-        </div>
-      </div>
-
-      <div style={{ position: 'absolute', top: '106mm', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ position: 'absolute', top: '78mm', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <InfinityBadge size={140} fg={PRINT.gold} accent={PRINT.gold} stroke={0.8} />
       </div>
 
-      <div style={{ position: 'absolute', top: '168mm', left: 0, right: 0, textAlign: 'center' }}>
+      <div style={{ position: 'absolute', top: '140mm', left: 0, right: 0, textAlign: 'center' }}>
         <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '18pt', lineHeight: 1.6, letterSpacing: '0.16em', color: PRINT.brown, fontWeight: 300 }}>
           用 <GoldText style={{ fontWeight: 500 }}>8 天</GoldText> 的時間，<br/>
           把一個紀念日過得完整。
         </p>
       </div>
 
-      <div style={{ position: 'absolute', top: '206mm', left: '24mm', right: '24mm' }}>
+      <div style={{ position: 'absolute', top: '178mm', left: '24mm', right: '24mm' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>THREE WAYS TO JOIN ‧ 參與方式</PMono>
           <PRule width="auto" style={{ flex: 1 }} color={PRINT.goldFaint} />
@@ -1858,24 +1710,16 @@ function DigitalPosterPage() {
         <PCoBrand height={13} gap={12} />
       </div>
 
-      <div style={{ position: 'absolute', top: '44mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <PillLabel size={8.5}>8TH ANNIVERSARY ‧ DIGITAL SCREEN</PillLabel>
+      <div style={{ position: 'absolute', top: '44mm', left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5mm' }}>
+        <NexusWordmark width={400} sub={true} align="center" />
+        <PMono size={10} color={PRINT.goldDim} track="0.48em">無限日常　∞　連結生活</PMono>
       </div>
 
-      <div style={{ position: 'absolute', top: '62mm', left: 0, right: 0, textAlign: 'center' }}>
-        <h1 style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '56pt', fontWeight: 300, color: PRINT.brown, letterSpacing: '0.12em', lineHeight: 1.25 }}>
-          無限日常　<span style={{ fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif", color: PRINT.gold }}>∞</span><br/>連結生活
-        </h1>
-        <div style={{ marginTop: 10 }}>
-          <NexusWordmark width={240} sub={false} align="center" />
-        </div>
-      </div>
-
-      <div style={{ position: 'absolute', top: '150mm', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ position: 'absolute', top: '112mm', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <InfinityBadge size={160} fg={PRINT.gold} accent={PRINT.gold} stroke={0.8} />
       </div>
 
-      <div style={{ position: 'absolute', top: '224mm', left: 0, right: 0, textAlign: 'center' }}>
+      <div style={{ position: 'absolute', top: '190mm', left: 0, right: 0, textAlign: 'center' }}>
         <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '20pt', lineHeight: 1.6, letterSpacing: '0.16em', color: PRINT.brown, fontWeight: 300 }}>
           用 <GoldText style={{ fontWeight: 500 }}>8 天</GoldText> 的時間，<br/>
           把一個紀念日過得完整。
@@ -1884,7 +1728,7 @@ function DigitalPosterPage() {
 
       <div style={{ position: 'absolute', top: '272mm', left: '28mm', right: '28mm' }}>
         <div style={{ borderTop: `0.5pt solid ${PRINT.goldDim}`, paddingTop: 12, textAlign: 'center' }}>
-          <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>5/24 — 5/31 GRAND PRIZE WEEK ‧ 大獎週</PMono>
+          <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>5/24 — 5/31 INFINITY DAY ‧ 無限日 · 加碼抽獎</PMono>
           <p style={{ margin: '6pt 0 0', fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.08em' }}>
             每日 20:00 抽和牛雙人套餐
           </p>
@@ -1901,7 +1745,7 @@ function DigitalPosterPage() {
         <div style={{ textAlign: 'right' }}>
           <PMono size={6.5} color={PRINT.creamFaint} track="0.3em" weight={600}>LOCATION</PMono>
           <div style={{ marginTop: 2 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.08em' }}>台中市政店 4F</span>
+            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.08em' }}>台中市政店</span>
           </div>
         </div>
       </div>
@@ -2214,21 +2058,17 @@ function PrintApp() {
           count="4 件 / 19"
           type="print"
         >
-          <DCArtboard label="A · Daily Ritual · 每日專屬儀式" dims="A6 × 2 · 雙面 · 105 × 148 mm" type="print">
-            <div className="dc-print-content"><TableCardAFront /></div>
-            <div className="dc-print-content"><TableCardABack /></div>
+          <DCArtboard label="A · Daily Ritual · 每日專屬儀式" dims="A6 · 單面 · 105 × 148 mm" type="print">
+            <div className="dc-print-content"><TableCardA /></div>
           </DCArtboard>
-          <DCArtboard label="B · Mark Journal · 集印探索" dims="A6 × 2 · 雙面 · 105 × 148 mm" type="print">
-            <div className="dc-print-content"><TableCardBFront /></div>
-            <div className="dc-print-content"><TableCardBBack /></div>
+          <DCArtboard label="B · Mark Journal · 集印探索" dims="A6 · 單面 · 105 × 148 mm" type="print">
+            <div className="dc-print-content"><TableCardB /></div>
           </DCArtboard>
-          <DCArtboard label="C · Grand Prize Week · 大獎週" dims="A6 × 2 · 雙面 · 105 × 148 mm" type="print">
-            <div className="dc-print-content"><TableCardCFront /></div>
-            <div className="dc-print-content"><TableCardCBack /></div>
+          <DCArtboard label="C · Infinity Day · 無限日加碼抽獎" dims="A6 · 單面 · 105 × 148 mm" type="print">
+            <div className="dc-print-content"><TableCardC /></div>
           </DCArtboard>
-          <DCArtboard label="D · TSUTAYA Bookstore · 書店" dims="A6 × 2 · 雙面 · 105 × 148 mm" type="print">
-            <div className="dc-print-content"><TableCardDFront /></div>
-            <div className="dc-print-content"><TableCardDBack /></div>
+          <DCArtboard label="D · TSUTAYA Bookstore · 書店" dims="A6 · 單面 · 105 × 148 mm" type="print">
+            <div className="dc-print-content"><TableCardD /></div>
           </DCArtboard>
         </DCSection>
 
