@@ -2215,20 +2215,28 @@ function PrintApp() {
           type="print"
         >
           <DCArtboard label="A · Daily Ritual · 每日專屬儀式" dims="A6 × 2 · 雙面 · 105 × 148 mm" type="print">
-            <div className="dc-print-content"><TableCardAFront /></div>
-            <div className="dc-print-content"><TableCardABack /></div>
+            <div style={{ display: 'flex' }}>
+              <div className="dc-print-content"><TableCardAFront /></div>
+              <div className="dc-print-content"><TableCardABack /></div>
+            </div>
           </DCArtboard>
           <DCArtboard label="B · Mark Journal · 集印探索" dims="A6 × 2 · 雙面 · 105 × 148 mm" type="print">
-            <div className="dc-print-content"><TableCardBFront /></div>
-            <div className="dc-print-content"><TableCardBBack /></div>
+            <div style={{ display: 'flex' }}>
+              <div className="dc-print-content"><TableCardBFront /></div>
+              <div className="dc-print-content"><TableCardBBack /></div>
+            </div>
           </DCArtboard>
-          <DCArtboard label="C · Grand Prize Week · 大獎週" dims="A6 × 2 · 雙面 · 105 × 148 mm" type="print">
-            <div className="dc-print-content"><TableCardCFront /></div>
-            <div className="dc-print-content"><TableCardCBack /></div>
+          <DCArtboard label="C · Infinity Day · 無限日加碼抽獎" dims="A6 × 2 · 雙面 · 105 × 148 mm" type="print">
+            <div style={{ display: 'flex' }}>
+              <div className="dc-print-content"><TableCardCFront /></div>
+              <div className="dc-print-content"><TableCardCBack /></div>
+            </div>
           </DCArtboard>
           <DCArtboard label="D · TSUTAYA Bookstore · 書店" dims="A6 × 2 · 雙面 · 105 × 148 mm" type="print">
-            <div className="dc-print-content"><TableCardDFront /></div>
-            <div className="dc-print-content"><TableCardDBack /></div>
+            <div style={{ display: 'flex' }}>
+              <div className="dc-print-content"><TableCardDFront /></div>
+              <div className="dc-print-content"><TableCardDBack /></div>
+            </div>
           </DCArtboard>
         </DCSection>
 
