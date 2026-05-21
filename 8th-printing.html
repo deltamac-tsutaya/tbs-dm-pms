@@ -1087,8 +1087,8 @@ function StandeeContent({ item, isEgg }) {
 
         {/* Top label */}
         <div style={{ position: 'absolute', top: '3mm', left: '14mm', right: '14mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>INFINITY DAY · 無限日 · 加碼抽獎</PMono>
-          <PMono size={7} color={PRINT.goldDim} track="0.22em" weight={600}>5 / 24 — 5 / 31</PMono>
+          <PMono size={9} color={PRINT.gold} track="0.36em" weight={700}>INFINITY DAY · 無限日 · 加碼抽獎</PMono>
+          <PMono size={8} color={PRINT.goldDim} track="0.22em" weight={600}>5 / 24 — 5 / 31</PMono>
         </div>
 
         {/* Prize name — centered on image */}
@@ -1097,12 +1097,12 @@ function StandeeContent({ item, isEgg }) {
           <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '30pt', fontWeight: 600,
             letterSpacing: '0.1em', lineHeight: 1.2, color: PRINT.gold,
             textShadow: '0 3px 14px rgba(0,0,0,0.85), 0 0 50px rgba(212,168,67,0.25)' }}>
-            日本和牛雙人套餐
+            日本和牛牛排 佐特製橙醋醬汁
           </div>
           <div style={{ marginTop: '2.5mm', fontFamily: "'Noto Serif TC',serif", fontSize: '10pt',
             fontStyle: 'italic', color: PRINT.cream, letterSpacing: '0.06em',
             textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}>
-            日本和牛ステーキ ペアセット · WIRED TOKYO
+            和牛のステーキ トマト UMAMI ポン酢ソース
           </div>
         </div>
 
@@ -1114,7 +1114,7 @@ function StandeeContent({ item, isEgg }) {
         {/* Footer: logo + tagline */}
         <div style={{ position: 'absolute', bottom: '4mm', left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5mm' }}>
           <NexusWordmark width={95} sub={false} align="center" />
-          <PMono size={7} color={PRINT.creamFaint} track="0.28em" weight={400}>
+          <PMono size={8} color={PRINT.creamMute} track="0.28em" weight={400}>
             ここで、ひと呼吸。 ／ Pause Here for a Moment.
           </PMono>
         </div>
@@ -1198,10 +1198,10 @@ function CounterCardPage() {
           <div style={{ flex: 1 }}>
             <PMono size={6.5} color={PRINT.goldDim} track="0.36em" weight={700}>INFINITY DAY · 無限日 · 加碼抽獎</PMono>
             <div style={{ marginTop: 4 }}>
-              <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '19pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排雙人套餐</span>
+              <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '19pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排 佐特製橙醋醬汁</span>
             </div>
             <div style={{ marginTop: 1 }}>
-              <span style={{ fontFamily: "'Noto Serif TC',serif", fontStyle: 'italic', fontSize: '10pt', color: PRINT.brown, letterSpacing: '0.02em' }}>日本和牛ステーキ ペアセット · WIRED TOKYO</span>
+              <span style={{ fontFamily: "'Noto Serif TC',serif", fontStyle: 'italic', fontSize: '10pt', color: PRINT.brown, letterSpacing: '0.02em' }}>和牛のステーキ トマト UMAMI ポン酢ソース</span>
             </div>
             <div style={{ marginTop: 5 }}>
               <PMono size={7} color={PRINT.gold} track="0.28em" weight={500}>5 / 24 — 5 / 31 ‧ 每日 20:00 抽出 ‧ 共 8 份 ‧ NT$ 2,300</PMono>
@@ -1378,11 +1378,11 @@ function PrizeDetailPage() {
 
       <div style={{ position: 'absolute', top: '156mm', left: '14mm', right: '14mm' }}>
         <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '26pt', lineHeight: 1.25, letterSpacing: '0.06em', color: PRINT.brown, fontWeight: 500 }}>
-          日本和牛<br/><GoldText style={{ fontWeight: 600 }}>牛排雙人套餐</GoldText>
+          日本和牛牛排<br/><GoldText style={{ fontWeight: 600 }}>佐特製橙醋醬汁</GoldText>
         </p>
         <div style={{ marginTop: 4 }}>
           <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', fontStyle: 'italic', color: PRINT.brown, letterSpacing: '0.04em' }}>
-            日本和牛ステーキ ペアセット ‧ WIRED TOKYO
+            和牛のステーキ トマト UMAMI ポン酢ソース
           </span>
         </div>
       </div>
@@ -1544,7 +1544,7 @@ function TableCardC() {
       <div style={{ position: 'absolute', top: '27mm', left: '10mm', right: '10mm', height: '0.4pt', background: 'rgba(212,168,67,0.2)' }} />
       <div style={{ position: 'absolute', top: '30mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
         <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', lineHeight: 1.5, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
-          和牛雙人套餐，<br/>
+          和牛牛排佐橙醋，<br/>
           每日 <GoldText style={{ fontWeight: 600 }}>20:00</GoldText> 準時抽。
         </p>
       </div>
@@ -1663,14 +1663,14 @@ function MainPosterPage() {
           {[
             { n: '01', title: '每日專屬儀式', desc: '點亮日常，獲得抽獎券' },
             { n: '02', title: '集印探索', desc: '館內集章，解鎖地圖' },
-            { n: '03', title: '加碼大獎', desc: '每日 20:00 抽和牛套餐' },
+            { n: '03', title: '加碼大獎', desc: '每日 20:00 抽和牛牛排套餐' },
           ].map(item => (
             <div key={item.n} style={{ borderLeft: `0.5pt solid ${PRINT.goldDim}`, paddingLeft: 8 }}>
               <PMono size={7} color={PRINT.gold} track="0.2em" weight={700}>NO.{item.n}</PMono>
               <div style={{ marginTop: 2 }}>
                 <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '10.5pt', color: PRINT.brown, fontWeight: 500 }}>{item.title}</span>
               </div>
-              <p style={{ margin: '3pt 0 0', fontFamily: "'Noto Sans TC',sans-serif", fontSize: '7pt', lineHeight: 1.6, color: PRINT.brown }}>{item.desc}</p>
+              <p style={{ margin: '3pt 0 0', fontFamily: "'Noto Sans TC',sans-serif", fontSize: '8.5pt', lineHeight: 1.6, color: PRINT.brown }}>{item.desc}</p>
             </div>
           ))}
         </div>
@@ -1731,7 +1731,7 @@ function DigitalPosterPage() {
         <div style={{ borderTop: `0.5pt solid ${PRINT.goldDim}`, paddingTop: 12, textAlign: 'center' }}>
           <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>5/24 — 5/31 INFINITY DAY ‧ 無限日 · 加碼抽獎</PMono>
           <p style={{ margin: '6pt 0 0', fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.08em' }}>
-            每日 20:00 抽和牛雙人套餐
+            每日 20:00 抽和牛牛排雙人套餐
           </p>
         </div>
       </div>
