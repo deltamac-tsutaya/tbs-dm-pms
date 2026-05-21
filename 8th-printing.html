@@ -1903,6 +1903,58 @@ function DCArtboard({ label, dims, type = 'print', captureId, children }) {
     }
   }, [label, type, captureId]);
 
+  const downloadVector = useCallback(() => {
+    const panels = Array.from(frameRef.current.querySelectorAll('.dc-print-content'));
+    if (!panels.length) return;
+    const firstPage = panels[0].firstElementChild;
+    const wMm = firstPage?.style?.width || '210mm';
+    const hMm = firstPage?.style?.height || '297mm';
+
+    // Clone each panel; replace <canvas> (QR codes) with <img data-url>
+    const clonedPanels = panels.map(panel => {
+      const clone = panel.cloneNode(true);
+      const origCanvases = Array.from(panel.querySelectorAll('canvas'));
+      const cloneCanvases = Array.from(clone.querySelectorAll('canvas'));
+      origCanvases.forEach((cv, i) => {
+        const img = document.createElement('img');
+        img.src = cv.toDataURL();
+        img.style.cssText = cv.style.cssText;
+        img.style.display = 'block';
+        cloneCanvases[i]?.replaceWith(img);
+      });
+      return clone;
+    });
+
+    // Absolutize relative src paths so blob window can load images
+    const base = document.baseURI.replace(/\/[^/]*$/, '/');
+    const panelsHtml = clonedPanels.map((clone, i) => {
+      const isLast = i === clonedPanels.length - 1;
+      let html = clone.outerHTML;
+      html = html.replace(/\bsrc="(?!https?:\/\/|data:)([^"]+)"/g,
+        (_, p) => `src="${base}${p}"`);
+      return `<div style="margin:0;padding:0;page-break-after:${isLast ? 'avoid' : 'always'}">${html}</div>`;
+    }).join('\n');
+
+    const pageHtml = `<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { margin: 0; size: ${wMm} ${hMm}; }
+  html, body { margin: 0; padding: 0; background: transparent; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+</style></head><body>
+${panelsHtml}
+<script>document.fonts.ready.then(() => setTimeout(() => window.print(), 900));<\/script>
+</body></html>`;
+
+    const blob = new Blob([pageHtml], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  }, [label]);
+
   return (
     <>
       <div className="dc-artboard" data-type={type} data-capture-id={captureId || ''}>
@@ -1914,6 +1966,15 @@ function DCArtboard({ label, dims, type = 'print', captureId, children }) {
           {children}
         </div>
         <div className="dc-artboard-footer">
+          {type !== 'digital' && (
+            <button
+              className="dc-dl-item-btn"
+              style={{ marginRight: 6, opacity: 0.7, fontSize: 10 }}
+              onClick={(e) => { e.stopPropagation(); downloadVector(); }}
+            >
+              ↓ 向量 PDF
+            </button>
+          )}
           <button
             className="dc-dl-item-btn"
             disabled={downloading}
