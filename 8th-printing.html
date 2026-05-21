@@ -1129,10 +1129,10 @@ function StandeeContent({ item, isEgg }) {
           {/* Hairline */}
           <div style={{ height: '0.5pt', background: 'rgba(212,168,67,0.22)' }} />
 
-          {/* Also redeemable: bigger thumbnails (13mm) */}
+          {/* Also redeemable: bigger thumbnails (18mm) */}
           <div>
             <PMono size={5.5} color={PRINT.goldDim} track="0.28em" weight={600}>優惠券亦可兌換</PMono>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2mm' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2.5mm' }}>
               {[
                 { src: 'assets/menu_fries.jpg',      label: '松露薯條' },
                 { src: 'assets/menu_sundae.jpg',     label: '法式\n香蕉聖代' },
@@ -1141,7 +1141,7 @@ function StandeeContent({ item, isEgg }) {
                 { src: 'assets/menu_cheesecake.jpg', label: '伯爵茶\n巴斯克' },
               ].map(d => (
                 <div key={d.src} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                  <div style={{ width: '13mm', height: '13mm', borderRadius: '50%', overflow: 'hidden',
+                  <div style={{ width: '18mm', height: '18mm', borderRadius: '50%', overflow: 'hidden',
                     border: '0.7pt solid rgba(212,168,67,0.5)' }}>
                     <img src={d.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                   </div>
