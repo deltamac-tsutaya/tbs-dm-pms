@@ -9,14 +9,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; font-family: 'Noto Sans TC', sans-serif; }
+    html { font-family: 'Noto Sans TC', sans-serif; }
     body {
+      min-height: 100vh;
       background: #dedad3;
       background-image:
         linear-gradient(rgba(0,0,0,0.055) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0,0,0,0.055) 1px, transparent 1px);
       background-size: 40px 40px;
       overflow-x: auto;
+      overflow-y: auto;
     }
     #root { min-height: 100vh; }
 
@@ -788,28 +790,44 @@ const {
 const STAMP_POINTS_DATA = [
   { n: '01', area: '靈感補給站',   element: '無限', loc: '入口主題陳列區（2F）',
     url: 'https://taichung-8th-anniversary.vercel.app/?id=cef53d02-f621-4a0f-8ac5-6d086fd8548a',
-    copy: '從這裡走出去，8 與 ∞ 同時開始。' },
+    copy: '從這裡走出去，8 與 ∞ 同時開始。',
+    promo: '靈感不會等人。和牛也是——每日只抽 1 份，20:00 見。',
+    img: 'assets/image_steak_01.png' },
   { n: '02', area: '日常儀式感',   element: '陶杯', loc: '職人雜貨區（2F）',
     url: 'https://taichung-8th-anniversary.vercel.app/?id=307fa785-0b6d-4804-b102-91c99feff219',
-    copy: '手溫傳過陶杯，8 年的 ∞ 就在掌心。' },
+    copy: '手溫傳過陶杯，8 年的 ∞ 就在掌心。',
+    promo: '把今天的儀式感再推高一點——集滿 8 章，抽和牛牛排。',
+    img: 'assets/image_steak_02.png' },
   { n: '03', area: '都市放空點',   element: '風',   loc: '戶外座位區（3F）',
     url: 'https://taichung-8th-anniversary.vercel.app/?id=28235074-fc63-42ef-b2e8-1c148651a98a',
-    copy: '露台吹來 ∞ 的風，繞了 8 個年頭才停。' },
+    copy: '露台吹來 ∞ 的風，繞了 8 個年頭才停。',
+    promo: '放空到這裡剛好。接下來只要掃碼，讓和牛把今天收尾。',
+    img: 'assets/image_steak_03.png' },
   { n: '04', area: '白日夢實驗室', element: '橡實', loc: '兒童繪本書櫃（3F）',
     url: 'https://taichung-8th-anniversary.vercel.app/?id=ebf9986d-3393-4b78-a444-0c537b6f9866',
-    copy: '一顆橡實用 8 年 ∞ 生長，長成整片森林。' },
+    copy: '一顆橡實用 8 年 ∞ 生長，長成整片森林。',
+    promo: '想像力留在這裡。和牛的事交給 20:00 的直播去決定。',
+    img: 'assets/image_steak_04.png' },
   { n: '05', area: '打卡神級背景', element: '書',   loc: '樓梯書牆（3F）',
     url: 'https://taichung-8th-anniversary.vercel.app/?id=e015052e-c04a-48af-9d15-662b18d6d166',
-    copy: '8 層書牆向 ∞ 展開，每格都是新世界。' },
+    copy: '8 層書牆向 ∞ 展開，每格都是新世界。',
+    promo: '照片打完卡，記得掃碼——和牛比按讚更真實。',
+    img: 'assets/wagyu-hero.png' },
   { n: '06', area: '放鬆充電站',   element: '咖啡', loc: '吧檯區（2F）',
     url: 'https://taichung-8th-anniversary.vercel.app/?id=55f33124-d27d-4414-80e7-a468a62f1977',
-    copy: '一杯咖啡，8 年的 ∞ 日常，從未厭倦。' },
+    copy: '一杯咖啡，8 年的 ∞ 日常，從未厭倦。',
+    promo: '充完電之後，幫自己再加一件事：等今晚 20:00 開獎。',
+    img: 'assets/image_steak_05.PNG' },
   { n: '07', area: '絕美光影濾鏡', element: '光點', loc: '天井吊燈區（3F）',
     url: 'https://taichung-8th-anniversary.vercel.app/?id=aa22f6c4-3d79-48e3-ab10-820c513aa2ff',
-    copy: '光從天井 ∞ 落，你離第 8 枚只剩一步。' },
+    copy: '光從天井 ∞ 落，你離第 8 枚只剩一步。',
+    promo: '濾鏡讓今天更好看。和牛讓今天更值得被記住。',
+    img: 'assets/image_steak_01.png' },
   { n: '08', area: '情報交流道',   element: '花朵', loc: '告示牌（1F）',
     url: 'https://taichung-8th-anniversary.vercel.app/?id=27b1d93f-ab44-4722-8e72-dc1b2fa2dee8',
-    copy: '8 年 ∞ 循環，每天都有一朵花記住你。' },
+    copy: '8 年 ∞ 循環，每天都有一朵花記住你。',
+    promo: '最後一站。你已經走完了。現在就等 20:00 叫到你的名字。',
+    img: 'assets/image_steak_02.png' },
 ];
 
 const HIDDEN_EGGS_DATA = [
@@ -954,7 +972,7 @@ function StandeeContent({ item, isEgg }) {
           <div style={{ margin: '2.5mm auto 0', width: '22mm', height: '1pt',
             background: `linear-gradient(90deg, transparent 0%, ${PRINT.gold} 25%, ${PRINT.goldLt} 50%, ${PRINT.gold} 75%, transparent 100%)` }} />
           <div style={{ marginTop: '2.5mm', fontFamily: "'Noto Serif TC',serif", fontSize: '10pt',
-            fontWeight: 300, color: PRINT.creamDim, letterSpacing: '0.42em', paddingLeft: '0.42em' }}>
+            fontWeight: 400, color: PRINT.creamDim, letterSpacing: '0.42em', paddingLeft: '0.42em' }}>
             {item.area}
           </div>
           <div style={{ marginTop: '1.5mm' }}>
@@ -986,7 +1004,7 @@ function StandeeContent({ item, isEgg }) {
         {/* Copy */}
         <div style={{ position: 'absolute', top: '118mm', left: '7mm', right: '7mm', textAlign: 'center' }}>
           <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '8pt', fontStyle: 'italic',
-            lineHeight: 1.8, letterSpacing: '0.06em', color: PRINT.creamDim, fontWeight: 300 }}>
+            lineHeight: 1.8, letterSpacing: '0.06em', color: PRINT.creamDim, fontWeight: 400 }}>
             {item.copy}
           </p>
         </div>
@@ -1007,116 +1025,138 @@ function StandeeContent({ item, isEgg }) {
     <PPage wMm={210} hMm={297}>
       <PageFrame />
 
-      {/* Header: co-brand + pill */}
+      {/* 13–28mm: Co-brand + pill (compact) */}
       <div style={{ position: 'absolute', top: '13mm', left: '14mm', right: '14mm',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3.5mm' }}>
-        <PCoBrand height={13} gap={12} />
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '2.5pt 12pt',
-          border: `0.7pt solid ${PRINT.goldDim}`, background: 'rgba(212,168,67,0.1)', borderRadius: 999 }}>
-          <PMono size={8.5} color={PRINT.gold} track="0.32em" weight={700}>✦  PHYSICAL JOURNEY  ·  集印探索</PMono>
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2.5mm' }}>
+        <PCoBrand height={11} gap={10} />
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2pt 10pt',
+          border: `0.6pt solid ${PRINT.goldDim}`, background: 'rgba(212,168,67,0.09)', borderRadius: 999 }}>
+          <PMono size={7.5} color={PRINT.gold} track="0.3em" weight={700}>✦  PHYSICAL JOURNEY  ·  集印探索</PMono>
         </div>
       </div>
 
-      {/* HERO: Area name (大標題) */}
-      <div style={{ position: 'absolute', top: '38mm', left: '8mm', right: '8mm', textAlign: 'center' }}>
-        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '62pt', fontWeight: 600,
-          color: PRINT.cream, letterSpacing: '0.12em', lineHeight: 1.0,
-          textShadow: `0 0 48px rgba(212,168,67,0.45), 0 2px 12px rgba(0,0,0,0.8)` }}>
+      {/* 28–82mm: AREA hero (76pt) + gold bar + poetic copy */}
+      <div style={{ position: 'absolute', top: '28mm', left: '8mm', right: '8mm', textAlign: 'center' }}>
+        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '66pt', fontWeight: 600,
+          color: PRINT.cream, letterSpacing: '0.14em', lineHeight: 1.0,
+          textShadow: `0 0 48px rgba(212,168,67,0.5), 0 2px 12px rgba(0,0,0,0.85)` }}>
           {item.area}
         </div>
-        <div style={{ margin: '4mm auto 0', width: '44mm', height: '1.5pt',
-          background: `linear-gradient(90deg, transparent 0%, ${PRINT.gold} 25%, ${PRINT.goldLt} 50%, ${PRINT.gold} 75%, transparent 100%)` }} />
-      </div>
-
-      {/* Poetic copy */}
-      <div style={{ position: 'absolute', top: '70mm', left: '14mm', right: '14mm', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '14pt', fontStyle: 'italic',
-          lineHeight: 1.7, letterSpacing: '0.08em', color: PRINT.creamDim, fontWeight: 300 }}>
+        <div style={{ margin: '4mm auto 4mm', width: '52mm', height: '1.5pt',
+          background: `linear-gradient(90deg, transparent 0%, ${PRINT.gold} 22%, ${PRINT.goldLt} 50%, ${PRINT.gold} 78%, transparent 100%)` }} />
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', fontStyle: 'italic',
+          lineHeight: 1.65, letterSpacing: '0.07em', color: PRINT.creamDim, fontWeight: 400 }}>
           {item.copy}
         </p>
       </div>
 
-      {/* Element subtitle + location */}
-      <div style={{ position: 'absolute', top: '83mm', left: '12mm', right: '12mm', textAlign: 'center' }}>
-        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', fontWeight: 300,
-          color: PRINT.creamMute, letterSpacing: '0.28em', paddingLeft: '0.28em' }}>
+      {/* 82–93mm: element + location */}
+      <div style={{ position: 'absolute', top: '82mm', left: '12mm', right: '12mm', textAlign: 'center' }}>
+        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', fontWeight: 400,
+          color: PRINT.creamMute, letterSpacing: '0.26em', paddingLeft: '0.26em' }}>
           {item.element}
         </div>
-        <div style={{ marginTop: '2mm' }}>
-          <PMono size={8.5} color={PRINT.gold} track="0.3em" weight={600}>{item.loc}</PMono>
+        <div style={{ marginTop: '1.5mm' }}>
+          <PMono size={8} color={PRINT.gold} track="0.28em" weight={600}>{item.loc}</PMono>
         </div>
       </div>
 
-      {/* QR code (scannable) */}
-      <div style={{ position: 'absolute', top: '95mm', left: '50%', transform: 'translateX(-50%)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3mm' }}>
-        <RealQR url={item.url} sizeMm={74} />
+      {/* 93–176mm: QR code + SCAN label */}
+      <div style={{ position: 'absolute', top: '93mm', left: '50%', transform: 'translateX(-50%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4mm' }}>
+        <RealQR url={item.url} sizeMm={72} />
         <div style={{ textAlign: 'center' }}>
-          <PMono size={11} color={PRINT.gold} track="0.42em" weight={700}>SCAN TO STAMP</PMono>
-          <div style={{ marginTop: '1.5mm' }}>
+          <PMono size={12} color={PRINT.gold} track="0.44em" weight={700}>SCAN TO STAMP</PMono>
+          <div style={{ marginTop: '2mm' }}>
             <PMono size={8.5} color={PRINT.creamMute} track="0.22em" weight={400}>掃碼蓋章 · 集滿 8 枚參加抽獎</PMono>
           </div>
         </div>
       </div>
 
-      {/* Station No. */}
-      <div style={{ position: 'absolute', top: '183mm', left: 0, right: 0, textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5mm' }}>
-          <div style={{ width: '12mm', height: '0.7pt', background: PRINT.goldDim }} />
-          <PMono size={9.5} color={PRINT.gold} track="0.5em" weight={700}>{numDisplay}</PMono>
-          <div style={{ width: '12mm', height: '0.7pt', background: PRINT.goldDim }} />
+      {/* 176–193mm: Station No. (generous space, elegant) */}
+      <div style={{ position: 'absolute', top: '176mm', left: 0, right: 0, bottom: '104mm',
+        display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6mm' }}>
+          <div style={{ width: '18mm', height: '0.6pt',
+            background: `linear-gradient(90deg, transparent 0%, ${PRINT.goldDim} 100%)` }} />
+          <PMono size={11} color={PRINT.gold} track="0.52em" weight={700}>{numDisplay}</PMono>
+          <div style={{ width: '18mm', height: '0.6pt',
+            background: `linear-gradient(90deg, ${PRINT.goldDim} 0%, transparent 100%)` }} />
         </div>
       </div>
 
-      {/* ── Prize preview: full-bleed dramatic image ── */}
-      <div style={{ position: 'absolute', top: '193mm', left: 0, right: 0, bottom: 0, overflow: 'hidden' }}>
-        {/* Hero steak image — full bleed */}
-        <img src="assets/image_steak_03.png" alt="" style={{
-          position: 'absolute', inset: 0, width: '100%', height: '100%',
-          objectFit: 'cover', objectPosition: 'center 55%', display: 'block'
-        }} />
-        {/* Top gradient: dark for label readability */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45%',
-          background: 'linear-gradient(to bottom, rgba(8,5,2,0.92) 0%, rgba(8,5,2,0.55) 55%, transparent 100%)' }} />
-        {/* Bottom gradient: dark for footer readability */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%',
-          background: 'linear-gradient(to top, rgba(8,5,2,0.97) 0%, rgba(8,5,2,0.75) 35%, transparent 100%)' }} />
+      {/* 193–297mm: Prize section — left steak image / right text */}
+      <div style={{ position: 'absolute', top: '193mm', left: 0, right: 0, bottom: 0,
+        display: 'flex', borderTop: '0.8pt solid rgba(212,168,67,0.6)' }}>
 
-        {/* Gold top rule */}
-        <div style={{ position: 'absolute', top: 0, left: '8mm', right: '8mm', height: '0.7pt', background: 'rgba(212,168,67,0.6)' }} />
-
-        {/* Top label */}
-        <div style={{ position: 'absolute', top: '3mm', left: '14mm', right: '14mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>INFINITY DAY · 無限日 · 加碼抽獎</PMono>
-          <PMono size={7} color={PRINT.goldDim} track="0.22em" weight={600}>5 / 24 — 5 / 31</PMono>
+        {/* Left 1/3: full-height steak photo */}
+        <div style={{ width: '33.33%', overflow: 'hidden', flexShrink: 0 }}>
+          <img src={item.img || 'assets/image_steak_03.png'} alt="" style={{
+            width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 35%', display: 'block'
+          }} />
         </div>
 
-        {/* Prize name — centered on image */}
-        <div style={{ position: 'absolute', top: '50%', left: 0, right: 0,
-          transform: 'translateY(-68%)', textAlign: 'center', padding: '0 10mm' }}>
-          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '30pt', fontWeight: 600,
-            letterSpacing: '0.1em', lineHeight: 1.2, color: PRINT.gold,
-            textShadow: '0 3px 14px rgba(0,0,0,0.85), 0 0 50px rgba(212,168,67,0.25)' }}>
-            日本和牛雙人套餐
+        {/* Right 2/3: warm dark bg (#1c100a), different from top section (#0e0a06) */}
+        <div style={{ flex: 1, background: '#1c100a', borderLeft: '0.5pt solid rgba(212,168,67,0.35)',
+          display: 'flex', flexDirection: 'column', justifyContent: 'center',
+          padding: '5mm 9mm 4mm 8mm', gap: '2.5mm' }}>
+
+          {/* INFINITY DAY label + date */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <PMono size={7.5} color={PRINT.gold} track="0.26em" weight={700}>INFINITY DAY · 無限日抽獎</PMono>
+            <PMono size={6.5} color={PRINT.goldDim} track="0.15em" weight={600}>5/24—5/31</PMono>
           </div>
-          <div style={{ marginTop: '2.5mm', fontFamily: "'Noto Serif TC',serif", fontSize: '10pt',
-            fontStyle: 'italic', color: PRINT.cream, letterSpacing: '0.06em',
-            textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}>
-            日本和牛ステーキ ペアセット · WIRED TOKYO
+
+          {/* Hairline */}
+          <div style={{ height: '0.5pt', background: 'rgba(212,168,67,0.32)' }} />
+
+          {/* Station-specific promo copy */}
+          <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '10pt', fontStyle: 'italic',
+            lineHeight: 1.6, letterSpacing: '0.04em', color: PRINT.cream, fontWeight: 400 }}>
+            {item.promo}
+          </p>
+
+          {/* Prize name */}
+          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '14pt', fontWeight: 600,
+            letterSpacing: '0.06em', color: PRINT.gold, lineHeight: 1.2 }}>
+            日本和牛牛排雙人套餐
+            <div style={{ fontFamily: "'Noto Sans TC',sans-serif", fontSize: '7.5pt', fontWeight: 400,
+              color: PRINT.goldDim, letterSpacing: '0.05em', marginTop: '1mm' }}>
+              佐特製橙醋醬汁 · NT$2,300 起
+            </div>
           </div>
-        </div>
 
-        {/* Bottom: broadcast info */}
-        <div style={{ position: 'absolute', bottom: '17mm', left: 0, right: 0, textAlign: 'center' }}>
-          <PMono size={9} color={PRINT.cream} track="0.28em" weight={600}>每日 20:00 直播抽獎</PMono>
-        </div>
+          {/* Hairline */}
+          <div style={{ height: '0.5pt', background: 'rgba(212,168,67,0.22)' }} />
 
-        {/* Footer: logo + tagline */}
-        <div style={{ position: 'absolute', bottom: '4mm', left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5mm' }}>
-          <NexusWordmark width={95} sub={false} align="center" />
-          <PMono size={7} color={PRINT.creamFaint} track="0.28em" weight={400}>
-            ここで、ひと呼吸。 ／ Pause Here for a Moment.
-          </PMono>
+          {/* Also redeemable: bigger thumbnails (13mm) */}
+          <div>
+            <PMono size={5.5} color={PRINT.goldDim} track="0.28em" weight={600}>優惠券亦可兌換</PMono>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2mm' }}>
+              {[
+                { src: 'assets/menu_fries.jpg',      label: '松露薯條' },
+                { src: 'assets/menu_sundae.jpg',     label: '法式\n香蕉聖代' },
+                { src: 'assets/menu_tea.jpg',        label: 'WIRED\n水果茶' },
+                { src: 'assets/menu_toast.jpg',      label: '抹茶\n吐司' },
+                { src: 'assets/menu_cheesecake.jpg', label: '伯爵茶\n巴斯克' },
+              ].map(d => (
+                <div key={d.src} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1mm', flex: 1 }}>
+                  <div style={{ width: '13mm', height: '13mm', borderRadius: '50%', overflow: 'hidden',
+                    border: '0.7pt solid rgba(212,168,67,0.5)', flexShrink: 0 }}>
+                    <img src={d.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  </div>
+                  <div style={{ fontFamily: "'Noto Sans TC',sans-serif", fontSize: '4.5pt', lineHeight: 1.35,
+                    color: PRINT.creamMute, textAlign: 'center', whiteSpace: 'pre-line', letterSpacing: '0.03em' }}>
+                    {d.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Broadcast + logo */}
+          <PMono size={8.5} color={PRINT.cream} track="0.28em" weight={600}>每日 20:00 直播抽獎</PMono>
+          <NexusWordmark width={64} sub={false} align="left" />
         </div>
       </div>
     </PPage>
@@ -1201,10 +1241,10 @@ function CounterCardPage() {
               <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '19pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>日本和牛牛排雙人套餐</span>
             </div>
             <div style={{ marginTop: 1 }}>
-              <span style={{ fontFamily: "'Noto Serif TC',serif", fontStyle: 'italic', fontSize: '10pt', color: PRINT.brown, letterSpacing: '0.02em' }}>日本和牛ステーキ ペアセット · WIRED TOKYO</span>
+              <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '10pt', color: PRINT.brown, letterSpacing: '0.04em' }}>佐特製橙醋醬汁 · 和牛のステーキ UMAMI ポン酢ソース</span>
             </div>
             <div style={{ marginTop: 5 }}>
-              <PMono size={7} color={PRINT.gold} track="0.28em" weight={500}>5 / 24 — 5 / 31 ‧ 每日 20:00 抽出 ‧ 共 8 份 ‧ NT$ 2,300</PMono>
+              <PMono size={7} color={PRINT.gold} track="0.28em" weight={500}>5 / 24 — 5 / 31 ‧ 每日 20:00 抽出 ‧ 共 8 份 ‧ 價值 NT$ 2,300 起</PMono>
             </div>
           </div>
           <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
@@ -1358,8 +1398,9 @@ function PrizeDetailPage() {
       </div>
 
       <div style={{ position: 'absolute', top: '42mm', left: '14mm', right: '14mm', height: '108mm', overflow: 'hidden', border: '0.6pt solid rgba(212,168,67,0.35)', boxShadow: '0 8mm 20mm rgba(36,32,28,0.06)', background: 'linear-gradient(160deg, #1a0e08 0%, #2d1a0f 30%, #1a0e08 60%, #0d0905 100%)' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 55%, rgba(120,50,20,0.55) 0%, rgba(60,20,5,0.3) 45%, transparent 70%)' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(11,20,36,0.3) 0%, transparent 30%, transparent 60%, rgba(11,20,36,0.9) 100%)' }} />
+        <img src="assets/wagyu-hero.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%', display: 'block' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 55%, rgba(120,50,20,0.35) 0%, rgba(60,20,5,0.15) 45%, transparent 70%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(11,20,36,0.25) 0%, transparent 30%, transparent 60%, rgba(11,20,36,0.85) 100%)' }} />
         <PTick pos={{ top: 6, left: 6 }} />
         <PTick pos={{ top: 6, right: 6 }} flipX />
         <PTick pos={{ bottom: 6, left: 6 }} flipY />
@@ -1370,18 +1411,23 @@ function PrizeDetailPage() {
         <div style={{ position: 'absolute', bottom: 8, right: 8, textAlign: 'right' }}>
           <PMono size={5.5} color={PRINT.goldDim} track="0.3em" weight={700}>VALUE</PMono>
           <div style={{ marginTop: 1 }}>
-            <GoldText style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '24pt', fontWeight: 600, letterSpacing: '0.02em', display: 'inline-block' }}>NT$&nbsp;2,300</GoldText>
+            <GoldText style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '24pt', fontWeight: 600, letterSpacing: '0.02em', display: 'inline-block' }}>NT$&nbsp;2,300 起</GoldText>
           </div>
         </div>
       </div>
 
       <div style={{ position: 'absolute', top: '156mm', left: '14mm', right: '14mm' }}>
         <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '26pt', lineHeight: 1.25, letterSpacing: '0.06em', color: PRINT.brown, fontWeight: 500 }}>
-          日本和牛<br/><GoldText style={{ fontWeight: 600 }}>牛排雙人套餐</GoldText>
+          日本和牛牛排<br/><GoldText style={{ fontWeight: 600 }}>雙人套餐</GoldText>
         </p>
         <div style={{ marginTop: 4 }}>
-          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', fontStyle: 'italic', color: PRINT.brown, letterSpacing: '0.04em' }}>
-            日本和牛ステーキ ペアセット ‧ WIRED TOKYO
+          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', color: PRINT.brown, letterSpacing: '0.04em' }}>
+            佐特製橙醋醬汁
+          </span>
+        </div>
+        <div style={{ marginTop: 2 }}>
+          <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', fontStyle: 'italic', color: PRINT.brown, letterSpacing: '0.02em' }}>
+            和牛のステーキ トマト UMAMI ポン酢ソース
           </span>
         </div>
       </div>
@@ -1543,7 +1589,7 @@ function TableCardC() {
       <div style={{ position: 'absolute', top: '27mm', left: '10mm', right: '10mm', height: '0.4pt', background: 'rgba(212,168,67,0.2)' }} />
       <div style={{ position: 'absolute', top: '30mm', left: '10mm', right: '10mm', textAlign: 'center' }}>
         <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', lineHeight: 1.5, letterSpacing: '0.08em', color: PRINT.brown, fontWeight: 400 }}>
-          和牛雙人套餐，<br/>
+          和牛牛排雙人套餐，<br/>
           每日 <GoldText style={{ fontWeight: 600 }}>20:00</GoldText> 準時抽。
         </p>
       </div>
@@ -1662,14 +1708,14 @@ function MainPosterPage() {
           {[
             { n: '01', title: '每日專屬儀式', desc: '點亮日常，獲得抽獎券' },
             { n: '02', title: '集印探索', desc: '館內集章，解鎖地圖' },
-            { n: '03', title: '加碼大獎', desc: '每日 20:00 抽和牛套餐' },
+            { n: '03', title: '加碼大獎', desc: '每日 20:00 抽和牛牛排雙人套餐' },
           ].map(item => (
             <div key={item.n} style={{ borderLeft: `0.5pt solid ${PRINT.goldDim}`, paddingLeft: 8 }}>
               <PMono size={7} color={PRINT.gold} track="0.2em" weight={700}>NO.{item.n}</PMono>
               <div style={{ marginTop: 2 }}>
                 <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '10.5pt', color: PRINT.brown, fontWeight: 500 }}>{item.title}</span>
               </div>
-              <p style={{ margin: '3pt 0 0', fontFamily: "'Noto Sans TC',sans-serif", fontSize: '7pt', lineHeight: 1.6, color: PRINT.brown }}>{item.desc}</p>
+              <p style={{ margin: '3pt 0 0', fontFamily: "'Noto Sans TC',sans-serif", fontSize: '8.5pt', lineHeight: 1.6, color: PRINT.brown }}>{item.desc}</p>
             </div>
           ))}
         </div>
@@ -1730,7 +1776,7 @@ function DigitalPosterPage() {
         <div style={{ borderTop: `0.5pt solid ${PRINT.goldDim}`, paddingTop: 12, textAlign: 'center' }}>
           <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>5/24 — 5/31 INFINITY DAY ‧ 無限日 · 加碼抽獎</PMono>
           <p style={{ margin: '6pt 0 0', fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.08em' }}>
-            每日 20:00 抽和牛雙人套餐
+            每日 20:00 抽和牛牛排雙人套餐
           </p>
         </div>
       </div>
