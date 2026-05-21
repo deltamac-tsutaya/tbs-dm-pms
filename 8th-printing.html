@@ -848,7 +848,7 @@ function RealQR({ url, sizeMm }) {
       const qr = qrcode(0, 'M');
       qr.addData(url);
       qr.make();
-      const count = qr.moduleCount;
+      const count = qr.getModuleCount();
       const cell = sizePx / count;
       canvas.width = sizePx;
       canvas.height = sizePx;
@@ -883,6 +883,27 @@ function RealQR({ url, sizeMm }) {
       <PTick pos={{ bottom: '-2mm', right: '-2mm' }} flipX flipY len={10} weight={1.2} color={PRINT.gold} opacity={0.9} />
       <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
     </div>
+  );
+}
+
+/* ── NexusWordmarkDual: inline SVG with gold Nexus + cream Life ── */
+function NexusWordmarkDual({ width }) {
+  const w = width || 400;
+  const h = Math.round(w / (862.33 / 150.7));
+  return (
+    <svg viewBox="0 0 862.33 150.7" width={w} height={h} style={{ display: 'block' }}>
+      {/* Nexus letters — gold */}
+      <path fill={PRINT.gold} d="M148.05,88.24c3.99-21.76,22.38-36.06,44.1-35.24,8.09.3,15.8,1.93,22.26,7.06,8.21,6.52,12.62,16.44,12.63,27.39h-59.09c-.48,8.09.45,16.04,3.6,23.58,9.72,23.28,34.71,27.78,57.69,19.41,23.58-8.59,43.66-24.5,63.31-40.65-12.63-16.03-24.8-32.71-41.03-44.43-18.29-13.31-41.57-15.93-62.15-6.52-6.19,2.83-11.27,6.37-17.29,10.11,18.75-21.05,47.41-27.97,74.36-19.61,25.67,7.92,44.57,27.31,61.04,48.17,25.4-22.35,52.64-44.48,83.1-58.27,27.86-12.62,58.98-18.9,88.48-9.25,12.37,4.05,23.14,10.95,31.61,20.72,4.57,5.27,8.35,10.89,10.11,17.74-14.36-23.07-37.57-33.32-64.47-34.55-35.15-1.61-69.85,14.1-98.65,33.64-16.16,10.96-31.01,22.88-46.01,35.15l19.55,24.27c6.43,7.99,13.29,15.08,20.84,21.93,17.81,15.02,37,22.26,59.75,16.85-8.02,4.46-16.7,5.01-25.44,4.97-12.74-.06-24.55-3.33-36.18-8.4-12.65-6.12-23.68-14.12-33.43-24.29l-20.05-22.96c-31.68,25.24-73.76,61.17-115.67,48.09-23.5-7.33-37.47-30.42-32.98-54.89ZM207.77,83.88l-.98-12.78c-1.63-4.66-3.84-9.47-8.22-12.19-9.17-5.69-20.95-2.03-25.82,7.46-2.81,5.48-4.31,11.06-4.59,17.54l39.61-.04Z" />
+      <path fill={PRINT.gold} d="M78.48,88.92L25.6,26.72l-.2,81.34c-.01,4.41.52,8.71,1.08,12.78,1.38,8.56,7.09,12.67,15.69,16.21-13.38.54-25.51.66-38.29-.11,7.82-3.28,12.59-6.56,14.29-14,.95-4.16,1.43-8.84,1.43-13.48V42.97c0-7.99,0-15.35-.48-23.21-3.3-4.23-7.6-7.76-11.92-10.7-2.6-.98-4.63-1.18-7.21-3.58l37.69-.2,83.19,99.14.04-73c0-3.52-.68-7.19-1.29-10.34-1.52-8.26-7.04-11.75-15.44-15.37,13.06-.72,24.96-.55,38.35-.23-5.08,3.39-9.98,4.2-12.45,9.4s-3.29,10.63-3.29,16.57v107.56s-5.73.03-5.73.03l-42.6-50.14Z" />
+      <path fill={PRINT.gold} d="M450.28,120.69c0,3.04.93,6.08,2.62,7.56,2.05,1.79,4.81,1.7,8.33,3.36l-30.43,7.73-.62-14.08c-7.45,7.1-15,12.24-24.64,13.62-8.98,1.29-18.16-.43-24.85-6.73-4.53-4.27-7.06-10.76-7.08-17.24l-.15-43.42c-.18-6.14-4.25-8.42-10.78-10.18l30.77-7.14.15,60.76c.01,5.06,2.48,10.18,6.23,12.98,9.47,7.09,22.55,2.14,30.54-7.11l.08-49.25c.01-6.68-3.85-9.34-10.86-11.13l30.67-6.14.02,66.39Z" />
+      <path fill={PRINT.gold} d="M528.43,130.15c-12.06,13.76-39.21,10.05-56.23,3.32l-.69-21.8c4.86,7.77,8.39,14.34,15.14,19.16,5.95,4.25,12.93,6.79,20.08,5.35,5.12-1.03,9.13-4.34,10.29-8.68,6.44-23.95-46.28-20.65-45.52-50.91.17-6.83,3.19-13.22,9.25-17.56,13.1-9.36,33.12-6.41,48.53-.57l-.06,19.78c-4.33-6.18-6.77-11.66-11.94-16-6.45-5.42-14.4-7.68-22.43-4.55-3.34,1.31-6.11,4.47-6.89,7.14-2.31,7.84,2.85,13.47,10.57,17.37l17.67,8.94c5.3,2.68,10.35,6.29,13.86,11.28,5.71,8.14,5.06,20.07-1.64,27.72Z" />
+      {/* Life letters — cream */}
+      <path fill={PRINT.cream} d="M678.93,107.92c.84.19,1.64.87,1.54,1.31l-6.64,28.13-88.58-.13c8.42-3.81,14.28-7.42,14.28-16.52l.07-98.01c0-9.28-5.56-13.28-14.51-17l50.63-.5,1.45.69c.41.2-.81,1.3-1.42,1.4-6.75,1.11-12.88,6.79-12.89,14.78l-.08,110.8,22.49-.15c14.11-.09,26.65-11.9,33.66-24.8Z" />
+      <path fill={PRINT.cream} d="M683.37,137.15c6.5-3.46,10.05-5.95,10.63-12.4v-52.91c-.78-6.2-4.56-8.3-10.96-10.11l30.92-7.78.18,71.31c.02,6.62,4.73,8.95,10.72,11.88h-41.48Z" />
+      <circle fill={PRINT.cream} cx="703.46" cy="23.33" r="12.35" />
+      <path fill={PRINT.cream} d="M759.35,124.66c.01,5.98,3.94,9.57,8.71,10.77l1.89.48c.36.09-.09,1.47-.22,1.51l-41.92-.21c6.84-3.22,11.23-5.74,11.23-12.84l.06-65.83-11.81-.03.02-4.07h11.71s.26-19.41.26-19.41c.13-9.48,3.09-18.71,9.8-25.51,12.67-12.83,36.68-11.87,52.11-2.08l-11.87,19.94-6.78-16.41c-2.1-3.09-4.46-6.36-8.19-7.52-4.79-1.5-9.83,1.29-12.03,5.8-1.91,3.93-3.04,8.69-3.05,13.28l-.08,31.94,22.7-.08c.18,1.5.01,3.61-.51,4.46l-22.18-.3.13,66.12Z" />
+      <path fill={PRINT.cream} d="M839.93,130.6c8.31-.99,15.3-4.33,20.38-10.22l1.57.96c-9.93,17.16-33.34,21.83-51.58,16.12-25.24-7.9-33.93-37.41-23.31-60.07,7.4-15.79,22.93-25.13,40.34-24.38,21.48.93,34.28,13.03,34.99,34.4l-58.92.05c-.53,8.42.35,16.11,3.4,23.41,5.6,13.4,18.19,21.53,33.12,19.74ZM843.01,83.83l-.45-10.01c-.89-5.53-3.57-11.4-8.35-14.61-9.34-6.27-21.51-2.14-26.47,7.63-2.71,5.34-3.94,10.8-4.34,17.06l39.6-.07Z" />
+    </svg>
   );
 }
 
@@ -981,7 +1002,8 @@ function StandeeContent({ item, isEgg }) {
         </div>
 
         {/* Footer */}
-        <div style={{ position: 'absolute', bottom: '6mm', left: 0, right: 0, textAlign: 'center' }}>
+        <div style={{ position: 'absolute', bottom: '4.5mm', left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5mm' }}>
+          <NexusWordmark width={55} sub={false} align="center" />
           <PMono size={4.5} color={PRINT.creamFaint} track="0.24em" weight={400}>
             見つけた人へ。 ／ For Those Who Found It.
           </PMono>
@@ -1056,44 +1078,56 @@ function StandeeContent({ item, isEgg }) {
         </div>
       </div>
 
-      {/* ── Prize section separator ── */}
-      <div style={{ position: 'absolute', top: '193mm', left: '8mm', right: '8mm',
-        height: '0.7pt', background: 'rgba(212,168,67,0.45)' }} />
+      {/* ── Prize preview: full-bleed dramatic image ── */}
+      <div style={{ position: 'absolute', top: '193mm', left: 0, right: 0, bottom: 0, overflow: 'hidden' }}>
+        {/* Hero steak image — full bleed */}
+        <img src="assets/image_steak_03.png" alt="" style={{
+          position: 'absolute', inset: 0, width: '100%', height: '100%',
+          objectFit: 'cover', objectPosition: 'center 55%', display: 'block'
+        }} />
+        {/* Top gradient: dark for label readability */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45%',
+          background: 'linear-gradient(to bottom, rgba(8,5,2,0.92) 0%, rgba(8,5,2,0.55) 55%, transparent 100%)' }} />
+        {/* Bottom gradient: dark for footer readability */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%',
+          background: 'linear-gradient(to top, rgba(8,5,2,0.97) 0%, rgba(8,5,2,0.75) 35%, transparent 100%)' }} />
 
-      {/* ── Prize preview (bottom ~104mm) ── */}
-      <div style={{ position: 'absolute', top: '194mm', left: 0, right: 0, bottom: 0 }}>
-        {/* Section label */}
-        <div style={{ padding: '3mm 14mm 2.5mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {/* Gold top rule */}
+        <div style={{ position: 'absolute', top: 0, left: '8mm', right: '8mm', height: '0.7pt', background: 'rgba(212,168,67,0.6)' }} />
+
+        {/* Top label */}
+        <div style={{ position: 'absolute', top: '3mm', left: '14mm', right: '14mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>GRAND PRIZE WEEK · 大獎週</PMono>
-          <PMono size={7} color={PRINT.goldDim} track="0.2em" weight={600}>5/24 — 5/31</PMono>
+          <PMono size={7} color={PRINT.goldDim} track="0.22em" weight={600}>5 / 24 — 5 / 31</PMono>
         </div>
 
-        {/* Steak hero image */}
-        <div style={{ position: 'relative', height: '56mm', overflow: 'hidden' }}>
-          <img src="assets/image_steak_03.png" alt="" style={{
-            width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block',
-          }} />
-          <div style={{ position: 'absolute', inset: 0,
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(14,9,3,0.6) 100%)' }} />
-        </div>
-
-        {/* Prize text */}
-        <div style={{ padding: '4mm 14mm 0', textAlign: 'center' }}>
-          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '20pt', fontWeight: 500,
-            letterSpacing: '0.06em', lineHeight: 1.2 }}>
-            <GoldText>日本和牛雙人套餐</GoldText>
+        {/* Prize name — centered on image */}
+        <div style={{ position: 'absolute', top: '50%', left: 0, right: 0,
+          transform: 'translateY(-68%)', textAlign: 'center', padding: '0 10mm' }}>
+          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '30pt', fontWeight: 600,
+            letterSpacing: '0.1em', lineHeight: 1.2, color: PRINT.gold,
+            textShadow: '0 3px 14px rgba(0,0,0,0.85), 0 0 50px rgba(212,168,67,0.25)' }}>
+            日本和牛雙人套餐
           </div>
-          <div style={{ marginTop: '2.5mm' }}>
-            <PMono size={9} color={PRINT.creamMute} track="0.26em" weight={400}>每日 20:00 直播抽獎</PMono>
+          <div style={{ marginTop: '2.5mm', fontFamily: "'Noto Serif TC',serif", fontSize: '10pt',
+            fontStyle: 'italic', color: PRINT.cream, letterSpacing: '0.06em',
+            textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}>
+            日本和牛ステーキ ペアセット · WIRED TOKYO
           </div>
         </div>
-      </div>
 
-      {/* Footer */}
-      <div style={{ position: 'absolute', bottom: '11mm', left: 0, right: 0, textAlign: 'center' }}>
-        <PMono size={7.5} color={PRINT.creamFaint} track="0.28em" weight={400}>
-          ここで、ひと呼吸。 ／ Pause Here for a Moment.
-        </PMono>
+        {/* Bottom: broadcast info */}
+        <div style={{ position: 'absolute', bottom: '17mm', left: 0, right: 0, textAlign: 'center' }}>
+          <PMono size={9} color={PRINT.cream} track="0.28em" weight={600}>每日 20:00 直播抽獎</PMono>
+        </div>
+
+        {/* Footer: logo + tagline */}
+        <div style={{ position: 'absolute', bottom: '4mm', left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5mm' }}>
+          <NexusWordmark width={95} sub={false} align="center" />
+          <PMono size={7} color={PRINT.creamFaint} track="0.28em" weight={400}>
+            ここで、ひと呼吸。 ／ Pause Here for a Moment.
+          </PMono>
+        </div>
       </div>
     </PPage>
   );
@@ -1126,7 +1160,7 @@ function CounterCardPage() {
       </div>
 
       <div style={{ position: 'absolute', top: '34mm', left: '14mm' }}>
-        <PNexusMark size={2.0} align="left" />
+        <NexusWordmarkDual width={430} />
       </div>
 
       <div style={{ position: 'absolute', top: '70mm', left: '14mm', display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -1199,7 +1233,7 @@ function CounterCardPage() {
         </div>
         <div style={{ textAlign: 'right' }}>
           <PMono size={6} color={PRINT.creamFaint} track="0.3em" weight={600}>EVENT PERIOD</PMono>
-          <div style={{ marginTop: 1 }}><PMono size={8} color={PRINT.gold} track="0.3em" weight={700}>NEXUS.LIFE · 8TH</PMono></div>
+          <div style={{ marginTop: 3 }}><NexusWordmark width={90} sub={false} align="right" /></div>
         </div>
       </div>
     </PPage>
@@ -1391,7 +1425,8 @@ function PrizeDetailPage() {
 
       <div style={{ position: 'absolute', bottom: '14mm', left: '14mm', right: '14mm', borderTop: '0.5pt solid rgba(212,168,67,0.22)', paddingTop: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <PMono size={6.5} color={PRINT.gold} track="0.34em" weight={700}>LIMITED · 限量 8 份</PMono>
+          <NexusWordmark width={88} sub={false} align="left" />
+          <div style={{ marginTop: 3 }}><PMono size={6.5} color={PRINT.gold} track="0.34em" weight={700}>LIMITED · 限量 8 份</PMono></div>
           <div style={{ marginTop: 2 }}>
             <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>
               2026 / 5 / 24 — 5 / 31&nbsp;<span style={{ color: PRINT.brown, fontWeight: 300 }}>‧ 每日 20:00 抽出 1 位</span>
@@ -1441,7 +1476,7 @@ function TableCardAFront() {
         <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>SCAN TO START ‧ 掃描開始</PMono>
       </div>
       <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
-        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <NexusWordmark width={50} sub={false} align="left" />
         <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 01</PMono>
       </div>
     </PPage>
@@ -1482,7 +1517,7 @@ function TableCardABack() {
         <PMono size={6.5} color={PRINT.gold} track="0.26em" weight={700}>ANNIVERSARY SPECIAL ‧ 憑券享 8 折優惠</PMono>
       </div>
       <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
-        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <NexusWordmark width={50} sub={false} align="left" />
         <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 01</PMono>
       </div>
     </PPage>
@@ -1523,7 +1558,7 @@ function TableCardBFront() {
         <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>SCAN TO EXPLORE ‧ 掃描探索</PMono>
       </div>
       <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
-        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <NexusWordmark width={50} sub={false} align="left" />
         <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 02</PMono>
       </div>
     </PPage>
@@ -1564,7 +1599,7 @@ function TableCardBBack() {
         <PMono size={6.5} color={PRINT.gold} track="0.26em" weight={700}>ANNIVERSARY SPECIAL ‧ 憑券享書籍折抵</PMono>
       </div>
       <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
-        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <NexusWordmark width={50} sub={false} align="left" />
         <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 02</PMono>
       </div>
     </PPage>
@@ -1605,7 +1640,7 @@ function TableCardCFront() {
         <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>SCAN TO JOIN ‧ 掃描參與</PMono>
       </div>
       <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
-        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <NexusWordmark width={50} sub={false} align="left" />
         <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 03</PMono>
       </div>
     </PPage>
@@ -1646,7 +1681,7 @@ function TableCardCBack() {
         <PMono size={6.5} color={PRINT.gold} track="0.26em" weight={700}>ANNIVERSARY SPECIAL ‧ 憑券享限定飲品加購</PMono>
       </div>
       <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
-        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <NexusWordmark width={50} sub={false} align="left" />
         <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 03</PMono>
       </div>
     </PPage>
@@ -1687,7 +1722,7 @@ function TableCardDFront() {
         <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>JOIN US NOW ‧ 立即加入</PMono>
       </div>
       <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
-        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <NexusWordmark width={50} sub={false} align="left" />
         <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 04</PMono>
       </div>
     </PPage>
@@ -1728,7 +1763,7 @@ function TableCardDBack() {
         <PMono size={6.5} color={PRINT.gold} track="0.26em" weight={700}>ANNIVERSARY SPECIAL ‧ 憑券享書籍折抵</PMono>
       </div>
       <div style={{ position: 'absolute', bottom: '8mm', left: '10mm', right: '10mm', display: 'flex', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldFaint}`, paddingTop: 3 }}>
-        <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">NEXUS.LIFE</PMono>
+        <NexusWordmark width={50} sub={false} align="left" />
         <PMono size={5.5} color={PRINT.creamFaint} track="0.2em">TABLE CARD 04</PMono>
       </div>
     </PPage>
@@ -1761,7 +1796,7 @@ function MainPosterPage() {
           無限日常　<span style={{ fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif", color: PRINT.gold }}>∞</span><br/>連結生活
         </h1>
         <div style={{ marginTop: 8 }}>
-          <PMono size={8.5} color={PRINT.goldDim} track="0.45em">NEXUS LIFE ‧ TSUTAYA BOOKSTORE</PMono>
+          <NexusWordmark width={220} sub={false} align="center" />
         </div>
       </div>
 
@@ -1842,7 +1877,7 @@ function DigitalPosterPage() {
           無限日常　<span style={{ fontStyle: 'italic', fontFamily: "'Noto Serif TC',serif", color: PRINT.gold }}>∞</span><br/>連結生活
         </h1>
         <div style={{ marginTop: 10 }}>
-          <PMono size={9.5} color={PRINT.goldDim} track="0.45em">NEXUS LIFE ‧ TSUTAYA BOOKSTORE</PMono>
+          <NexusWordmark width={240} sub={false} align="center" />
         </div>
       </div>
 
