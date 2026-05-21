@@ -897,118 +897,185 @@ function StandeeContent({ item, isEgg }) {
   const num = isEgg ? item.eggId : item.n;
   const numDisplay = isEgg ? `Egg ${item.eggId}` : `No. ${num}`;
 
+  /* ── Shared frame decorations ── */
+  const PageFrame = () => <>
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none',
+      background: `radial-gradient(ellipse 140% 60% at 50% 20%, rgba(212,168,67,0.14) 0%, transparent 65%)` }} />
+    <div style={{ position: 'absolute', inset: '5.5mm', border: `1pt solid ${PRINT.goldDim}`, pointerEvents: 'none' }} />
+    <div style={{ position: 'absolute', inset: '8mm', border: `0.3pt solid ${PRINT.goldHair}`, pointerEvents: 'none' }} />
+    <PTick pos={{ top: '5.5mm', left: '5.5mm' }} len={16} weight={1.5} />
+    <PTick pos={{ top: '5.5mm', right: '5.5mm' }} flipX len={16} weight={1.5} />
+    <PTick pos={{ bottom: '5.5mm', left: '5.5mm' }} flipY len={16} weight={1.5} />
+    <PTick pos={{ bottom: '5.5mm', right: '5.5mm' }} flipX flipY len={16} weight={1.5} />
+  </>;
+
+  /* ── Hidden egg standee: original layout unchanged ── */
+  if (isEgg) {
+    return (
+      <PPage wMm={210} hMm={297}>
+        <PageFrame />
+
+        <div style={{ position: 'absolute', top: '13mm', left: '14mm', right: '14mm',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3.5mm' }}>
+          <PCoBrand height={13} gap={12} />
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '2.5pt 12pt',
+            border: `0.7pt solid ${PRINT.goldDim}`, background: 'rgba(212,168,67,0.1)', borderRadius: 999 }}>
+            <PMono size={8.5} color={PRINT.gold} track="0.32em" weight={700}>✦  HIDDEN EGG  ·  隱藏點</PMono>
+          </div>
+        </div>
+
+        <div style={{ position: 'absolute', top: '42mm', left: '8mm', right: '8mm', textAlign: 'center' }}>
+          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '96pt', fontWeight: 600,
+            color: PRINT.cream, letterSpacing: '0.18em', lineHeight: 1.0,
+            textShadow: `0 0 48px rgba(212,168,67,0.45), 0 2px 12px rgba(0,0,0,0.8)` }}>
+            {item.element}
+          </div>
+          <div style={{ margin: '4mm auto 0', width: '44mm', height: '1.5pt',
+            background: `linear-gradient(90deg, transparent 0%, ${PRINT.gold} 25%, ${PRINT.goldLt} 50%, ${PRINT.gold} 75%, transparent 100%)` }} />
+          <div style={{ marginTop: '4.5mm', fontFamily: "'Noto Serif TC',serif", fontSize: '20pt',
+            fontWeight: 300, color: PRINT.creamDim, letterSpacing: '0.5em', paddingLeft: '0.5em' }}>
+            {item.area}
+          </div>
+          <div style={{ marginTop: '2.5mm' }}>
+            <PMono size={8.5} color={PRINT.gold} track="0.3em" weight={600}>隱蛋 · 找到才出現</PMono>
+          </div>
+        </div>
+
+        <div style={{ position: 'absolute', top: '120mm', left: '50%', transform: 'translateX(-50%)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4mm' }}>
+          <RealQR url={item.url} sizeMm={86} />
+          <div style={{ textAlign: 'center', marginTop: '1mm' }}>
+            <PMono size={12} color={PRINT.gold} track="0.42em" weight={700}>SCAN TO STAMP</PMono>
+            <div style={{ marginTop: '1.5mm' }}>
+              <PMono size={9.5} color={PRINT.creamMute} track="0.22em" weight={400}>掃碼蓋章 · 集滿 8 枚參加抽獎</PMono>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ position: 'absolute', bottom: '24mm', left: '12mm', right: '12mm', textAlign: 'center' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5mm', marginBottom: '3.5mm' }}>
+            <div style={{ width: '14mm', height: '0.8pt', background: PRINT.goldDim }} />
+            <PMono size={10} color={PRINT.gold} track="0.5em" weight={700}>{numDisplay}</PMono>
+            <div style={{ width: '14mm', height: '0.8pt', background: PRINT.goldDim }} />
+          </div>
+          <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '14pt',
+            lineHeight: 2.0, letterSpacing: '0.1em', color: PRINT.creamDim, fontWeight: 300 }}>
+            {item.copy}
+          </p>
+        </div>
+
+        <div style={{ position: 'absolute', bottom: '11mm', left: 0, right: 0, textAlign: 'center' }}>
+          <PMono size={7.5} color={PRINT.creamFaint} track="0.28em" weight={400}>
+            見つけた人へ。 ／ For Those Who Found It.
+          </PMono>
+        </div>
+      </PPage>
+    );
+  }
+
+  /* ── Main standee (8 stations): area as hero + prize preview bottom third ── */
   return (
     <PPage wMm={210} hMm={297}>
-      {/* Radial ambient glow */}
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none',
-        background: `radial-gradient(ellipse 140% 90% at 50% 30%, rgba(212,168,67,0.16) 0%, transparent 65%)`,
-      }} />
+      <PageFrame />
 
-      {/* Outer frame */}
-      <div style={{ position: 'absolute', inset: '5.5mm', border: `1pt solid ${PRINT.goldDim}`, pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', inset: '8mm', border: `0.3pt solid ${PRINT.goldHair}`, pointerEvents: 'none' }} />
-
-      {/* Corner ticks */}
-      <PTick pos={{ top: '5.5mm', left: '5.5mm' }} len={16} weight={1.5} />
-      <PTick pos={{ top: '5.5mm', right: '5.5mm' }} flipX len={16} weight={1.5} />
-      <PTick pos={{ bottom: '5.5mm', left: '5.5mm' }} flipY len={16} weight={1.5} />
-      <PTick pos={{ bottom: '5.5mm', right: '5.5mm' }} flipX flipY len={16} weight={1.5} />
-
-      {/* TOP: co-brand + type badge */}
-      <div style={{
-        position: 'absolute', top: '13mm', left: '14mm', right: '14mm',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3.5mm',
-      }}>
+      {/* Header: co-brand + pill */}
+      <div style={{ position: 'absolute', top: '13mm', left: '14mm', right: '14mm',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3.5mm' }}>
         <PCoBrand height={13} gap={12} />
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: 6,
-          padding: '2.5pt 12pt',
-          border: `0.7pt solid ${PRINT.goldDim}`,
-          background: 'rgba(212,168,67,0.1)',
-          borderRadius: 999,
-        }}>
-          <PMono size={8.5} color={PRINT.gold} track="0.32em" weight={700}>
-            {isEgg ? '✦  HIDDEN EGG  ·  隱藏點' : '✦  PHYSICAL JOURNEY  ·  集印探索'}
-          </PMono>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '2.5pt 12pt',
+          border: `0.7pt solid ${PRINT.goldDim}`, background: 'rgba(212,168,67,0.1)', borderRadius: 999 }}>
+          <PMono size={8.5} color={PRINT.gold} track="0.32em" weight={700}>✦  PHYSICAL JOURNEY  ·  集印探索</PMono>
         </div>
       </div>
 
-      {/* HERO: Element name (giant) */}
-      <div style={{ position: 'absolute', top: '42mm', left: '8mm', right: '8mm', textAlign: 'center' }}>
-        <div style={{
-          fontFamily: "'Noto Serif TC',serif",
-          fontSize: '96pt', fontWeight: 600,
-          color: PRINT.cream,
-          letterSpacing: '0.18em',
-          lineHeight: 1.0,
-          textShadow: `0 0 48px rgba(212,168,67,0.45), 0 2px 12px rgba(0,0,0,0.8)`,
-        }}>
-          {item.element}
-        </div>
-
-        <div style={{
-          margin: '4mm auto 0',
-          width: '44mm', height: '1.5pt',
-          background: `linear-gradient(90deg, transparent 0%, ${PRINT.gold} 25%, ${PRINT.goldLt} 50%, ${PRINT.gold} 75%, transparent 100%)`,
-        }} />
-
-        <div style={{
-          marginTop: '4.5mm',
-          fontFamily: "'Noto Serif TC',serif",
-          fontSize: '20pt', fontWeight: 300,
-          color: PRINT.creamDim,
-          letterSpacing: '0.5em',
-          paddingLeft: '0.5em',
-        }}>
+      {/* HERO: Area name (大標題) */}
+      <div style={{ position: 'absolute', top: '38mm', left: '8mm', right: '8mm', textAlign: 'center' }}>
+        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '62pt', fontWeight: 600,
+          color: PRINT.cream, letterSpacing: '0.12em', lineHeight: 1.0,
+          textShadow: `0 0 48px rgba(212,168,67,0.45), 0 2px 12px rgba(0,0,0,0.8)` }}>
           {item.area}
         </div>
+        <div style={{ margin: '4mm auto 0', width: '44mm', height: '1.5pt',
+          background: `linear-gradient(90deg, transparent 0%, ${PRINT.gold} 25%, ${PRINT.goldLt} 50%, ${PRINT.gold} 75%, transparent 100%)` }} />
+      </div>
 
-        <div style={{ marginTop: '2.5mm' }}>
-          <PMono size={8.5} color={PRINT.gold} track="0.3em" weight={600}>
-            {isEgg ? '隱蛋 · 找到才出現' : item.loc}
-          </PMono>
+      {/* Poetic copy */}
+      <div style={{ position: 'absolute', top: '70mm', left: '14mm', right: '14mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '14pt', fontStyle: 'italic',
+          lineHeight: 1.7, letterSpacing: '0.08em', color: PRINT.creamDim, fontWeight: 300 }}>
+          {item.copy}
+        </p>
+      </div>
+
+      {/* Element subtitle + location */}
+      <div style={{ position: 'absolute', top: '83mm', left: '12mm', right: '12mm', textAlign: 'center' }}>
+        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', fontWeight: 300,
+          color: PRINT.creamMute, letterSpacing: '0.28em', paddingLeft: '0.28em' }}>
+          {item.element}
+        </div>
+        <div style={{ marginTop: '2mm' }}>
+          <PMono size={8.5} color={PRINT.gold} track="0.3em" weight={600}>{item.loc}</PMono>
         </div>
       </div>
 
-      {/* QR CODE (real, scannable) */}
-      <div style={{
-        position: 'absolute', top: '120mm', left: '50%',
-        transform: 'translateX(-50%)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4mm',
-      }}>
-        <RealQR url={item.url} sizeMm={86} />
-        <div style={{ textAlign: 'center', marginTop: '1mm' }}>
-          <PMono size={12} color={PRINT.gold} track="0.42em" weight={700}>SCAN TO STAMP</PMono>
+      {/* QR code (scannable) */}
+      <div style={{ position: 'absolute', top: '95mm', left: '50%', transform: 'translateX(-50%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3mm' }}>
+        <RealQR url={item.url} sizeMm={74} />
+        <div style={{ textAlign: 'center' }}>
+          <PMono size={11} color={PRINT.gold} track="0.42em" weight={700}>SCAN TO STAMP</PMono>
           <div style={{ marginTop: '1.5mm' }}>
-            <PMono size={9.5} color={PRINT.creamMute} track="0.22em" weight={400}>
-              掃碼蓋章 · 集滿 8 枚參加抽獎
-            </PMono>
+            <PMono size={8.5} color={PRINT.creamMute} track="0.22em" weight={400}>掃碼蓋章 · 集滿 8 枚參加抽獎</PMono>
           </div>
         </div>
       </div>
 
-      {/* Station ID + copy */}
-      <div style={{ position: 'absolute', bottom: '24mm', left: '12mm', right: '12mm', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5mm', marginBottom: '3.5mm' }}>
-          <div style={{ width: '14mm', height: '0.8pt', background: PRINT.goldDim }} />
-          <PMono size={10} color={PRINT.gold} track="0.5em" weight={700}>{numDisplay}</PMono>
-          <div style={{ width: '14mm', height: '0.8pt', background: PRINT.goldDim }} />
+      {/* Station No. */}
+      <div style={{ position: 'absolute', top: '183mm', left: 0, right: 0, textAlign: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5mm' }}>
+          <div style={{ width: '12mm', height: '0.7pt', background: PRINT.goldDim }} />
+          <PMono size={9.5} color={PRINT.gold} track="0.5em" weight={700}>{numDisplay}</PMono>
+          <div style={{ width: '12mm', height: '0.7pt', background: PRINT.goldDim }} />
         </div>
-        <p style={{
-          margin: 0,
-          fontFamily: "'Noto Serif TC',serif",
-          fontSize: '14pt', lineHeight: 2.0, letterSpacing: '0.1em',
-          color: PRINT.creamDim, fontWeight: 300,
-        }}>
-          {item.copy}
-        </p>
+      </div>
+
+      {/* ── Prize section separator ── */}
+      <div style={{ position: 'absolute', top: '193mm', left: '8mm', right: '8mm',
+        height: '0.7pt', background: 'rgba(212,168,67,0.45)' }} />
+
+      {/* ── Prize preview (bottom ~104mm) ── */}
+      <div style={{ position: 'absolute', top: '194mm', left: 0, right: 0, bottom: 0 }}>
+        {/* Section label */}
+        <div style={{ padding: '3mm 14mm 2.5mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>GRAND PRIZE WEEK · 大獎週</PMono>
+          <PMono size={7} color={PRINT.goldDim} track="0.2em" weight={600}>5/24 — 5/31</PMono>
+        </div>
+
+        {/* Steak hero image */}
+        <div style={{ position: 'relative', height: '56mm', overflow: 'hidden' }}>
+          <img src="assets/image_steak_03.png" alt="" style={{
+            width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block',
+          }} />
+          <div style={{ position: 'absolute', inset: 0,
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(14,9,3,0.6) 100%)' }} />
+        </div>
+
+        {/* Prize text */}
+        <div style={{ padding: '4mm 14mm 0', textAlign: 'center' }}>
+          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '20pt', fontWeight: 500,
+            letterSpacing: '0.06em', lineHeight: 1.2 }}>
+            <GoldText>日本和牛雙人套餐</GoldText>
+          </div>
+          <div style={{ marginTop: '2.5mm' }}>
+            <PMono size={9} color={PRINT.creamMute} track="0.26em" weight={400}>每日 20:00 直播抽獎</PMono>
+          </div>
+        </div>
       </div>
 
       {/* Footer */}
       <div style={{ position: 'absolute', bottom: '11mm', left: 0, right: 0, textAlign: 'center' }}>
         <PMono size={7.5} color={PRINT.creamFaint} track="0.28em" weight={400}>
-          {isEgg ? '見つけた人へ。 ／ For Those Who Found It.' : 'ここで、ひと呼吸。 ／ Pause Here for a Moment.'}
+          ここで、ひと呼吸。 ／ Pause Here for a Moment.
         </PMono>
       </div>
     </PPage>
