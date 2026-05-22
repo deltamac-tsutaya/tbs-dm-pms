@@ -1377,25 +1377,30 @@ function PrizeHeroPage() {
         ))}
       </div>
 
-      <div style={{ position: 'absolute', top: '258mm', left: '16mm', right: '16mm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <PMono size={6} color={PRINT.gold} track="0.4em" weight={700}>INFINITY DAY · 無限日</PMono>
-          <div style={{ marginTop: 2 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>5 / 24 — 5 / 31</span>
-            <span style={{ color: PRINT.brown, fontSize: '8pt', marginLeft: 6, letterSpacing: '0.1em' }}>每日 20:00 抽出</span>
+      {/* Bottom footer: unified to prevent overlap */}
+      <div style={{ position: 'absolute', bottom: '12mm', left: '16mm', right: '16mm',
+        borderTop: `0.4pt solid ${PRINT.goldMute}`, paddingTop: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '3.5mm' }}>
+            <div>
+              <PMono size={6} color={PRINT.gold} track="0.4em" weight={700}>INFINITY DAY · 無限日</PMono>
+              <div style={{ marginTop: 2 }}>
+                <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>5 / 24 — 5 / 31</span>
+                <span style={{ color: PRINT.brown, fontSize: '8pt', marginLeft: 6, letterSpacing: '0.1em' }}>每日 20:00 抽出</span>
+              </div>
+            </div>
+            <NexusWordmark width={130} align="left" />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3.5mm' }}>
+            <div style={{ textAlign: 'right' }}>
+              <PMono size={6} color={PRINT.creamFaint} track="0.4em" weight={600}>EVENT PERIOD</PMono>
+              <div style={{ marginTop: 2 }}>
+                <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>2026.04.25 — 05.31</span>
+              </div>
+            </div>
+            <PBigQR size="20mm" seed={777} />
           </div>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <PMono size={6} color={PRINT.creamFaint} track="0.4em" weight={600}>EVENT PERIOD</PMono>
-          <div style={{ marginTop: 2 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.06em', fontWeight: 500 }}>2026.04.25 — 05.31</span>
-          </div>
-        </div>
-      </div>
-
-      <div style={{ position: 'absolute', bottom: '12mm', left: '16mm', right: '16mm', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', borderTop: `0.4pt solid ${PRINT.goldMute}`, paddingTop: 6 }}>
-        <NexusWordmark width={130} align="left" />
-        <PBigQR size="20mm" seed={777} />
       </div>
     </PPage>
   );
