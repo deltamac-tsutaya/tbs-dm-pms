@@ -1169,10 +1169,14 @@ function StandeeContent({ item, isEgg }) {
             </div>
           </div>
 
-          {/* Broadcast + logo */}
+          {/* Broadcast */}
           <PMono size={8.5} color={PRINT.cream} track="0.28em" weight={600}>每日 20:00 直播抽獎</PMono>
-          <NexusWordmark width={64} sub={false} align="left" />
         </div>
+      </div>
+
+      {/* Bottom-right: Nexus Life logo */}
+      <div style={{ position: 'absolute', bottom: '7mm', right: '10mm' }}>
+        <NexusWordmark width={110} sub={false} align="right" />
       </div>
     </PPage>
   );
