@@ -1069,47 +1069,21 @@ function StandeeContent({ item, isEgg }) {
         </div>
       </div>
 
-      {/* 28–82mm: AREA hero (76pt) + gold bar + poetic copy */}
+      {/* 28–70mm: AREA hero (large, light) + copy */}
       <div style={{ position: 'absolute', top: '28mm', left: '8mm', right: '8mm', textAlign: 'center' }}>
-        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '66pt', fontWeight: 600,
-          color: PRINT.cream, letterSpacing: '0.14em', lineHeight: 1.0,
-          textShadow: `0 0 48px rgba(212,168,67,0.5), 0 2px 12px rgba(0,0,0,0.85)` }}>
+        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '72pt', fontWeight: 300,
+          color: PRINT.cream, letterSpacing: '0.32em', lineHeight: 1.0,
+          textShadow: `0 0 48px rgba(212,168,67,0.4), 0 2px 12px rgba(0,0,0,0.85)` }}>
           {item.area}
         </div>
-        <div style={{ margin: '4mm auto 4mm', width: '52mm', height: '1.5pt',
-          background: `linear-gradient(90deg, transparent 0%, ${PRINT.gold} 22%, ${PRINT.goldLt} 50%, ${PRINT.gold} 78%, transparent 100%)` }} />
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', fontStyle: 'italic',
+        <p style={{ margin: '5mm 0 0', fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', fontStyle: 'italic',
           lineHeight: 1.65, letterSpacing: '0.07em', color: PRINT.creamDim, fontWeight: 400 }}>
           {item.copy}
         </p>
       </div>
 
-      {/* 82–93mm: element + location */}
-      <div style={{ position: 'absolute', top: '82mm', left: '12mm', right: '12mm', textAlign: 'center' }}>
-        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', fontWeight: 400,
-          color: PRINT.creamMute, letterSpacing: '0.26em', paddingLeft: '0.26em' }}>
-          {item.element}
-        </div>
-        <div style={{ marginTop: '1.5mm' }}>
-          <PMono size={8} color={PRINT.gold} track="0.28em" weight={600}>{item.loc}</PMono>
-        </div>
-      </div>
-
-      {/* 93–176mm: QR code + SCAN label */}
-      <div style={{ position: 'absolute', top: '93mm', left: '50%', transform: 'translateX(-50%)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4mm' }}>
-        <RealQR url={item.url} sizeMm={72} />
-        <div style={{ textAlign: 'center' }}>
-          <PMono size={12} color={PRINT.gold} track="0.44em" weight={700}>SCAN TO STAMP</PMono>
-          <div style={{ marginTop: '2mm' }}>
-            <PMono size={8.5} color={PRINT.creamMute} track="0.22em" weight={400}>掃碼蓋章 · 集滿 8 枚參加抽獎</PMono>
-          </div>
-        </div>
-      </div>
-
-      {/* 176–193mm: Station No. (generous space, elegant) */}
-      <div style={{ position: 'absolute', top: '176mm', left: 0, right: 0, bottom: '104mm',
-        display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      {/* 74–84mm: Station No. strip + element name */}
+      <div style={{ position: 'absolute', top: '74mm', left: 0, right: 0, textAlign: 'center' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6mm' }}>
           <div style={{ width: '18mm', height: '0.6pt',
             background: `linear-gradient(90deg, transparent 0%, ${PRINT.goldDim} 100%)` }} />
@@ -1117,6 +1091,23 @@ function StandeeContent({ item, isEgg }) {
           <div style={{ width: '18mm', height: '0.6pt',
             background: `linear-gradient(90deg, ${PRINT.goldDim} 0%, transparent 100%)` }} />
         </div>
+        <div style={{ marginTop: '2.5mm', fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', fontWeight: 400,
+          color: PRINT.creamMute, letterSpacing: '0.26em', paddingLeft: '0.26em' }}>
+          {item.element}
+        </div>
+      </div>
+
+      {/* 90–175mm: QR code */}
+      <div style={{ position: 'absolute', top: '90mm', left: '50%', transform: 'translateX(-50%)' }}>
+        <RealQR url={item.url} sizeMm={74} />
+      </div>
+
+      {/* 168–193mm: SCAN label + location */}
+      <div style={{ position: 'absolute', top: '168mm', left: 0, right: 0, textAlign: 'center',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2mm' }}>
+        <PMono size={12} color={PRINT.gold} track="0.44em" weight={700}>SCAN TO STAMP</PMono>
+        <PMono size={8.5} color={PRINT.creamMute} track="0.22em" weight={400}>掃碼蓋章 · 集滿 8 枚參加抽獎</PMono>
+        <PMono size={8} color={PRINT.gold} track="0.28em" weight={600}>{item.loc}</PMono>
       </div>
 
       {/* 193–297mm: Prize section — left steak image / right text */}
