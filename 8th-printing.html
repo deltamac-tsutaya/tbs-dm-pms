@@ -1071,8 +1071,8 @@ function StandeeContent({ item, isEgg }) {
 
       {/* 28–70mm: AREA hero (large, light) + copy */}
       <div style={{ position: 'absolute', top: '28mm', left: '8mm', right: '8mm', textAlign: 'center' }}>
-        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '72pt', fontWeight: 300,
-          color: PRINT.cream, letterSpacing: '0.32em', lineHeight: 1.0,
+        <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '60pt', fontWeight: 600,
+          color: PRINT.cream, letterSpacing: '0.2em', lineHeight: 1.0,
           textShadow: `0 0 48px rgba(212,168,67,0.4), 0 2px 12px rgba(0,0,0,0.85)` }}>
           {item.area}
         </div>
@@ -1169,10 +1169,14 @@ function StandeeContent({ item, isEgg }) {
             </div>
           </div>
 
-          {/* Broadcast + logo */}
+          {/* Broadcast */}
           <PMono size={8.5} color={PRINT.cream} track="0.28em" weight={600}>每日 20:00 直播抽獎</PMono>
-          <NexusWordmark width={64} sub={false} align="left" />
         </div>
+      </div>
+
+      {/* Bottom-right: Nexus Life logo */}
+      <div style={{ position: 'absolute', bottom: '7mm', right: '10mm' }}>
+        <NexusWordmark width={110} sub={false} align="right" />
       </div>
     </PPage>
   );
