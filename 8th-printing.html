@@ -1015,9 +1015,9 @@ function StandeeContent({ item, isEgg }) {
         </div>
 
         {/* QR code */}
-        <div style={{ position: 'absolute', top: '86mm', left: '50%', transform: 'translateX(-50%)',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2.5mm' }}>
-          <RealQR url={item.url} sizeMm={38} />
+        <div style={{ position: 'absolute', top: '80mm', left: '50%', transform: 'translateX(-50%)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2mm' }}>
+          <RealQR url={item.url} sizeMm={30} />
           <div style={{ textAlign: 'center' }}>
             <PMono size={6} color={c.mid} track="0.4em" weight={700}>SCAN TO STAMP</PMono>
             <div style={{ marginTop: '1mm' }}>
@@ -1027,7 +1027,7 @@ function StandeeContent({ item, isEgg }) {
         </div>
 
         {/* Station ID */}
-        <div style={{ position: 'absolute', top: '127mm', left: 0, right: 0, textAlign: 'center' }}>
+        <div style={{ position: 'absolute', top: '120mm', left: 0, right: 0, textAlign: 'center' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3mm' }}>
             <div style={{ width: '7mm', height: '0.6pt', background: c.border }} />
             <PMono size={6} color={c.accent} track="0.46em" weight={700}>{numDisplay}</PMono>
@@ -1036,9 +1036,9 @@ function StandeeContent({ item, isEgg }) {
         </div>
 
         {/* Copy */}
-        <div style={{ position: 'absolute', top: '133mm', left: '7mm', right: '7mm', textAlign: 'center' }}>
+        <div style={{ position: 'absolute', top: '126mm', left: '7mm', right: '7mm', textAlign: 'center' }}>
           <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '7.5pt', fontStyle: 'italic',
-            lineHeight: 1.8, letterSpacing: '0.06em', color: PRINT.creamDim, fontWeight: 400 }}>
+            lineHeight: 1.7, letterSpacing: '0.06em', color: PRINT.creamDim, fontWeight: 400 }}>
             {item.copy}
           </p>
         </div>
@@ -1270,6 +1270,23 @@ function CounterCardPage() {
             <PBigQR size="24mm" seed={111} />
             <PMono size={5} color={PRINT.goldDim} track="0.28em">SCAN TO JOIN</PMono>
           </div>
+        </div>
+      </div>
+
+      {/* Menu thumbnails — fills the space above footer */}
+      <div style={{ position: 'absolute', top: '234mm', left: '14mm', right: '14mm' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: '2.5mm' }}>
+          <PRule width="8mm" color={PRINT.gold} height={0.8} />
+          <PMono size={5.5} color={PRINT.goldDim} track="0.28em" weight={600}>還有超多美味餐點等著你來天天抽</PMono>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          {MENU_ITEMS.map(d => (
+            <div key={d.src} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+              <div style={{ width: '16mm', height: '16mm', borderRadius: '50%', overflow: 'hidden', border: '0.6pt solid rgba(212,168,67,0.45)' }}>
+                <img src={d.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -1713,65 +1730,102 @@ function TableCardD() {
 function MainPosterPage() {
   return (
     <PPage wMm={210} hMm={297}>
-      <PWatermark ch="8" size={1100} color="rgba(196,162,74,0.025)" pos={{ left: '50%', top: '50%' }} />
-
       <PTick pos={{ top: '8mm', left: '8mm' }} len={12} weight={0.7} />
       <PTick pos={{ top: '8mm', right: '8mm' }} flipX len={12} weight={0.7} />
       <PTick pos={{ bottom: '8mm', left: '8mm' }} flipY len={12} weight={0.7} />
       <PTick pos={{ bottom: '8mm', right: '8mm' }} flipX flipY len={12} weight={0.7} />
 
-      <div style={{ position: 'absolute', top: '16mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <PCoBrand height={11} gap={10} />
+      {/* Hero image panel */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '112mm', overflow: 'hidden' }}>
+        <img src="assets/image_steak_05.PNG" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 38%', display: 'block' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(10,8,6,0.6) 0%, rgba(10,8,6,0.08) 42%, rgba(10,8,6,0.78) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(10,8,6,0.35) 0%, transparent 55%)' }} />
+
+        {/* PCoBrand top-center */}
+        <div style={{ position: 'absolute', top: '12mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+          <PCoBrand height={10} gap={10} />
+        </div>
+
+        {/* 8TH ANNIVERSARY badge top-right */}
+        <div style={{ position: 'absolute', top: '13mm', right: '14mm' }}>
+          <div style={{ padding: '2pt 7pt', border: `0.5pt solid ${PRINT.goldDim}`, background: 'rgba(212,168,67,0.14)' }}>
+            <PMono size={6} color={PRINT.gold} track="0.36em" weight={700}>8TH ANNIVERSARY</PMono>
+          </div>
+        </div>
+
+        {/* Brand text bottom-left of image */}
+        <div style={{ position: 'absolute', bottom: '10mm', left: '14mm' }}>
+          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '46pt', fontStyle: 'italic', color: PRINT.cream,
+            fontWeight: 400, letterSpacing: '0.02em', lineHeight: 0.95, textShadow: '0 2pt 14px rgba(0,0,0,0.9)' }}>
+            Nexus Life.
+          </div>
+          <div style={{ marginTop: '3mm' }}>
+            <PMono size={7.5} color={PRINT.gold} track="0.44em" weight={700}>無限日常　∞　連結生活</PMono>
+          </div>
+        </div>
       </div>
 
-      <div style={{ position: 'absolute', top: '32mm', left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4mm' }}>
-        <NexusWordmark width={370} sub={true} align="center" />
-        <PMono size={9} color={PRINT.goldDim} track="0.48em">無限日常　∞　連結生活</PMono>
-      </div>
+      {/* Gold hairline */}
+      <div style={{ position: 'absolute', top: '112mm', left: 0, right: 0, height: '0.8pt',
+        background: `linear-gradient(90deg, transparent 0%, ${PRINT.gold} 20%, ${PRINT.goldLt} 50%, ${PRINT.gold} 80%, transparent 100%)` }} />
 
-      <div style={{ position: 'absolute', top: '78mm', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <InfinityBadge size={140} fg={PRINT.gold} accent={PRINT.gold} stroke={0.8} />
-      </div>
-
-      <div style={{ position: 'absolute', top: '140mm', left: 0, right: 0, textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '18pt', lineHeight: 1.6, letterSpacing: '0.16em', color: PRINT.brown, fontWeight: 300 }}>
-          用 <GoldText style={{ fontWeight: 500 }}>8 天</GoldText> 的時間，<br/>
-          把一個紀念日過得完整。
+      {/* Main heading */}
+      <div style={{ position: 'absolute', top: '118mm', left: '14mm', right: '14mm' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '23pt', lineHeight: 1.55,
+          letterSpacing: '0.1em', color: PRINT.brown, fontWeight: 400 }}>
+          用 <GoldText style={{ fontWeight: 600 }}>8 天</GoldText>，把一個紀念日<br/>
+          <span style={{ fontStyle: 'italic', color: PRINT.gold, fontWeight: 500 }}>過完整</span>。
         </p>
+        <div style={{ marginTop: '3.5mm' }}>
+          <PMono size={7.5} color={PRINT.goldDim} track="0.32em" weight={600}>PHYSICAL JOURNEY · 集印探索 · 台中市政店限定</PMono>
+        </div>
       </div>
 
-      <div style={{ position: 'absolute', top: '178mm', left: '24mm', right: '24mm' }}>
+      {/* Three modules */}
+      <div style={{ position: 'absolute', top: '168mm', left: '14mm', right: '14mm' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>THREE WAYS TO JOIN ‧ 參與方式</PMono>
+          <PMono size={7} color={PRINT.gold} track="0.36em" weight={700}>THREE WAYS TO JOIN · 參與方式</PMono>
           <PRule width="auto" style={{ flex: 1 }} color={PRINT.goldFaint} />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
           {[
-            { n: '01', title: '每日專屬儀式', desc: '點亮日常，獲得抽獎券' },
-            { n: '02', title: '集印探索', desc: '館內集章，解鎖地圖' },
-            { n: '03', title: '加碼大獎', desc: '每日 20:00 抽和牛牛排雙人套餐' },
-          ].map(item => (
-            <div key={item.n} style={{ borderLeft: `0.5pt solid ${PRINT.goldDim}`, paddingLeft: 8 }}>
-              <PMono size={7} color={PRINT.gold} track="0.2em" weight={700}>NO.{item.n}</PMono>
-              <div style={{ marginTop: 2 }}>
-                <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '10.5pt', color: PRINT.brown, fontWeight: 500 }}>{item.title}</span>
-              </div>
-              <p style={{ margin: '3pt 0 0', fontFamily: "'Noto Sans TC',sans-serif", fontSize: '8.5pt', lineHeight: 1.6, color: PRINT.brown }}>{item.desc}</p>
+            { en: 'Daily Ritual',  title: '每日專屬儀式', desc: '點亮日常，獲得抽獎券' },
+            { en: 'Mark Journal',  title: '集印探索',     desc: '館內集章，解鎖地圖'  },
+            { en: 'Infinity Day',  title: '加碼抽獎',     desc: '每日 20:00 抽和牛牛排' },
+          ].map((item, i) => (
+            <div key={item.en} style={{ borderLeft: `0.5pt solid ${PRINT.goldDim}`, paddingLeft: 8 }}>
+              <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '10pt', fontStyle: 'italic',
+                color: PRINT.gold, fontWeight: 500 }}>{item.en}</div>
+              <div style={{ marginTop: 2, fontFamily: "'Noto Serif TC',serif", fontSize: '10.5pt',
+                color: PRINT.brown, fontWeight: 500 }}>{item.title}</div>
+              <p style={{ margin: '3pt 0 0', fontFamily: "'Noto Sans TC',sans-serif", fontSize: '7.5pt',
+                lineHeight: 1.6, color: PRINT.brown }}>{item.desc}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Redeemable menu thumbnails */}
-      <div style={{ position: 'absolute', top: '228mm', left: '24mm', right: '24mm' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: '3mm' }}>
-          <PRule width="8mm" color={PRINT.gold} height={0.8} />
-          <PMono size={6} color={PRINT.goldDim} track="0.3em" weight={600}>還有超多美味餐點等著你來天天抽</PMono>
+      {/* Prize teaser */}
+      <div style={{ position: 'absolute', top: '224mm', left: '14mm', right: '14mm',
+        background: 'rgba(212,168,67,0.08)', border: `0.5pt solid ${PRINT.goldDim}`,
+        padding: '5mm 6mm', display: 'flex', alignItems: 'center', gap: '6mm' }}>
+        <div style={{ flex: 1 }}>
+          <PMono size={6} color={PRINT.gold} track="0.4em" weight={700}>INFINITY DAY · 5 / 24 — 5 / 31</PMono>
+          <div style={{ marginTop: 3, fontFamily: "'Noto Serif TC',serif", fontSize: '14pt',
+            color: PRINT.gold, letterSpacing: '0.06em', fontWeight: 600 }}>日本和牛牛排雙人套餐</div>
+          <div style={{ fontFamily: "'Noto Sans TC',sans-serif", fontSize: '7.5pt', color: PRINT.brown, marginTop: 2 }}>
+            每日 20:00 直播抽獎 · NT$2,300 起</div>
         </div>
+        <PBigQR size="18mm" seed={777} />
+      </div>
+
+      {/* Menu thumbnails */}
+      <div style={{ position: 'absolute', top: '258mm', left: '14mm', right: '14mm' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           {MENU_ITEMS.map(d => (
             <div key={d.src} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-              <div style={{ width: '14mm', height: '14mm', borderRadius: '50%', overflow: 'hidden', border: '0.6pt solid rgba(212,168,67,0.45)' }}>
+              <div style={{ width: '14mm', height: '14mm', borderRadius: '50%', overflow: 'hidden',
+                border: '0.6pt solid rgba(212,168,67,0.45)' }}>
                 <img src={d.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               </div>
             </div>
@@ -1779,18 +1833,13 @@ function MainPosterPage() {
         </div>
       </div>
 
-      <div style={{ position: 'absolute', bottom: '16mm', left: '24mm', right: '24mm', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: `0.5pt solid ${PRINT.goldDim}`, paddingTop: 10 }}>
-        <div>
-          <PMono size={6} color={PRINT.creamFaint} track="0.3em" weight={600}>EVENT PERIOD</PMono>
-          <div style={{ marginTop: 2 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.08em' }}>2026.04.25 — 05.31</span>
-          </div>
-        </div>
+      {/* Footer */}
+      <div style={{ position: 'absolute', bottom: '12mm', left: '14mm', right: '14mm',
+        borderTop: `0.4pt solid ${PRINT.goldMute}`, paddingTop: 8,
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <NexusWordmark width={110} sub={false} align="left" />
         <div style={{ textAlign: 'right' }}>
-          <PMono size={6} color={PRINT.creamFaint} track="0.3em" weight={600}>LOCATION</PMono>
-          <div style={{ marginTop: 2 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '12pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.08em' }}>台中市政店</span>
-          </div>
+          <PMono size={6} color={PRINT.creamFaint} track="0.3em" weight={600}>台中市政店 · 2026.04.25 — 05.31</PMono>
         </div>
       </div>
     </PPage>
@@ -1803,43 +1852,101 @@ function MainPosterPage() {
 function DigitalPosterPage() {
   return (
     <PPage wMm={216} hMm={384}>
-      <PWatermark ch="∞" size={1300} color="rgba(196,162,74,0.022)" pos={{ left: '50%', top: '50%' }} />
-
       <PTick pos={{ top: '8mm', left: '8mm' }} len={12} weight={0.8} />
       <PTick pos={{ top: '8mm', right: '8mm' }} flipX len={12} weight={0.8} />
       <PTick pos={{ bottom: '8mm', left: '8mm' }} flipY len={12} weight={0.8} />
       <PTick pos={{ bottom: '8mm', right: '8mm' }} flipX flipY len={12} weight={0.8} />
 
-      <div style={{ position: 'absolute', top: '22mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-        <PCoBrand height={13} gap={12} />
-      </div>
+      {/* Hero image panel — taller for 9:16 */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '168mm', overflow: 'hidden' }}>
+        <img src="assets/image_steak_05.PNG" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 38%', display: 'block' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(10,8,6,0.62) 0%, rgba(10,8,6,0.06) 40%, rgba(10,8,6,0.82) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(10,8,6,0.3) 0%, transparent 60%)' }} />
 
-      <div style={{ position: 'absolute', top: '44mm', left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5mm' }}>
-        <NexusWordmark width={400} sub={true} align="center" />
-        <PMono size={10} color={PRINT.goldDim} track="0.48em">無限日常　∞　連結生活</PMono>
-      </div>
-
-      <div style={{ position: 'absolute', top: '112mm', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <InfinityBadge size={160} fg={PRINT.gold} accent={PRINT.gold} stroke={0.8} />
-      </div>
-
-      <div style={{ position: 'absolute', top: '190mm', left: 0, right: 0, textAlign: 'center' }}>
-        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '20pt', lineHeight: 1.6, letterSpacing: '0.16em', color: PRINT.brown, fontWeight: 300 }}>
-          用 <GoldText style={{ fontWeight: 500 }}>8 天</GoldText> 的時間，<br/>
-          把一個紀念日過得完整。
-        </p>
-      </div>
-
-      {/* Redeemable menu thumbnails */}
-      <div style={{ position: 'absolute', top: '243mm', left: '28mm', right: '28mm' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: '3mm' }}>
-          <PRule width="8mm" color={PRINT.gold} height={0.8} />
-          <PMono size={6.5} color={PRINT.goldDim} track="0.3em" weight={600}>還有超多美味餐點等著你來天天抽</PMono>
+        {/* Top: PCoBrand */}
+        <div style={{ position: 'absolute', top: '14mm', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+          <PCoBrand height={12} gap={12} />
         </div>
+
+        {/* 8TH ANNIVERSARY badge */}
+        <div style={{ position: 'absolute', top: '15mm', right: '16mm' }}>
+          <div style={{ padding: '2.5pt 8pt', border: `0.5pt solid ${PRINT.goldDim}`, background: 'rgba(212,168,67,0.14)' }}>
+            <PMono size={6.5} color={PRINT.gold} track="0.36em" weight={700}>8TH ANNIVERSARY</PMono>
+          </div>
+        </div>
+
+        {/* Brand text bottom-left */}
+        <div style={{ position: 'absolute', bottom: '14mm', left: '16mm' }}>
+          <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '52pt', fontStyle: 'italic', color: PRINT.cream,
+            fontWeight: 400, letterSpacing: '0.02em', lineHeight: 0.95, textShadow: '0 2pt 16px rgba(0,0,0,0.95)' }}>
+            Nexus Life.
+          </div>
+          <div style={{ marginTop: '3.5mm' }}>
+            <PMono size={8.5} color={PRINT.gold} track="0.44em" weight={700}>無限日常　∞　連結生活</PMono>
+          </div>
+        </div>
+      </div>
+
+      {/* Gold hairline */}
+      <div style={{ position: 'absolute', top: '168mm', left: 0, right: 0, height: '0.8pt',
+        background: `linear-gradient(90deg, transparent 0%, ${PRINT.gold} 20%, ${PRINT.goldLt} 50%, ${PRINT.gold} 80%, transparent 100%)` }} />
+
+      {/* Main heading */}
+      <div style={{ position: 'absolute', top: '176mm', left: '16mm', right: '16mm', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontFamily: "'Noto Serif TC',serif", fontSize: '26pt', lineHeight: 1.55,
+          letterSpacing: '0.12em', color: PRINT.brown, fontWeight: 400 }}>
+          用 <GoldText style={{ fontWeight: 600 }}>8 天</GoldText>，<br/>把一個紀念日<span style={{ fontStyle: 'italic', color: PRINT.gold, fontWeight: 500 }}>過完整</span>。
+        </p>
+        <div style={{ marginTop: '4mm' }}>
+          <PMono size={8} color={PRINT.goldDim} track="0.32em" weight={600}>PHYSICAL JOURNEY · 集印探索 · 台中市政店限定</PMono>
+        </div>
+      </div>
+
+      {/* Three modules */}
+      <div style={{ position: 'absolute', top: '236mm', left: '16mm', right: '16mm' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>THREE WAYS TO JOIN · 參與方式</PMono>
+          <PRule width="auto" style={{ flex: 1 }} color={PRINT.goldFaint} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+          {[
+            { en: 'Daily Ritual',  title: '每日專屬儀式', desc: '點亮日常，獲得抽獎券' },
+            { en: 'Mark Journal',  title: '集印探索',     desc: '館內集章，解鎖地圖'  },
+            { en: 'Infinity Day',  title: '加碼抽獎',     desc: '每日 20:00 抽和牛牛排' },
+          ].map(item => (
+            <div key={item.en} style={{ borderLeft: `0.5pt solid ${PRINT.goldDim}`, paddingLeft: 9 }}>
+              <div style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '10.5pt', fontStyle: 'italic',
+                color: PRINT.gold, fontWeight: 500 }}>{item.en}</div>
+              <div style={{ marginTop: 2, fontFamily: "'Noto Serif TC',serif", fontSize: '11pt',
+                color: PRINT.brown, fontWeight: 500 }}>{item.title}</div>
+              <p style={{ margin: '4pt 0 0', fontFamily: "'Noto Sans TC',sans-serif", fontSize: '8pt',
+                lineHeight: 1.6, color: PRINT.brown }}>{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Prize teaser */}
+      <div style={{ position: 'absolute', top: '298mm', left: '16mm', right: '16mm',
+        background: 'rgba(212,168,67,0.08)', border: `0.5pt solid ${PRINT.goldDim}`,
+        padding: '6mm 7mm', display: 'flex', alignItems: 'center', gap: '7mm' }}>
+        <div style={{ flex: 1 }}>
+          <PMono size={6.5} color={PRINT.gold} track="0.4em" weight={700}>INFINITY DAY · 5 / 24 — 5 / 31</PMono>
+          <div style={{ marginTop: 4, fontFamily: "'Noto Serif TC',serif", fontSize: '16pt',
+            color: PRINT.gold, letterSpacing: '0.06em', fontWeight: 600 }}>日本和牛牛排雙人套餐</div>
+          <div style={{ fontFamily: "'Noto Sans TC',sans-serif", fontSize: '8pt', color: PRINT.brown, marginTop: 3 }}>
+            每日 20:00 直播抽獎 · NT$2,300 起</div>
+        </div>
+        <PBigQR size="22mm" seed={777} />
+      </div>
+
+      {/* Menu thumbnails */}
+      <div style={{ position: 'absolute', top: '341mm', left: '16mm', right: '16mm' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           {MENU_ITEMS.map(d => (
             <div key={d.src} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-              <div style={{ width: '16mm', height: '16mm', borderRadius: '50%', overflow: 'hidden', border: '0.6pt solid rgba(212,168,67,0.45)' }}>
+              <div style={{ width: '16mm', height: '16mm', borderRadius: '50%', overflow: 'hidden',
+                border: '0.6pt solid rgba(212,168,67,0.45)' }}>
                 <img src={d.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               </div>
             </div>
@@ -1847,28 +1954,12 @@ function DigitalPosterPage() {
         </div>
       </div>
 
-      <div style={{ position: 'absolute', top: '272mm', left: '28mm', right: '28mm' }}>
-        <div style={{ borderTop: `0.5pt solid ${PRINT.goldDim}`, paddingTop: 12, textAlign: 'center' }}>
-          <PMono size={7.5} color={PRINT.gold} track="0.36em" weight={700}>5/24 — 5/31 INFINITY DAY ‧ 無限日 · 加碼抽獎</PMono>
-          <p style={{ margin: '6pt 0 0', fontFamily: "'Noto Serif TC',serif", fontSize: '11pt', color: PRINT.brown, letterSpacing: '0.08em' }}>
-            每日 20:00 抽和牛牛排雙人套餐
-          </p>
-        </div>
-      </div>
-
-      <div style={{ position: 'absolute', bottom: '22mm', left: '28mm', right: '28mm', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: `0.5pt solid ${PRINT.goldDim}`, paddingTop: 12 }}>
-        <div>
-          <PMono size={6.5} color={PRINT.creamFaint} track="0.3em" weight={600}>EVENT PERIOD</PMono>
-          <div style={{ marginTop: 2 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.08em' }}>2026.04.25 — 05.31</span>
-          </div>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <PMono size={6.5} color={PRINT.creamFaint} track="0.3em" weight={600}>LOCATION</PMono>
-          <div style={{ marginTop: 2 }}>
-            <span style={{ fontFamily: "'Noto Serif TC',serif", fontSize: '13pt', color: PRINT.brown, fontWeight: 500, letterSpacing: '0.08em' }}>台中市政店</span>
-          </div>
-        </div>
+      {/* Footer */}
+      <div style={{ position: 'absolute', bottom: '14mm', left: '16mm', right: '16mm',
+        borderTop: `0.4pt solid ${PRINT.goldMute}`, paddingTop: 10,
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <NexusWordmark width={130} sub={false} align="left" />
+        <PMono size={7} color={PRINT.goldDim} track="0.28em" weight={600}>台中市政店 · 2026.04.25 — 05.31</PMono>
       </div>
     </PPage>
   );
