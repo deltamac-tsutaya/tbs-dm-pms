@@ -1,0 +1,19 @@
+{
+  "name": "tbs-dm-pms",
+  "version": "1.0.0",
+  "description": "",
+  "main": "create-admin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:34365/git/deltamac-tsutaya/tbs-dm-pms"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "playwright": "^1.60.0"
+  }
+}
