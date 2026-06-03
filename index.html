@@ -148,8 +148,19 @@
         .day-strip:hover { background: rgba(0,0,0,0.02); }
         .day-strip.today {
             background: var(--primary-light);
-            border-left: 3px solid var(--primary);
-            padding-left: 13px;
+            box-shadow: inset 3px 0 0 var(--primary);
+        }
+
+        .strip-month {
+            width: 22px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .strip-month-label {
+            font-size: 10px; font-weight: 700;
+            color: var(--on-surface-var);
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            letter-spacing: 1px;
         }
 
         .strip-date {
@@ -533,10 +544,16 @@
                 d.setDate(sunday.getDate() + i);
                 const dStr = localDateStr(d);
 
+                const showMonth = (i === 0) || (d.getMonth() !== new Date(sunday.getTime() + (i - 1) * 86400000).getMonth());
+                const monthStr = showMonth ? `${d.getMonth() + 1}月` : '';
+
                 const strip = document.createElement('div');
                 strip.className = 'day-strip' + (dStr === todayStr ? ' today' : '');
 
                 strip.innerHTML = `
+                    <div class="strip-month">
+                        ${showMonth ? `<span class="strip-month-label">${monthStr}</span>` : ''}
+                    </div>
                     <div class="strip-date">
                         <span class="strip-weekday">${WEEKDAYS[d.getDay()]}</span>
                         <span class="strip-num">${d.getDate()}</span>
