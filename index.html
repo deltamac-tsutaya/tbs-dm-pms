@@ -25,8 +25,6 @@
             --primary-light:  #dbeafe;
             --success:        #10b981;
             --success-light:  #dcfce7;
-            --taichung:       #10b981;
-            --xinyi:          #2563eb;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -67,27 +65,6 @@
         }
         .header-title { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; }
 
-        /* ── Store selector ── */
-        .store-bar {
-            background: var(--surface);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            padding: 9px 16px;
-            display: flex;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-        .store-pill {
-            padding: 5px 16px;
-            border-radius: 20px;
-            border: 1px solid transparent;
-            background: rgba(0,0,0,0.04);
-            font-size: 12px; font-weight: 700;
-            color: var(--on-surface-var);
-            cursor: pointer;
-            transition: all 0.18s;
-        }
-        .store-pill.active.taichung { background: var(--taichung); color: #fff; box-shadow: 0 3px 10px rgba(16,185,129,.28); }
-        .store-pill.active.xinyi    { background: var(--xinyi);    color: #fff; box-shadow: 0 3px 10px rgba(37,99,235,.28); }
 
         /* ── Scrollable content ── */
         .content {
@@ -356,12 +333,6 @@
         </div>
     </header>
 
-    <!-- Store selector -->
-    <div class="store-bar">
-        <button id="pillTaichung" class="store-pill active taichung" onclick="switchStore('taichung')">台中市政店</button>
-        <button id="pillXinyi"    class="store-pill xinyi"           onclick="switchStore('xinyi')">信義店</button>
-    </div>
-
     <!-- Pages -->
     <div class="content">
 
@@ -531,8 +502,6 @@
         const WEEKDAYS = ['日','一','二','三','四','五','六'];
         let viewYear, viewMonth;
         let selectedCalDate;
-        let currentStore = 'taichung';
-
         // ── Init ──
         (function init() {
             const now = new Date();
@@ -555,13 +524,6 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('page' + tab).classList.add('active');
             document.getElementById('nav'  + tab).classList.add('active');
-        }
-
-        // ── Store selector ──
-        function switchStore(store) {
-            currentStore = store;
-            document.getElementById('pillTaichung').className = 'store-pill' + (store === 'taichung' ? ' active taichung' : '');
-            document.getElementById('pillXinyi').className    = 'store-pill' + (store === 'xinyi'    ? ' active xinyi'    : '');
         }
 
         // ── Today hero ──
