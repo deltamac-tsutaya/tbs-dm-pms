@@ -82,13 +82,11 @@
         }
 
         .view-section {
-            /* width set by JS after layout, so peek formula is applied */
             flex-shrink: 0;
             height: 100%;
             overflow-y: auto;
             overflow-x: hidden;
             background: var(--bg);
-            box-shadow: 0 -1px 4px rgba(0,0,0,0.06);
         }
 
 
@@ -543,10 +541,11 @@
 
     <script>
         // ── Constants ──
-        const WEEKDAYS = ['日','一','二','三','四','五','六'];
+        const WEEKDAYS     = ['日','一','二','三','四','五','六'];
         const DAY_MONTHS_EN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-        const DAY_HOURS = [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
-        const PEEK = 14; // px peek amount
+        const MONTH_NAMES  = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+        const DAY_HOURS    = [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
+        const PEEK         = 0; // no peek — full-width views
 
         // ── State ──
         const state = {
@@ -609,8 +608,6 @@
         }
 
         // ── Month view ──
-        const MONTH_NAMES = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
-
         function renderMonth() {
             document.getElementById('calMonthName').textContent = MONTH_NAMES[state.calMonth];
             document.getElementById('calYearSmall').textContent = state.calYear;
