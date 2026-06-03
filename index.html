@@ -95,32 +95,6 @@
             box-shadow: 0 -1px 4px rgba(0,0,0,0.06);
         }
 
-        /* ── Shared sub-header (nav bar inside each view) ── */
-        .view-nav-bar {
-            background: var(--surface);
-            border-bottom: 1px solid var(--outline);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
-            position: sticky; top: 0; z-index: 10;
-        }
-        .view-nav-bar-title {
-            font-family: 'Noto Serif TC', serif;
-            font-size: 16px; font-weight: 700;
-            letter-spacing: -0.3px;
-        }
-        .nav-icon-btn {
-            width: 30px; height: 30px;
-            border: none; background: none;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--on-surface-var);
-            border-radius: 8px;
-            transition: background 0.15s;
-        }
-        .nav-icon-btn:hover { background: var(--bg); }
-        .nav-icon-btn svg { width: 18px; height: 18px; }
 
         /* ── Month view ── */
         .month-content { padding: 12px 4px 24px; }
@@ -321,24 +295,6 @@
 
             <!-- ─ Month view ─ -->
             <section class="view-section" id="viewMonth">
-                <!-- Sticky nav bar -->
-                <div class="view-nav-bar">
-                    <button class="nav-icon-btn" id="btnSettings" onclick="openSettings()" title="設定">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                    </button>
-                    <span class="view-nav-bar-title" id="monthLabel"></span>
-                    <div style="display:flex;gap:4px;align-items:center;">
-                        <button class="nav-icon-btn" onclick="shiftMonth(-1)">
-                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
-                        </button>
-                        <button class="nav-icon-btn" onclick="shiftMonth(1)">
-                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
-                        </button>
-                    </div>
-                </div>
                 <div class="month-content">
                     <div class="cal-grid" id="calGrid">
                         <div class="cal-hdr">日</div>
@@ -354,29 +310,11 @@
 
             <!-- ─ Week view ─ -->
             <section class="view-section" id="viewWeek">
-                <div class="view-nav-bar">
-                    <button class="nav-icon-btn" onclick="shiftWeek(-1)">
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                    <span class="view-nav-bar-title" id="weekLabel"></span>
-                    <button class="nav-icon-btn" onclick="shiftWeek(1)">
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
-                    </button>
-                </div>
                 <div class="week-strips" id="weekStrips"></div>
             </section>
 
             <!-- ─ Day view ─ -->
             <section class="view-section" id="viewDay">
-                <div class="view-nav-bar">
-                    <button class="nav-icon-btn" onclick="shiftDay(-1)">
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                    <span class="view-nav-bar-title" id="dayLabel"></span>
-                    <button class="nav-icon-btn" onclick="shiftDay(1)">
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
-                    </button>
-                </div>
                 <div class="day-timeline" id="dayTimeline"></div>
             </section>
 
@@ -430,7 +368,6 @@
 
         // ── Init ──
         (function init() {
-            updateHeaderDate();
             renderMonth();
             renderWeek();
             renderDay();
@@ -472,34 +409,10 @@
         function switchView(idx) {
             state.view = Math.max(0, Math.min(2, idx));
             positionTrack(true);
-            updateHeaderDate();
-        }
-
-        // ── Header date ──
-        function updateHeaderDate() {
-            const d = state.viewDate;
-            const label = [
-                `${state.calYear} 年 ${pad(state.calMonth + 1)} 月`,
-                weekRangeLabel(),
-                `${d.getMonth()+1} 月 ${d.getDate()} 日 週${WEEKDAYS[d.getDay()]}`,
-            ][state.view];
-            document.getElementById('headerDateLabel').textContent = label;
-        }
-
-        function weekRangeLabel() {
-            const sunday = weekSunday(state.viewDate);
-            const saturday = new Date(sunday); saturday.setDate(sunday.getDate() + 6);
-            if (sunday.getMonth() === saturday.getMonth()) {
-                return `${sunday.getMonth()+1} 月 ${sunday.getDate()}–${saturday.getDate()} 日`;
-            }
-            return `${sunday.getMonth()+1}/${sunday.getDate()} – ${saturday.getMonth()+1}/${saturday.getDate()}`;
         }
 
         // ── Month view ──
         function renderMonth() {
-            document.getElementById('monthLabel').textContent =
-                `${state.calYear} 年 ${pad(state.calMonth + 1)} 月`;
-
             const grid = document.getElementById('calGrid');
             const headers = Array.from(grid.querySelectorAll('.cal-hdr'));
             grid.innerHTML = '';
@@ -532,22 +445,10 @@
             }
         }
 
-        function shiftMonth(delta) {
-            state.calMonth += delta;
-            if (state.calMonth > 11) { state.calMonth = 0;  state.calYear++; }
-            if (state.calMonth < 0)  { state.calMonth = 11; state.calYear--; }
-            renderMonth();
-            updateHeaderDate();
-        }
-
         // ── Week view ──
         function renderWeek() {
             const sunday = weekSunday(state.viewDate);
             const todayStr = localDateStr(new Date());
-
-            // Label
-            document.getElementById('weekLabel').textContent = weekRangeLabel();
-
             const container = document.getElementById('weekStrips');
             container.innerHTML = '';
 
@@ -578,21 +479,11 @@
             }
         }
 
-        function shiftWeek(delta) {
-            state.viewDate.setDate(state.viewDate.getDate() + delta * 7);
-            renderWeek();
-            updateHeaderDate();
-        }
-
         // ── Day view ──
         function renderDay() {
             const d = state.viewDate;
             const nowHour = new Date().getHours();
             const isToday = localDateStr(d) === localDateStr(new Date());
-
-            document.getElementById('dayLabel').textContent =
-                `${d.getMonth()+1} 月 ${d.getDate()} 日 週${WEEKDAYS[d.getDay()]}`;
-
             const timeline = document.getElementById('dayTimeline');
             timeline.innerHTML = '';
 
@@ -617,12 +508,6 @@
             } else {
                 document.getElementById('viewDay').scrollTop = 0;
             }
-        }
-
-        function shiftDay(delta) {
-            state.viewDate.setDate(state.viewDate.getDate() + delta);
-            renderDay();
-            updateHeaderDate();
         }
 
         // ── Swipe gestures ──
