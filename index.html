@@ -40,34 +40,6 @@
             overflow: hidden;
         }
 
-        /* ── App header ── */
-        .app-header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--outline);
-            padding-top: max(14px, env(safe-area-inset-top));
-            padding-bottom: 12px;
-            padding-left: 16px;
-            padding-right: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-            z-index: 100;
-        }
-        .header-left { display: flex; align-items: center; gap: 10px; }
-        .logo {
-            width: 28px; height: 28px;
-            background: #000;
-            border-radius: 7px;
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Noto Serif TC', serif;
-            font-size: 16px; font-weight: 700; color: #fff;
-            flex-shrink: 0;
-        }
-        .header-title { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
-        .header-date-label { display: none; }
-
-        /* view pills removed */
 
         /* ── View carousel (peek pattern) ── */
         .view-viewport {
@@ -75,6 +47,7 @@
             overflow: hidden;
             position: relative;
             min-height: 0;
+            padding-top: env(safe-area-inset-top);
         }
 
         .view-track {
@@ -277,17 +250,6 @@
     </style>
 </head>
 <body>
-
-    <!-- App header -->
-    <header class="app-header">
-        <div class="header-left">
-            <div class="logo">蔦</div>
-            <div>
-                <div class="header-title">得利蔦屋 管理系統</div>
-                <div class="header-date-label" id="headerDateLabel"></div>
-            </div>
-        </div>
-    </header>
 
     <!-- Views carousel -->
     <div class="view-viewport" id="viewViewport">
