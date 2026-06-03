@@ -1,4 +1,4 @@
-const CACHE_NAME = 'management-v2';
+const CACHE_NAME = 'management-v3';
 
 const SKIP_HOSTS = [
   'gstatic.com',
