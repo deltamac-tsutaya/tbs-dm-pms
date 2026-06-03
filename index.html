@@ -167,7 +167,85 @@
         }
 
         /* ── Day view ── */
+        #viewDay {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;   /* override view-section scroll */
+        }
+
+        .day-head {
+            flex-shrink: 0;
+            background: #000;
+            color: #fff;
+            padding: 20px 24px 22px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .day-head-left {}
+
+        .day-num-big {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 88px;
+            font-weight: 700;
+            line-height: 0.9;
+            letter-spacing: -4px;
+            color: #fff;
+        }
+
+        .day-meta {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .day-meta-month {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 0.3px;
+        }
+
+        .day-meta-weekday {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.3px;
+        }
+
+        .day-head-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            padding-bottom: 4px;
+        }
+
+        .weather-icon {
+            font-size: 36px;
+            line-height: 1;
+        }
+
+        .weather-temp {
+            font-size: 26px;
+            font-weight: 300;
+            color: #fff;
+            letter-spacing: -1px;
+        }
+
+        .weather-desc {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 0.5px;
+        }
+
         .day-timeline {
+            flex: 1;
+            overflow-y: auto;
             padding-bottom: 40px;
         }
         .time-slot {
@@ -288,6 +366,20 @@
 
             <!-- ─ Day view ─ -->
             <section class="view-section" id="viewDay">
+                <div class="day-head" id="dayHead">
+                    <div class="day-head-left">
+                        <div class="day-num-big" id="dayNumBig"></div>
+                        <div class="day-meta">
+                            <div class="day-meta-month" id="dayMetaMonth"></div>
+                            <div class="day-meta-weekday" id="dayMetaWeekday"></div>
+                        </div>
+                    </div>
+                    <div class="day-head-right">
+                        <div class="weather-icon" id="weatherIcon">—</div>
+                        <div class="weather-temp" id="weatherTemp">— °C</div>
+                        <div class="weather-desc" id="weatherDesc">天氣載入中</div>
+                    </div>
+                </div>
                 <div class="day-timeline" id="dayTimeline"></div>
             </section>
 
@@ -459,6 +551,13 @@
             const d = state.viewDate;
             const nowHour = new Date().getHours();
             const isToday = localDateStr(d) === localDateStr(new Date());
+
+            // Update fixed head
+            const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+            document.getElementById('dayNumBig').textContent      = d.getDate();
+            document.getElementById('dayMetaMonth').textContent   = `${d.getFullYear()} · ${MONTHS[d.getMonth()]}`;
+            document.getElementById('dayMetaWeekday').textContent = `週${WEEKDAYS[d.getDay()]}`;
+
             const timeline = document.getElementById('dayTimeline');
             timeline.innerHTML = '';
 
@@ -474,14 +573,15 @@
                 timeline.appendChild(slot);
             });
 
-            // Scroll to current hour if viewing today
+            // Scroll timeline to current hour (timeline is the scroll container)
+            const tl = document.getElementById('dayTimeline');
             if (isToday) {
                 requestAnimationFrame(() => {
-                    const current = document.querySelector('.time-slot.current-hour');
-                    if (current) current.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                    const current = tl.querySelector('.time-slot.current-hour');
+                    if (current) tl.scrollTop = current.offsetTop;
                 });
             } else {
-                document.getElementById('viewDay').scrollTop = 0;
+                tl.scrollTop = 0;
             }
         }
 
