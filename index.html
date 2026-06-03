@@ -10,2420 +10,765 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23000' width='192' height='192'/><text x='5' y='185' font-size='155' font-family='serif' fill='white' text-anchor='start'>蔦</text><text x='188' y='44' font-size='40' font-family='sans-serif' font-weight='700' fill='white' text-anchor='end'>DM</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%23000' width='180' height='180' rx='40'/><text x='5' y='174' font-size='145' font-family='serif' fill='white' text-anchor='start'>蔦</text><text x='176' y='42' font-size='38' font-family='sans-serif' font-weight='700' fill='white' text-anchor='end'>DM</text></svg>">
-    <title>得利蔦屋-營運管理系統</title>
+    <title>得利蔦屋-管理系統</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg:             #F8F7F2;
+            --surface:        #ffffff;
+            --outline:        #e5e7eb;
+            --on-bg:          #1f2937;
+            --on-surface-var: #64748b;
+            --primary:        #2563eb;
+            --primary-light:  #dbeafe;
+            --success:        #10b981;
+            --success-light:  #dcfce7;
+            --peek:           14px;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; }
+        html, body { height: 100%; -webkit-tap-highlight-color: transparent; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-            color: #1f2937;
-            background: #F8F7F2;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--on-bg);
             display: flex;
             flex-direction: column;
-            /* 不在 body 加 padding-top，由 status-bar 自行處理 safe-area */
+            overflow: hidden;
         }
-        .app-container { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 
-        /* Status bar */
-        .status-bar {
-            background: #fff;
-            color: #0f172a;
-            padding-top: max(14px, env(safe-area-inset-top));
-            padding-bottom: 14px;
-            padding-left: 1.1rem;
-            padding-right: 1.1rem;
+
+        /* ── Black stage bars ── */
+        .stage-bar {
+            flex-shrink: 0;
+            height: calc(52px + env(safe-area-inset-top));
+            background: #000;
+        }
+        .stage-bar.bottom {
+            height: calc(52px + env(safe-area-inset-bottom));
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid #f1f5f9;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-            flex-shrink: 0;
+            justify-content: flex-end;
+            padding: 0 20px;
+            padding-bottom: env(safe-area-inset-bottom);
         }
-        .status-bar-title { font-size: 17px; font-weight: 800; color: #0f172a; letter-spacing: -0.3px; }
-        .cloud-status { display: flex; align-items: center; gap: 0.4rem; font-size: 12px; color: #64748b; }
-        .cloud-dot { width: 7px; height: 7px; border-radius: 50%; background: #fbbf24; transition: background 0.4s; flex-shrink: 0; }
-        .cloud-dot.connected { background: #22c55e; }
-        .cloud-dot.error { background: #f87171; }
-
-        /* Role switcher (admin only) */
-        .role-switcher-wrap { position: relative; }
-        .role-switcher-btn {
-            display: flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.65rem;
-            border-radius: 20px; border: 1.5px solid #e5e7eb; background: white;
-            font-size: 11px; font-weight: 600; color: #64748b; cursor: pointer;
-            transition: all 0.15s; white-space: nowrap;
-        }
-        .role-switcher-btn.rs-admin   { border-color: #6d28d9; color: #6d28d9; background: #ede9fe; }
-        .role-switcher-btn.rs-manager { border-color: #1d4ed8; color: #1d4ed8; background: #dbeafe; }
-        .role-switcher-btn.rs-staff   { border-color: #15803d; color: #15803d; background: #dcfce7; }
-        .role-switcher-panel {
-            position: absolute; top: calc(100% + 6px); right: 0; background: white;
-            border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            z-index: 300; min-width: 170px; overflow: hidden;
-        }
-        .role-switcher-item {
-            display: block; width: 100%; text-align: left; padding: 0.6rem 0.875rem;
-            font-size: 13px; font-weight: 500; border: none; background: transparent;
-            cursor: pointer; color: #374151; transition: background 0.1s;
-        }
-        .role-switcher-item:hover { background: #f1f5f9; }
-        .role-switcher-item.rs-current { background: #f8fafc; font-weight: 700; color: #0f172a; }
-
-        /* Content */
-        .content { flex: 1; overflow-y: auto; padding: 1rem; padding-bottom: max(1.5rem, env(safe-area-inset-bottom)); background: #F8F7F2; }
-
-        /* Month badges */
-        .months-bar {
-            display: flex;
-            gap: 0.4rem;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
-            scrollbar-width: none;
-        }
-        .months-bar::-webkit-scrollbar { display: none; }
-        .month-badge {
-            flex-shrink: 0;
-            padding: 0.25rem 0.7rem;
-            border-radius: 20px;
-            border: 1.5px solid #e5e7eb;
-            background: white;
-            font-size: 12px;
-            font-weight: 600;
-            color: #9ca3af;
+        .settings-fab {
+            width: 36px; height: 36px;
+            border: none; background: none;
             cursor: pointer;
-            transition: all 0.15s;
-            white-space: nowrap;
-        }
-        .month-badge:active { transform: scale(0.95); }
-        .month-badge.active { background: #0f172a; color: white; border-color: #0f172a; }
-
-        /* Date navigator */
-        .date-nav-card {
-            background: white;
-            border: 1px solid #f1f5f9;
-            border-radius: 16px;
-            padding: 1rem 1rem 0.75rem;
-            margin-bottom: 0.75rem;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-        }
-        .date-switcher {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.875rem;
-            user-select: none;
-        }
-        .date-arrow-btn {
-            width: 38px; height: 38px;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            background: #f8fafc;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            color: #374151;
-            flex-shrink: 0;
-            transition: all 0.15s;
-        }
-        .date-arrow-btn:active { background: #e9ecef; transform: scale(0.93); }
-        .date-arrow-btn svg { width: 18px; height: 18px; }
-        .date-display {
-            text-align: center;
-            flex: 1;
-            position: relative;
-            cursor: pointer;
-        }
-        .date-display::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 28px;
-            height: 2px;
-            background: #cbd5e1;
-            border-radius: 1px;
-        }
-        .date-main-text {
-            font-size: 20px;
-            font-weight: 800;
-            color: #0f172a;
-            letter-spacing: -0.5px;
-            line-height: 1.1;
-        }
-        .date-weekday-text {
-            font-size: 12px;
-            color: #94a3b8;
-            font-weight: 500;
-            margin-top: 0.15rem;
-        }
-        /* Day quick-chips */
-        .day-chips {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-        }
-        .day-chip {
-            flex: 1;
-            padding: 0.5rem 0;
-            border-radius: 10px;
-            border: 1.5px solid #e5e7eb;
-            background: #f8fafc;
-            font-size: 13px;
-            font-weight: 600;
-            color: #64748b;
-            cursor: pointer;
-            transition: all 0.15s;
-            text-align: center;
-        }
-        .day-chip:active { transform: scale(0.96); }
-        .day-chip.today-active {
-            background: #0f172a;
-            color: white;
-            border-color: #0f172a;
-        }
-
-        /* Filter bar (store pills + vacation toggle) */
-        .filter-bar {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: white;
-            border: 1px solid #f1f5f9;
-            border-radius: 14px;
-            padding: 0.6rem 0.75rem;
-            margin-bottom: 0.75rem;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-        }
-        .store-pills {
-            display: flex;
-            gap: 0.35rem;
-            flex: 1;
-        }
-        .store-pill {
-            flex: 1;
-            padding: 0.4rem 0;
-            border-radius: 8px;
-            border: 1.5px solid #e5e7eb;
-            background: #f8fafc;
-            font-size: 12px;
-            font-weight: 700;
-            color: #64748b;
-            cursor: pointer;
-            transition: all 0.15s;
-            text-align: center;
-            white-space: nowrap;
-        }
-        .store-pill:active { transform: scale(0.95); }
-        .store-pill.active {
-            background: #2563eb;
-            color: white;
-            border-color: #2563eb;
-        }
-        .filter-divider { width: 1px; height: 24px; background: #f1f5f9; flex-shrink: 0; }
-        .vacation-toggle-wrap { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
-        .vacation-toggle-label { font-size: 11px; color: #94a3b8; font-weight: 600; white-space: nowrap; }
-
-        /* Stats — staffing overview cards */
-        .stats-grid { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; }
-        @media (min-width: 640px) { .stats-grid { flex-direction: row; } .stats-grid .staffing-card { flex: 1; } }
-
-        .staffing-card {
-            background: rgba(255,255,255,0.58);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 24px;
-            border: none;
-            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.06));
-            padding: 1rem 1.25rem 0.875rem;
-        }
-        .staffing-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.75rem;
-        }
-        .staffing-store-name {
-            font-family: 'Noto Serif TC', serif;
-            font-weight: 400;
-            font-size: 12px;
-            letter-spacing: 0.05em;
-            color: #4a4540;
-        }
-        .staffing-time {
-            font-family: 'Inter', sans-serif;
-            font-weight: 300;
-            font-size: 12px;
-            color: #a8a29e;
-        }
-        .staffing-main { margin-bottom: 0.75rem; }
-        .staffing-total {
-            font-family: 'Inter', sans-serif;
-            font-weight: 300;
-            font-size: 32px;
-            line-height: 1;
-            color: #1a1a1a;
-            margin-bottom: 0.5rem;
-        }
-        .staffing-header-right {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-        .staffing-period {
-            font-size: 10px;
-            color: #78716c;
-            background: #f0ede8;
-            padding: 2px 6px;
-            border-radius: 4px;
-            letter-spacing: 0.02em;
-        }
-        .spectrum-bar {
-            display: flex;
-            height: 8px;
-            border-radius: 4px;
-            overflow: hidden;
-            gap: 2px;
-            background: #ede8e3;
-        }
-        .spectrum-seg {
-            height: 100%;
-            border-radius: 4px;
-            flex-shrink: 0;
-        }
-        .spectrum-ghost {
-            height: 100%;
-            border-radius: 4px;
-            flex-shrink: 0;
-            background: repeating-linear-gradient(
-                90deg,
-                rgba(100,120,140,0.45) 0px,
-                rgba(100,120,140,0.45) 3px,
-                transparent 3px,
-                transparent 6px
-            );
-        }
-        .sfoot-arrow { font-size: 9px; font-weight: 700; line-height: 1; }
-        .sfoot-arrow.up   { color: #16a34a; }
-        .sfoot-arrow.down { color: #d97706; }
-        .staffing-footer {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .sfoot-item {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .sfoot-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-        .sfoot-name {
-            font-size: 11px;
-            color: #6b7280;
-        }
-        .sfoot-count {
-            font-family: 'Inter', sans-serif;
-            font-weight: 300;
-            font-size: 11px;
-            color: #374151;
-        }
-
-        /* Staffing card dept breakdown grid */
-        .sc-dept-grid { margin-top: 0.25rem; }
-        .sc-dept-row {
-            display: grid;
-            align-items: center;
-            gap: 0 0.65rem;
-            padding: 0.3rem 0;
-            /* 4 cols: name | 現場 | 今日 | 時數 */
-            grid-template-columns: 1fr 30px 30px 38px;
-        }
-        .sc-dept-grid.no-onsite .sc-dept-row {
-            /* 3 cols: name | 今日 | 時數 */
-            grid-template-columns: 1fr 30px 38px;
-        }
-        .sc-col-header {
-            padding-bottom: 0.32rem;
-            border-bottom: 1px solid #ede8e3;
-            margin-bottom: 0.05rem;
-        }
-        .sc-col-hd {
-            font-size: 10px;
-            font-weight: 700;
-            color: #a8a29e;
-            text-align: right;
-            letter-spacing: 0.03em;
-        }
-        .sc-col-hd-onsite { color: #3b82f6; }
-        .sc-dept-name {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            font-size: 12px;
-            color: #57534e;
-            font-weight: 500;
-        }
-        .sc-val {
-            font-family: 'Inter', sans-serif;
-            font-weight: 400;
-            font-size: 14px;
-            color: #1a1a1a;
-            text-align: right;
-            white-space: nowrap;
-        }
-        .sc-val-onsite { font-weight: 700; color: #2563eb; }
-        .sc-val-hrs { font-size: 11.5px; color: #6b7280; }
-        .sc-val-muted { color: #c4bfbb; }
-        .sc-divider { height: 1px; background: #ede8e3; margin: 0.3rem 0 0.2rem; }
-        .sc-total-row { }
-        .sc-total-label { font-size: 12px; font-weight: 600; color: #1a1a1a; }
-        .sc-total-val { font-weight: 600; }
-
-        /* Results */
-        .results-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        .dept-section { border-bottom: 1px solid #e5e7eb; }
-        .dept-section:last-child { border-bottom: none; }
-        .dept-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.875rem 1rem;
-            background: #1e293b;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .dept-title { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: 0.3px; }
-        .dept-badge { display: flex; gap: 0.5rem; font-size: 12px; }
-        .badge { background: rgba(255,255,255,0.15); color: #fff; padding: 0.3rem 0.65rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); }
-        .employee-list { display: flex; flex-direction: column; }
-        .employee-row {
-            display: flex;
-            flex-direction: column;
-            padding: 0.875rem 1rem;
-            border-bottom: 1px solid #f3f4f6;
-        }
-        .employee-row:last-child { border-bottom: none; }
-        .row-working { border-left: 3px solid #2563eb; }
-
-        /* Dept-type row backgrounds (書店 vs 餐廳) */
-        .row-dept-book       { background: #fdf7ee; }
-        .row-dept-restaurant { background: #eef4ff; }
-        .row-dept-admin      { background: #f5f3ff; }
-        .row-dept-none       { background: #f9fafb; }
-
-        /* Dept-type color badges */
-        .dtype-badge {
-            display: inline-flex;
-            align-items: center;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 1px 6px;
-            border-radius: 4px;
-            margin-right: 5px;
-            vertical-align: middle;
-            line-height: 1.7;
-            flex-shrink: 0;
-        }
-        .dtype-admin   { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
-        .dtype-book    { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-        .dtype-floor   { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
-        .dtype-kitchen { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
-        .row-rest { border-left: 3px solid #f59e0b; }
-        .row-holiday { border-left: 3px solid #ef4444; }
-        .emp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.4rem; }
-        .emp-info { flex: 1; }
-        .emp-name { font-weight: 600; font-size: 14px; color: #1f2937; }
-        .emp-title-badge {
-            display: inline-block;
-            font-size: 11px;
-            font-weight: 600;
-            color: #4b5563;
-            background: #f3f4f6;
-            border: 1px solid #e5e7eb;
-            border-radius: 4px;
-            padding: 0 5px;
-            margin-right: 5px;
-            vertical-align: middle;
-            line-height: 1.6;
-        }
-        .emp-id { font-size: 12px; color: #9ca3af; margin-top: 0.2rem; }
-        .time-display { font-family: 'Menlo', 'Monaco', monospace; font-size: 13px; font-weight: 500; color: #374151; }
-        .status-badge { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-        .badge-working { background: #dcfce7; color: #166534; }
-        .badge-rest { background: #fef3c7; color: #92400e; }
-        .badge-holiday { background: #fee2e2; color: #991b1b; }
-        .row-upcoming { border-left: 3px solid #f59e0b; background: #fffbeb !important; }
-        .row-finished { border-left: 3px solid #94a3b8; background: #f8fafc !important; opacity: 0.72; }
-        .badge-upcoming { background: #fef3c7; color: #b45309; }
-        .badge-finished { background: #f1f5f9; color: #64748b; }
-        .time-sub-label {
-            padding: 0.32rem 1rem;
-            font-size: 11px;
-            font-weight: 600;
-            color: #94a3b8;
-            background: #f8fafc;
-            border-top: 1px solid #f1f5f9;
-            border-bottom: 1px solid #f1f5f9;
-            letter-spacing: 0.04em;
-        }
-
-        /* Empty / info states */
-        .empty-state { padding: 2.5rem 1rem; text-align: center; color: #9ca3af; }
-        .empty-icon { font-size: 48px; margin-bottom: 0.75rem; }
-        .empty-title { font-size: 15px; font-weight: 600; color: #6b7280; margin-bottom: 0.35rem; }
-        .empty-desc { font-size: 13px; }
-
-        /* Day loading inline */
-        .day-loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2.5rem 1rem;
-            gap: 0.75rem;
-            color: #9ca3af;
-            font-size: 14px;
-        }
-        .day-spinner {
-            width: 20px; height: 20px;
-            border: 2px solid #e5e7eb;
-            border-top-color: #2563eb;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            flex-shrink: 0;
-        }
-
-        /* Vacation toggle */
-        .toggle-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: 0.75rem;
-            margin-top: 0.75rem;
-            border-top: 1px solid #f3f4f6;
-        }
-        .toggle-label { font-size: 13px; color: #6b7280; font-weight: 500; user-select: none; }
-        .toggle-switch { position: relative; width: 44px; height: 24px; cursor: pointer; flex-shrink: 0; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
-        .toggle-track {
-            position: absolute; inset: 0;
-            background: #e5e7eb; border-radius: 12px; transition: background 0.2s;
-        }
-        .toggle-switch input:checked + .toggle-track { background: #2563eb; }
-        .toggle-thumb {
-            position: absolute; top: 2px; left: 2px;
-            width: 20px; height: 20px; background: white; border-radius: 50%;
-            transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            pointer-events: none;
-        }
-        .toggle-switch input:checked ~ .toggle-thumb { transform: translateX(20px); }
-
-        /* Toast */
-        .toast-container {
-            position: fixed;
-            top: max(1rem, env(safe-area-inset-top));
-            right: 1rem;
-            z-index: 200;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            pointer-events: none;
-        }
-        .toast {
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            max-width: 260px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-            animation: slideIn 0.25s ease;
-            pointer-events: all;
-        }
-        .toast-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-        .toast-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-        .toast-info    { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
-        @keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Content padding for bottom nav */
-        .content {
-            padding-bottom: calc(56px + env(safe-area-inset-bottom)) !important;
-        }
-
-        /* Splash screen */
-        .splash-screen {
-            position: fixed;
-            inset: 0;
-            background: #0a0f1a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 500;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-        .splash-screen.fade-out { opacity: 0; visibility: hidden; }
-        .splash-logo {
-            margin-bottom: 1.5rem;
-            filter: drop-shadow(0 0 32px rgba(37,99,235,0.4));
-        }
-        .splash-brand { font-size: 28px; font-weight: 800; color: #fff; letter-spacing: 3px; }
-        .splash-subtitle { font-size: 13px; color: rgba(255,255,255,0.45); letter-spacing: 2px; margin-top: 0.35rem; }
-        .splash-dots { display: flex; gap: 8px; margin-top: 3rem; }
-        .splash-dots span {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: rgba(255,255,255,0.25);
-            animation: dotPulse 1.4s ease-in-out infinite;
-        }
-        .splash-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .splash-dots span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes dotPulse {
-            0%, 80%, 100% { background: rgba(255,255,255,0.2); transform: scale(0.8); }
-            40%            { background: rgba(255,255,255,0.85); transform: scale(1.25); }
-        }
-
-        /* Bottom navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background: white;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            z-index: 100;
-            /* 確保導航列緊貼底部，留出 Home 指示器空間 */
-            padding-bottom: max(env(safe-area-inset-bottom), 0px);
-            box-shadow: 0 -1px 0 #e5e7eb, 0 -4px 16px rgba(0,0,0,0.05);
-        }
-        .nav-tab {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 56px;
-            gap: 0.2rem;
-            cursor: pointer;
-            color: #9ca3af;
-            border: none;
-            background: none;
-            -webkit-tap-highlight-color: transparent;
+            color: rgba(255,255,255,0.45);
             transition: color 0.15s;
-            padding: 0;
         }
-        .nav-tab.active { color: #2563eb; }
-        .nav-tab-icon { width: 22px; height: 22px; display: block; flex-shrink: 0; }
-        .nav-tab-icon svg { width: 100%; height: 100%; display: block; }
-        .nav-tab-label { font-size: 10px; font-weight: 700; letter-spacing: 0.3px; line-height: 1; }
+        .settings-fab:hover { color: rgba(255,255,255,0.8); }
+        .settings-fab svg { width: 20px; height: 20px; }
 
-        /* Pages */
-        .page { display: flex; flex-direction: column; }
-        .page.hidden { display: none !important; }
-
-        /* Settings page */
-        .settings-group { margin-bottom: 1.25rem; }
-        .settings-section-title {
-            font-size: 11px; font-weight: 700; color: #9ca3af;
-            text-transform: uppercase; letter-spacing: 0.8px;
-            margin-bottom: 0.5rem; padding: 0 0.25rem;
-        }
-        .settings-card {
-            background: white; border: 1px solid #e5e7eb;
-            border-radius: 12px; overflow: hidden;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-        }
-        .settings-row {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0.875rem 1rem;
-            border-bottom: 1px solid #f3f4f6;
-        }
-        .settings-row:last-child { border-bottom: none; }
-        .settings-row-label { font-size: 14px; color: #374151; font-weight: 500; }
-        .settings-row-value { font-size: 13px; color: #9ca3af; }
-        .settings-action-btn {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #2563eb;
-            cursor: pointer;
-            text-align: left;
-            transition: background 0.15s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-        }
-        .settings-action-btn:active { background: #eff6ff; }
-        .settings-action-btn.danger { color: #ef4444; }
-
-        /* Placeholder pages (儀表板 / 行銷) */
-        .placeholder-hero {
-            text-align: center;
-            padding: 2rem 1rem 1.5rem;
-        }
-        .placeholder-icon { font-size: 48px; margin-bottom: 0.75rem; }
-        .placeholder-title { font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 0.4rem; }
-        .placeholder-desc { font-size: 13px; color: #9ca3af; line-height: 1.6; }
-        .placeholder-preview-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-        .placeholder-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 1.1rem 1rem;
-            text-align: center;
-            border-top: 3px solid #e5e7eb;
-        }
-        .placeholder-card-label { font-size: 11px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.5rem; }
-        .placeholder-card-value { font-size: 26px; font-weight: 700; color: #d1d5db; }
-        .placeholder-list {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .placeholder-list-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.1rem;
-            border-bottom: 1px solid #f3f4f6;
-        }
-        .placeholder-list-item:last-child { border-bottom: none; }
-        .placeholder-list-dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: #e5e7eb; flex-shrink: 0;
-        }
-        .placeholder-list-text { font-size: 14px; color: #d1d5db; font-weight: 500; }
-
-        /* Announcements page */
-        .announce-empty {
+        /* ── View carousel (peek pattern) ── */
+        .view-viewport {
             flex: 1;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            padding: 3rem 2rem; text-align: center;
-        }
-        .announce-icon { font-size: 52px; margin-bottom: 1rem; opacity: 0.7; }
-        .announce-title { font-size: 17px; font-weight: 700; color: #374151; margin-bottom: 0.5rem; }
-        .announce-desc { font-size: 13px; color: #9ca3af; line-height: 1.6; }
-
-        /* Install prompt */
-        .install-prompt {
-            position: fixed;
-            bottom: calc(56px + env(safe-area-inset-bottom) + 0.5rem);
-            left: 1rem; right: 1rem;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            z-index: 50;
-        }
-        .install-text { font-size: 13px; color: #6b7280; margin-bottom: 0.75rem; }
-        .install-buttons { display: flex; gap: 0.75rem; }
-        .install-btn { flex: 1; padding: 0.6rem; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .install-btn-primary { background: #2563eb; color: white; }
-        .install-btn-secondary { background: #e5e7eb; color: #374151; }
-
-        .hidden { display: none !important; }
-
-        /* Store info cards */
-        .store-info-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-            margin-bottom: 0.5rem;
-        }
-        .store-info-header {
-            padding: 0.75rem 1rem;
-            background: #1e293b;
-            color: white;
-        }
-        .store-info-store-name {
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            margin-bottom: 0.2rem;
-        }
-        .store-info-address {
-            font-size: 11px;
-            color: rgba(255,255,255,0.62);
-            line-height: 1.5;
-        }
-        .store-info-body { padding: 0.5rem 1rem 0.75rem; }
-        .store-info-brand-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.45rem 0;
-            border-bottom: 1px solid #f3f4f6;
-            font-size: 12.5px;
-        }
-        .store-info-brand-row:last-of-type { border-bottom: none; }
-        .store-brand-name { font-weight: 600; color: #1f2937; }
-        .store-brand-tel  { color: #2563eb; font-size: 12px; letter-spacing: 0.02em; }
-        .store-info-hours-block {
-            margin-top: 0.6rem;
-            padding-top: 0.6rem;
-            border-top: 1px solid #f3f4f6;
-        }
-        .store-hours-label {
-            font-size: 10.5px;
-            font-weight: 700;
-            color: #9ca3af;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            margin-bottom: 0.35rem;
-        }
-        .store-hours-line {
-            font-size: 12.5px;
-            color: #374151;
-            padding: 0.15rem 0;
-            letter-spacing: 0.02em;
-        }
-        .store-hours-note {
-            font-size: 11px;
-            color: #9ca3af;
-            margin-top: 0.25rem;
-            line-height: 1.5;
+            position: relative;
+            min-height: 0;
         }
 
-        /* Calendar UI */
-        .calendar-wrapper {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 1.25rem 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            margin-bottom: 1rem;
-        }
-        .calendar-header {
+        .view-track {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
+            height: 100%;
+            transition: transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
         }
-        .calendar-title {
-            font-size: 18px;
+
+        .view-section {
+            /* width set by JS after layout, so peek formula is applied */
+            flex-shrink: 0;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: var(--bg);
+            border-radius: 14px 14px 0 0;
+            box-shadow: 0 -1px 4px rgba(0,0,0,0.06);
+        }
+
+
+        /* ── Month view ── */
+        #viewMonth { background: #000; }
+
+        .month-content { padding: 0 12px 24px; }
+
+        .cal-month-big {
+            padding: 20px 4px 16px;
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+        .cal-month-name {
+            font-size: 48px;
             font-weight: 800;
-            color: #0f172a;
-            letter-spacing: -0.3px;
+            color: #fff;
+            letter-spacing: -2px;
+            line-height: 1;
         }
-        .calendar-nav-btn {
-            width: 32px; height: 32px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            background: #f8fafc;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            color: #374151;
-            transition: all 0.15s;
+        .cal-year-small {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.35);
+            letter-spacing: 0.5px;
         }
-        .calendar-nav-btn:active { background: #e9ecef; transform: scale(0.95); }
-        .calendar-grid {
+
+        .cal-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 0.25rem;
+            gap: 2px;
+        }
+        .cal-hdr {
             text-align: center;
+            font-size: 10px; font-weight: 700;
+            color: rgba(255,255,255,0.3);
+            padding: 4px 0 10px;
+            letter-spacing: 0.5px;
         }
-        .calendar-weekday {
-            font-size: 12px;
-            font-weight: 700;
-            color: #94a3b8;
-            padding-bottom: 0.5rem;
-        }
-        .calendar-day {
+        .cal-day {
             aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            font-weight: 600;
-            color: #1e293b;
             border-radius: 50%;
+            display: flex;
+            align-items: center; justify-content: center;
             cursor: pointer;
-            transition: all 0.15s;
-            user-select: none;
+            font-size: 14px; font-weight: 500;
+            color: #fff;
+            transition: background 0.12s;
             position: relative;
         }
-        .calendar-day:active { background: #f1f5f9; transform: scale(0.95); }
-        .calendar-day.today {
-            color: #2563eb;
+        .cal-day:hover { background: rgba(255,255,255,0.08); }
+        .cal-day.empty { cursor: default; pointer-events: none; }
+        .cal-day.other-month { color: rgba(255,255,255,0.18); }
+        .cal-day.today {
+            box-shadow: 0 0 0 2px #fff;
+            font-weight: 700;
         }
-        .calendar-day.today::after {
-            content: '';
-            position: absolute;
-            bottom: 2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            background: #2563eb;
+        .cal-day.selected:not(.today) {
+            background: #1a9b8a;
+            color: #fff;
+            font-weight: 700;
+        }
+        .cal-day.today.selected {
+            background: #1a9b8a;
+            box-shadow: 0 0 0 2px #fff;
+        }
+        .cal-day .day-num { font-size: 14px; }
+
+        /* ── Week view ── */
+        #viewWeek {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #18877a;
+        }
+
+        .week-strips {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+        }
+
+        .day-strip {
+            flex: 1;
+            display: flex;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+            cursor: pointer;
+            transition: background 0.12s;
+            min-height: 0;
+        }
+        .day-strip:hover { background: rgba(255,255,255,0.06); }
+        .day-strip.today { background: rgba(255,255,255,0.13); }
+
+        .strip-month {
+            width: 20px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .strip-month-label {
+            font-size: 8px; font-weight: 700;
+            color: rgba(255,255,255,0.4);
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .strip-date {
+            width: 68px; flex-shrink: 0;
+            display: flex; flex-direction: column;
+            justify-content: center;
+            padding: 0 12px 0 6px;
+        }
+        .strip-weekday {
+            font-size: 9px; font-weight: 700;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+        .strip-num {
+            font-size: 34px; font-weight: 800;
+            color: #fff;
+            line-height: 1;
+            letter-spacing: -1.5px;
+        }
+        .day-strip.today .strip-num { color: #fff; }
+        .strip-today-dot {
+            width: 5px; height: 5px;
             border-radius: 50%;
-        }
-        .calendar-day.other-month {
-            color: #cbd5e1;
-        }
-
-        /* Dashboard layout */
-        .dashboard-body { margin-top: 1rem; display: flex; flex-direction: column; gap: 1.25rem; }
-        .dash-section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between; }
-        .dash-section-title .badge { font-size: 11px; font-weight: 500; background: #f1f5f9; color: #64748b; padding: 2px 6px; border-radius: 4px; }
-        
-        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-        .metric-card { background: white; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1rem; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .metric-label { font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 0.25rem; }
-        .metric-val { font-size: 22px; font-weight: 800; color: #0f172a; line-height: 1.2; }
-        .metric-sub { font-size: 11px; color: #94a3b8; margin-top: 0.25rem; display: flex; align-items: center; gap: 4px; }
-        .metric-sub.up { color: #10b981; }
-        
-        .events-list, .venues-list { display: flex; flex-direction: column; gap: 0.5rem; }
-        .event-card { background: white; border-radius: 12px; padding: 0.875rem 1rem; border-left: 4px solid #3b82f6; box-shadow: 0 1px 3px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; }
-        .event-card.product { border-left-color: #f59e0b; }
-        .event-title { font-size: 14px; font-weight: 600; color: #1e293b; }
-        .event-type { font-size: 11px; color: #64748b; background: #f8fafc; padding: 2px 6px; border-radius: 4px; border: 1px solid #e2e8f0; }
-
-        .venue-card { background: white; border-radius: 12px; padding: 0.875rem 1rem; border-left: 4px solid #8b5cf6; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
-        .venue-time { font-family: 'Inter', monospace; font-size: 12px; font-weight: 600; color: #8b5cf6; margin-bottom: 0.2rem; }
-        .venue-title { font-size: 14px; font-weight: 600; color: #1e293b; }
-        
-        .calendar-day.selected {
-            background: #0f172a;
-            color: white;
-            border-color: #0f172a;
-            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.3);
-        }
-        .calendar-day.selected::after {
-            background: white !important;
+            background: #fff;
+            margin-top: 3px;
         }
 
-        /* Desktop Responsive */
-        @media (min-width: 1024px) {
-            #stateMain {
-                display: grid;
-                grid-template-columns: 380px 1fr;
-                gap: 2.5rem;
-                max-width: 1280px;
-                margin: 0 auto;
-                padding: 2rem;
-                align-items: start;
-            }
-            #stateMain > div:first-child { 
-                padding: 0 !important; 
-                position: sticky; 
-                top: 2rem; 
-            }
-            .dashboard-body { 
-                padding: 0 !important; 
-                margin-top: 0; 
-                display: grid; 
-                grid-template-columns: repeat(2, 1fr); 
-                gap: 1.5rem; 
-            }
-            .dashboard-section:nth-child(1) { grid-column: 1 / 2; }
-            .dashboard-section:nth-child(2) { grid-column: 2 / 3; }
-            .dashboard-section:nth-child(3) { grid-column: 1 / -1; }
-            .dashboard-section:nth-child(4) { grid-column: 1 / -1; }
-            
-            .bottom-nav {
-                max-width: 600px;
-                margin: 0 auto;
-                left: 0; right: 0;
-                border-radius: 24px 24px 0 0;
-                border: 1px solid #e5e7eb;
-                border-bottom: none;
-                bottom: 0;
-            }
+        .strip-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px 8px 0;
+            position: relative;
+            min-width: 0;
+        }
+        .strip-empty {
+            font-size: 12px; color: rgba(255,255,255,0.22);
+            font-style: italic;
+        }
+        .strip-weather {
+            position: absolute;
+            top: 8px; right: 0;
+            display: flex; align-items: center; gap: 3px;
+            font-size: 11px; font-weight: 600;
+            color: rgba(255,255,255,0.55);
+        }
+        .strip-weather-icon { font-size: 13px; }
+
+        /* ── Day view ── */
+        #viewDay { background: #18877a; }
+
+        .day-scroll {
+            padding: 28px 20px 48px;
+            min-height: 100%;
+        }
+
+        .day-title-section { padding-bottom: 28px; }
+        .day-label {
+            font-size: 52px; font-weight: 900;
+            color: #fff; line-height: 1;
+            letter-spacing: -1.5px;
+        }
+        .day-date-sub {
+            font-size: 15px; font-weight: 600;
+            color: rgba(255,255,255,0.55);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        .section-label {
+            font-size: 10px; font-weight: 700;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            margin: 0 0 10px;
+        }
+
+        .weather-card {
+            background: rgba(255,255,255,0.12);
+            border-radius: 16px;
+            padding: 18px 20px 20px;
+            margin-bottom: 28px;
+        }
+        .weather-card-main {
+            display: flex; align-items: center; gap: 18px;
+            margin-bottom: 14px;
+        }
+        .weather-icon-big { font-size: 52px; line-height: 1; }
+        .weather-temp-big {
+            font-size: 28px; font-weight: 700;
+            color: #fff; line-height: 1.1;
+        }
+        .weather-cond {
+            font-size: 16px; font-weight: 600;
+            color: #fff; margin-top: 2px;
+        }
+        .weather-loc {
+            font-size: 12px; color: rgba(255,255,255,0.55);
+            margin-top: 3px;
+        }
+        .weather-details {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 6px 0;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255,255,255,0.15);
+        }
+        .weather-detail-item {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12px; color: rgba(255,255,255,0.7);
+        }
+        .weather-detail-icon { font-size: 14px; }
+
+        .event-card {
+            background: rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex; gap: 12px; align-items: stretch;
+        }
+        .event-bar {
+            width: 4px; border-radius: 2px;
+            flex-shrink: 0; align-self: stretch;
+            min-height: 40px;
+        }
+        .event-info { flex: 1; min-width: 0; }
+        .event-name {
+            font-size: 15px; font-weight: 700;
+            color: #fff; line-height: 1.2;
+        }
+        .event-time {
+            font-size: 12px; color: rgba(255,255,255,0.6);
+            margin-top: 4px;
+        }
+        .event-loc {
+            font-size: 12px; color: rgba(255,255,255,0.45);
+            margin-top: 2px;
+        }
+        .day-empty {
+            text-align: center; padding: 28px 0;
+            font-size: 13px; color: rgba(255,255,255,0.25);
+            font-style: italic;
+        }
+
+        /* ── Settings overlay ── */
+        .overlay-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 500;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .overlay-backdrop.open { opacity: 1; pointer-events: auto; }
+
+        .settings-panel {
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            width: min(300px, 85vw);
+            background: var(--surface);
+            z-index: 501;
+            transform: translateX(-100%);
+            transition: transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex; flex-direction: column;
+            padding-top: max(0px, env(safe-area-inset-top));
+        }
+        .settings-panel.open { transform: translateX(0); }
+
+        .settings-header {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid var(--outline);
+        }
+        .settings-header-title {
+            font-size: 16px; font-weight: 700;
+            font-family: 'Noto Serif TC', serif;
+        }
+        .settings-close {
+            width: 28px; height: 28px;
+            border: none; background: none;
+            cursor: pointer;
+            font-size: 18px; color: var(--on-surface-var);
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+        .settings-close:hover { background: var(--bg); }
+
+        .settings-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+        .settings-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 11px 0;
+            border-bottom: 1px solid var(--outline);
+            font-size: 13px;
+        }
+        .settings-row:last-child { border-bottom: none; }
+        .settings-label { color: var(--on-surface-var); }
+        .settings-val { font-weight: 600; font-size: 12px; text-align: right; }
+        .settings-section-title {
+            font-size: 10px; font-weight: 700;
+            color: var(--on-surface-var);
+            letter-spacing: 0.8px; text-transform: uppercase;
+            padding: 16px 0 6px;
         }
     </style>
 </head>
 <body>
-    <div id="toastContainer" class="toast-container"></div>
 
-    <!-- Splash screen -->
-    <div id="splashScreen" class="splash-screen">
-        <div class="splash-logo">
-            <svg viewBox="0 0 200 200" width="96" height="96" xmlns="http://www.w3.org/2000/svg">
-                <rect fill="#000" width="200" height="200" rx="46"/>
-                <text x="8" y="193" font-size="162" font-family="serif" fill="white">蔦</text>
-                <text x="196" y="50" font-size="43" font-family="sans-serif" font-weight="700" fill="white" text-anchor="end">DM</text>
+    <div class="stage-bar top"></div>
+
+    <!-- Views carousel -->
+    <div class="view-viewport" id="viewViewport">
+        <div class="view-track" id="viewTrack">
+
+            <!-- ─ Month view ─ -->
+            <section class="view-section" id="viewMonth">
+                <div class="month-content">
+                    <div class="cal-month-big">
+                        <span class="cal-month-name" id="calMonthName"></span>
+                        <span class="cal-year-small" id="calYearSmall"></span>
+                    </div>
+                    <div class="cal-grid" id="calGrid">
+                        <div class="cal-hdr">日</div>
+                        <div class="cal-hdr">一</div>
+                        <div class="cal-hdr">二</div>
+                        <div class="cal-hdr">三</div>
+                        <div class="cal-hdr">四</div>
+                        <div class="cal-hdr">五</div>
+                        <div class="cal-hdr">六</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ─ Week view ─ -->
+            <section class="view-section" id="viewWeek">
+                <div class="week-strips" id="weekStrips"></div>
+            </section>
+
+            <!-- ─ Day view ─ -->
+            <section class="view-section" id="viewDay">
+                <div class="day-scroll">
+                    <div class="day-title-section">
+                        <div class="day-label" id="dayLabel">今日</div>
+                        <div class="day-date-sub" id="dayDateSub"></div>
+                    </div>
+
+                    <div class="section-label">天氣</div>
+                    <div class="weather-card">
+                        <div class="weather-card-main">
+                            <div class="weather-icon-big" id="weatherIconBig">🌤</div>
+                            <div>
+                                <div class="weather-temp-big" id="weatherTempBig">— °C</div>
+                                <div class="weather-cond" id="weatherCondText">天氣載入中</div>
+                                <div class="weather-loc">信義區・台北市</div>
+                            </div>
+                        </div>
+                        <div class="weather-details" id="weatherDetails">
+                            <div class="weather-detail-item"><span class="weather-detail-icon">🌂</span>降雨 —%</div>
+                            <div class="weather-detail-item"><span class="weather-detail-icon">☀️</span>UV —</div>
+                            <div class="weather-detail-item"><span class="weather-detail-icon">💧</span>濕度 —%</div>
+                            <div class="weather-detail-item"><span class="weather-detail-icon">💨</span>— km/h</div>
+                        </div>
+                    </div>
+
+                    <div class="section-label">班表行程</div>
+                    <div id="dayEvents"></div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <div class="stage-bar bottom">
+        <button class="settings-fab" onclick="openSettings()" title="設定">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
-        </div>
-        <div class="splash-brand">得利蔦屋</div>
-        <div class="splash-subtitle">營運管理系統</div>
-        <div class="splash-dots"><span></span><span></span><span></span></div>
+        </button>
     </div>
 
-    <div class="app-container">
-        <!-- Status bar -->
-        <div class="status-bar">
-            <span class="status-bar-title">營運管理系統</span>
-            <div style="display:flex;align-items:center;gap:0.75rem;">
-                <!-- Role switcher: admin only -->
-                <div class="role-switcher-wrap hidden" id="roleSwitcherWrap">
-                    <button class="role-switcher-btn rs-admin" id="roleSwitcherBtn" onclick="toggleRoleSwitcher()">
-                        <span>👤</span><span id="roleSwitcherLabel">管理員</span>
-                    </button>
-                    <div class="role-switcher-panel hidden" id="roleSwitcherPanel">
-                        <button class="role-switcher-item" onclick="setViewRole(null,'')">👤 管理員（預設）</button>
-                        <button class="role-switcher-item" onclick="setViewRole('manager','')">👥 主管（全門市）</button>
-                        <button class="role-switcher-item" onclick="setViewRole('staff','信義店')">🏪 員工 · 信義</button>
-                        <button class="role-switcher-item" onclick="setViewRole('staff','臺中市政店')">🏪 員工 · 市政</button>
-                    </div>
-                </div>
-                <div class="cloud-status">
-                    <div class="cloud-dot" id="cloudDot"></div>
-                    <span id="cloudStatusText">連線中</span>
-                </div>
-                <button onclick="clearCacheAndReload()" title="清除快取並重新載入"
-                    style="background:#f1f5f9;border:1px solid #e2e8f0;color:#64748b;border-radius:8px;
-                           padding:0.3rem 0.6rem;font-size:15px;cursor:pointer;line-height:1;
-                           transition:background 0.2s;"
-                    onmouseenter="this.style.background='#e2e8f0'"
-                    onmouseleave="this.style.background='#f1f5f9'">↺</button>
-            </div>
+    <!-- Settings overlay -->
+    <div class="overlay-backdrop" id="overlayBackdrop" onclick="closeSettings()"></div>
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <span class="settings-header-title">設定</span>
+            <button class="settings-close" onclick="closeSettings()">✕</button>
         </div>
-
-        <div class="content">
-
-            <!-- ===== PAGE: 首頁儀表板 (統一) ===== -->
-            <div id="pageDashboard" class="page">
-                <!-- Hidden inputs for internal state -->
-                <input type="date" id="queryDate" style="display:none" onchange="onDateChange()" />
-                <select id="queryStore" style="display:none" onchange="filterAndDisplay()">
-                    <option value="">全部</option>
-                </select>
-
-                <!-- Global States (Error/NoConfig) -->
-                <div id="stateNotConfigured" class="empty-state hidden">
-                    <div class="empty-title">尚未設定雲端連線</div>
-                    <div class="empty-desc">請聯繫管理員設定 firebase-config.js</div>
-                </div>
-                <div id="stateError" class="empty-state hidden">
-                    <div class="empty-title">連線失敗</div>
-                    <div class="empty-desc" id="errorDesc">請檢查網路連線後重新整理</div>
-                    <button class="settings-action-btn" style="margin-top:1rem" onclick="retryConnection()">↺ &nbsp;重新連線</button>
-                </div>
-                <div id="stateNoData" class="empty-state hidden">
-                    <div class="empty-title">尚無資料</div>
-                    <div class="empty-desc">請管理員至後台上傳資料</div>
-                </div>
-
-                <div id="stateMain" class="hidden">
-                    <div style="padding: 1rem 1rem 0;">
-                        <!-- 行事曆區塊 -->
-                        <div class="calendar-wrapper" style="margin-bottom: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: none;">
-                            <div class="calendar-header">
-                                <button class="calendar-nav-btn" onclick="navCalendarMonth(-1)">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                                </button>
-                                <div class="calendar-title" id="calendarTitle"></div>
-                                <button class="calendar-nav-btn" onclick="navCalendarMonth(1)">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                                </button>
-                            </div>
-                            <div class="calendar-grid" id="calendarGrid">
-                                <!-- JS Generated -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 下方戰情資料區 -->
-                    <div class="dashboard-body" style="padding: 0 1rem 1.5rem;">
-                        <!-- 營運指標 -->
-                        <div class="dashboard-section">
-                            <div class="dash-section-title">營運指標 <span class="badge">Mockup</span></div>
-                            <div class="metrics-grid">
-                                <div class="metric-card">
-                                    <div class="metric-label">業績達成率</div>
-                                    <div class="metric-val">85<span style="font-size:14px;color:#64748b;">%</span></div>
-                                    <div class="metric-sub up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg> 較昨日 +2.4%</div>
-                                </div>
-                                <div class="metric-card">
-                                    <div class="metric-label">本日來客數</div>
-                                    <div class="metric-val">1,240</div>
-                                    <div class="metric-sub up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg> 預估 1,200</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 活動任務 -->
-                        <div class="dashboard-section">
-                            <div class="dash-section-title">活動與任務 <span class="badge">Notion</span></div>
-                            <div class="events-list">
-                                <div class="event-card">
-                                    <div class="event-title">春季閱讀展覽佈置</div>
-                                    <div class="event-type">主題展覽</div>
-                                </div>
-                                <div class="event-card product">
-                                    <div class="event-title">全新咖啡豆系列上市</div>
-                                    <div class="event-type">商品上市</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 空間場地 -->
-                        <div class="dashboard-section">
-                            <div class="dash-section-title">場地與課程 <span class="badge">Notion</span></div>
-                            <div class="venues-list">
-                                <div class="venue-card">
-                                    <div class="venue-time">14:00 - 16:00</div>
-                                    <div class="venue-title">生活美學講座：咖啡沖煮入門</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 排班與人力 -->
-                        <div class="dashboard-section">
-                            <div class="dash-section-title" style="margin-bottom:0.5rem;">
-                                人力排班
-                            </div>
-                            <!-- Filter bar -->
-                            <div class="filter-bar">
-                                <div class="store-pills">
-                                    <button class="store-pill active" id="storePillAll"      onclick="selectStore('')">全部</button>
-                                    <button class="store-pill"        id="storePillXinyi"    onclick="selectStore('信義店')">信義</button>
-                                    <button class="store-pill"        id="storePillTaichung" onclick="selectStore('臺中市政店')">市政</button>
-                                </div>
-                                <div class="filter-divider"></div>
-                                <div class="vacation-toggle-wrap">
-                                    <span class="vacation-toggle-label">全體</span>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="showVacationToggle" onchange="filterAndDisplay()" />
-                                        <div class="toggle-track"></div>
-                                        <div class="toggle-thumb"></div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="stats-grid" id="statsContainer"></div>
-                            
-                            <div class="results-card">
-                                <div id="dayLoading" class="day-loading hidden">
-                                    <div class="day-spinner"></div>
-                                    <span>載入中</span>
-                                </div>
-                                <div id="resultsContainer"></div>
-                                <div id="emptyState" class="empty-state hidden">
-                                    <div class="empty-title">此日期無班表資料</div>
-                                    <div class="empty-desc">請選擇其他日期，或聯繫管理員確認</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="settings-body">
+            <div class="settings-section-title">系統資訊</div>
+            <div class="settings-row">
+                <span class="settings-label">系統名稱</span>
+                <span class="settings-val">得利蔦屋 管理系統</span>
             </div>
-
-            <!-- ===== PAGE: 行銷商品活動 ===== -->
-            <div id="pageMarketing" class="page hidden">
-                <div style="padding:1rem;">
-
-                    <div class="placeholder-hero">
-                        <div class="placeholder-title">行銷商品活動</div>
-                        <div class="placeholder-desc">查閱各期商品促銷與行銷活動資訊<br>功能開發中，敬請期待</div>
-                    </div>
-
-                    <div class="placeholder-list">
-                        <div class="placeholder-list-item">
-                            <div class="placeholder-list-dot"></div>
-                            <div class="placeholder-list-text">商品促銷活動</div>
-                        </div>
-                        <div class="placeholder-list-item">
-                            <div class="placeholder-list-dot"></div>
-                            <div class="placeholder-list-text">限時特賣資訊</div>
-                        </div>
-                        <div class="placeholder-list-item">
-                            <div class="placeholder-list-dot"></div>
-                            <div class="placeholder-list-text">主題展覽活動</div>
-                        </div>
-                        <div class="placeholder-list-item">
-                            <div class="placeholder-list-dot"></div>
-                            <div class="placeholder-list-text">會員優惠方案</div>
-                        </div>
-                    </div>
-
-                </div>
+            <div class="settings-row">
+                <span class="settings-label">版本</span>
+                <span class="settings-val">v1.0</span>
             </div>
-
-            <!-- ===== PAGE: 員工名冊 ===== -->
-            <div id="pageEmployees" class="page hidden">
-                <div style="padding:1rem">
-
-                    <!-- Search and filter -->
-                    <div style="display:flex; gap:0.75rem; margin-bottom:1rem; flex-wrap:wrap">
-                        <input type="text" id="empDirSearch" class="emp-dir-search"
-                               placeholder="搜尋姓名或工號..."
-                               oninput="filterEmpDir()"
-                               style="flex:1; min-width:200px; padding:0.65rem 0.875rem; border:1px solid #e5e7eb; border-radius:8px; font-size:14px; transition:border-color 0.2s" />
-                        <select id="empDirStoreFilter" onchange="filterEmpDir()"
-                                style="padding:0.65rem 0.875rem; border:1px solid #e5e7eb; border-radius:8px; font-size:14px; background:white; cursor:pointer">
-                            <option value="">全部門市</option>
-                            <option value="信義店">信義店</option>
-                            <option value="臺中市政店">臺中市政店</option>
-                        </select>
-                    </div>
-
-                    <!-- Employee list -->
-                    <div id="empDirList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1rem">
-                        <div style="text-align:center; padding:2rem; color:#94a3b8; grid-column:1/-1">載入中...</div>
-                    </div>
-
-                </div>
+            <div class="settings-row">
+                <span class="settings-label">時區</span>
+                <span class="settings-val">Asia/Taipei (UTC+8)</span>
             </div>
-
-            <!-- ===== PAGE: 公告 ===== -->
-            <div id="pageAnnouncements" class="page hidden">
-                <div class="announce-empty">
-                    <div class="announce-title">公告通知</div>
-                    <div class="announce-desc">目前尚無公告<br>有最新消息時將會在此顯示</div>
-                </div>
+            <div class="settings-row">
+                <span class="settings-label">PWA 快取</span>
+                <span class="settings-val">management-v2</span>
             </div>
-
-            <!-- ===== PAGE: 設定 ===== -->
-            <div id="pageSettings" class="page hidden">
-                <div style="padding:1rem;">
-
-                    <div class="settings-group">
-                        <div class="settings-section-title">連線狀態</div>
-                        <div class="settings-card">
-                            <div class="settings-row">
-                                <span class="settings-row-label">Firebase 雲端</span>
-                                <div style="display:flex;align-items:center;gap:0.4rem;">
-                                    <div class="cloud-dot" id="cloudDotSettings"></div>
-                                    <span id="cloudStatusSettings" class="settings-row-value">連線中</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="settings-group hidden" id="settingsAdminGroup">
-                        <div class="settings-section-title">管理後台</div>
-                        <a href="admin.html" class="settings-action-btn" style="display:block;text-decoration:none;text-align:center;">
-                            前往後台管理
-                        </a>
-                    </div>
-
-                    <div class="settings-group">
-                        <div class="settings-section-title">系統維護</div>
-                        <button class="settings-action-btn" onclick="clearCacheAndReload()">
-                            ↺ &nbsp;清除快取並重新載入
-                        </button>
-                    </div>
-
-                    <div class="settings-group">
-                        <div class="settings-section-title">店舖資訊</div>
-
-                        <div class="store-info-card" style="border-left:4px solid #2563eb;">
-                            <div class="store-info-header">
-                                <div class="store-info-store-name">信義店</div>
-                                <div class="store-info-address">台北市信義區忠孝東路五段8號（統一時代百貨5樓）</div>
-                            </div>
-                            <div class="store-info-body">
-                                <div class="store-info-brand-row">
-                                    <span class="store-brand-name">TSUTAYA BOOKSTORE</span>
-                                    <span class="store-brand-tel">(02) 2725-1881</span>
-                                </div>
-                                <div class="store-info-brand-row">
-                                    <span class="store-brand-name">WIRED TOKYO</span>
-                                    <span class="store-brand-tel">(02) 2725-2338</span>
-                                </div>
-                                <div class="store-info-hours-block">
-                                    <div class="store-hours-label">營業時間</div>
-                                    <div class="store-hours-line">週日 ～ 週四　　11:00 ～ 21:30</div>
-                                    <div class="store-hours-line">週五、六　　　 11:00 ～ 22:00</div>
-                                    <div class="store-hours-note">國定假日依統一時代百貨公告調整</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="store-info-card" style="border-left:4px solid #059669;">
-                            <div class="store-info-header" style="background:#14312b;">
-                                <div class="store-info-store-name">台中市政店</div>
-                                <div class="store-info-address">台中市西屯區市政北二路18之1號 2F &amp; 3F</div>
-                            </div>
-                            <div class="store-info-body">
-                                <div class="store-info-brand-row">
-                                    <span class="store-brand-name">TSUTAYA BOOKSTORE</span>
-                                    <span class="store-brand-tel">(04) 2253-3636</span>
-                                </div>
-                                <div class="store-info-brand-row">
-                                    <span class="store-brand-name">WIRED TOKYO</span>
-                                    <span class="store-brand-tel">(04) 2253-2828</span>
-                                </div>
-                                <div class="store-info-hours-block">
-                                    <div class="store-hours-label">營業時間</div>
-                                    <div class="store-hours-line">週一 至 週日　　10:00 ～ 21:00</div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="settings-group">
-                        <div class="settings-section-title">關於</div>
-                        <div class="settings-card">
-                            <div class="settings-row">
-                                <span class="settings-row-label">系統名稱</span>
-                                <span class="settings-row-value">營運管理系統</span>
-                            </div>
-                            <div class="settings-row">
-                                <span class="settings-row-label">品牌</span>
-                                <span class="settings-row-value">得利蔦屋</span>
-                            </div>
-                            <div class="settings-row">
-                                <span class="settings-row-label">版本</span>
-                                <span class="settings-row-value">v1.0</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
         </div>
     </div>
 
-    <!-- Bottom navigation -->
-    <nav class="bottom-nav">
-        <button class="nav-tab active" id="navDashboard" onclick="switchTab('dashboard')">
-            <span class="nav-tab-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                </svg>
-            </span>
-            <span class="nav-tab-label">首頁</span>
-        </button>
-        <button class="nav-tab" id="navMarketing" onclick="switchTab('marketing')">
-            <span class="nav-tab-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
-                    <circle cx="7" cy="7" r="1" fill="currentColor"/>
-                </svg>
-            </span>
-            <span class="nav-tab-label">行銷活動</span>
-        </button>
-        <button class="nav-tab" id="navEmployees" onclick="switchTab('employees')">
-            <span class="nav-tab-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
-            </span>
-            <span class="nav-tab-label">員工</span>
-        </button>
-        <button class="nav-tab" id="navAnnouncements" onclick="switchTab('announcements')">
-            <span class="nav-tab-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                    <path d="M13.73 21a2 2 0 01-3.46 0"/>
-                </svg>
-            </span>
-            <span class="nav-tab-label">公告</span>
-        </button>
-        <button class="nav-tab" id="navSettings" onclick="switchTab('settings')">
-            <span class="nav-tab-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
-                </svg>
-            </span>
-            <span class="nav-tab-label">設定</span>
-        </button>
-    </nav>
-
-    <div id="installPrompt" class="install-prompt hidden">
-        <div class="install-text">加入主螢幕使用更方便</div>
-        <div class="install-buttons">
-            <button class="install-btn install-btn-primary" onclick="installApp()">安裝</button>
-            <button class="install-btn install-btn-secondary" onclick="dismissInstall()">略過</button>
-        </div>
-    </div>
-
-    <script src="firebase-config.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script>
-    // ========== STATE ==========
-    let db   = null;
-    let currentProfile = null;
-    let viewRole  = null;      // admin role-switcher: null = use real role
-    let viewStore = null;      // admin role-switcher: null = use real store
-    let availableMonths = [];
-    let currentDayData  = [];
-    let empTitles = {};
-    let deferredPrompt;
-    let currentCalendarDate = new Date();
+        // ── Constants ──
+        const WEEKDAYS = ['日','一','二','三','四','五','六'];
+        const PEEK = 14; // px peek amount
+
+        // ── State ──
+        const state = {
+            view:     0,                  // 0=月 1=週 2=日
+            viewDate: new Date(),         // shared focused date
+            calYear:  new Date().getFullYear(),
+            calMonth: new Date().getMonth(), // 0-indexed
+        };
+
+        // ── Swipe tracking ──
+        let touchStartX = 0, touchStartY = 0;
+
+        // ── Init ──
+        (function init() {
+            renderMonth();
+            renderWeek();
+            renderDay();
+            positionTrack(false);
+
+            const track = document.getElementById('viewTrack');
+            track.addEventListener('touchstart', onTouchStart, { passive: true });
+            track.addEventListener('touchend',   onTouchEnd,   { passive: true });
+
+            const weekEl = document.getElementById('viewWeek');
+            weekEl.addEventListener('touchstart', onWeekTouchStart, { passive: true });
+            weekEl.addEventListener('touchend',   onWeekTouchEnd,   { passive: true });
 
-    // 部門名稱已在後台上傳時直接轉換，前台直接顯示即可
-    function deptLabel(dept) { return dept; }
-
-    // ========== STORE / DEPT-TYPE HELPERS ==========
-    var ADMIN_EMP_ID = '107066';
-
-    function getStore(dept) {
-        if (dept.indexOf('信義') >= 0) return '信義店';
-        if (dept.indexOf('台中') >= 0 || dept.indexOf('臺中') >= 0) return '臺中市政店';
-        return dept;
-    }
-
-    function getDeptType(dept, empId) {
-        if (empId === ADMIN_EMP_ID) return { label: '行政', cls: 'dtype-admin' };
-        if (dept.indexOf('BOOKSTORE') >= 0) return { label: '書店', cls: 'dtype-book' };
-        if (dept.indexOf('外場') >= 0)      return { label: '外場', cls: 'dtype-floor' };
-        if (dept.indexOf('內場') >= 0)      return { label: '內場', cls: 'dtype-kitchen' };
-        return null;
-    }
-
-    // ========== UTILS ==========
-    function esc(s) {
-        return String(s)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
-    }
-
-    function showToast(msg, type, ms) {
-        if (type === undefined) type = 'info';
-        if (ms === undefined) ms = 3000;
-        var c = document.getElementById('toastContainer');
-        var t = document.createElement('div');
-        t.className = 'toast toast-' + type;
-        t.textContent = msg;
-        c.appendChild(t);
-        setTimeout(function() {
-            t.style.cssText = 'opacity:0;transition:opacity 0.3s';
-            setTimeout(function() { t.remove(); }, 300);
-        }, ms);
-    }
-
-    function setCloud(state, text) {
-        var cls = 'cloud-dot' + (state ? ' ' + state : '');
-        document.getElementById('cloudDot').className = cls;
-        document.getElementById('cloudStatusText').textContent = text;
-        // mirror to settings page
-        document.getElementById('cloudDotSettings').className = cls;
-        document.getElementById('cloudStatusSettings').textContent = text;
-    }
-
-    function showState(id) {
-        ['stateNotConfigured', 'stateNoData', 'stateError', 'stateMain'].forEach(function(s) {
-            document.getElementById(s).classList.toggle('hidden', s !== id);
-        });
-        if (!id) return; // null = hide all
-    }
-
-    function hideSplash() {
-        var s = document.getElementById('splashScreen');
-        s.classList.add('fade-out');
-        setTimeout(function() { s.style.display = 'none'; }, 520);
-    }
-
-    // ========== NAVIGATION ==========
-    var TABS = {
-        dashboard:     { page: 'pageDashboard',     btn: 'navDashboard' },
-        marketing:     { page: 'pageMarketing',     btn: 'navMarketing' },
-        employees:     { page: 'pageEmployees',     btn: 'navEmployees' },
-        announcements: { page: 'pageAnnouncements', btn: 'navAnnouncements' },
-        settings:      { page: 'pageSettings',      btn: 'navSettings' }
-    };
-
-    function switchTab(tab) {
-        Object.keys(TABS).forEach(function(key) {
-            var t = TABS[key];
-            document.getElementById(t.page).classList.toggle('hidden', key !== tab);
-            document.getElementById(t.btn).classList.toggle('active', key === tab);
-        });
-    }
-
-    // ========== FIREBASE INIT ==========
-    function isConfigured() {
-        try {
-            return typeof FIREBASE_CONFIG !== 'undefined' &&
-                   FIREBASE_CONFIG.apiKey &&
-                   FIREBASE_CONFIG.apiKey.indexOf('YOUR_') !== 0;
-        } catch(e) { return false; }
-    }
-
-    async function loadEmployeeTitles() {
-        try {
-            var snap = await db.collection('employees').get();
-            snap.forEach(function(doc) {
-                var d = doc.data();
-                if (d.title) empTitles[doc.id] = d.title;
-            });
-        } catch(e) { /* non-critical, titles are optional */ }
-    }
-
-    // ========== EMPLOYEE DIRECTORY ==========
-    var allEmployeesDir = [];
-
-    async function loadEmployeeDirectory() {
-        try {
-            var snap = await db.collection('employees').orderBy('empName').get();
-            allEmployeesDir = snap.docs.map(function(doc) {
-                return Object.assign({ id: doc.id }, doc.data());
-            });
-            filterEmpDir();
-        } catch(e) { console.error('Failed to load employee directory:', e); }
-    }
-
-    function filterEmpDir() {
-        var query = (document.getElementById('empDirSearch').value || '').trim().toLowerCase();
-        var store = (document.getElementById('empDirStoreFilter').value || '').trim();
-
-        var filtered = allEmployeesDir.filter(function(emp) {
-            var matchSearch = !query ||
-                emp.empName.toLowerCase().indexOf(query) >= 0 ||
-                emp.empId.toLowerCase().indexOf(query) >= 0;
-
-            var matchStore = !store || (emp.departments && emp.departments.some(function(d) {
-                return d.indexOf(store) >= 0;
-            })) || (emp.dept && emp.dept.indexOf(store) >= 0);
-
-            return matchSearch && matchStore;
-        });
-
-        renderEmpDir(filtered);
-    }
-
-    function renderEmpDir(employees) {
-        var container = document.getElementById('empDirList');
-        if (employees.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:2rem; color:#94a3b8; grid-column:1/-1">沒有找到員工</div>';
-            return;
-        }
-
-        var html = employees.map(function(emp) {
-            var dept = emp.dept || (emp.departments && emp.departments[0]) || '未分類';
-            var deptDisplay = dept;
-            if (deptDisplay.indexOf('信義') >= 0) {
-                deptDisplay = deptDisplay.replace(/信義.*/, '信義店');
-            } else if (deptDisplay.indexOf('台中') >= 0 || deptDisplay.indexOf('臺中') >= 0) {
-                deptDisplay = deptDisplay.replace(/(?:台|臺)中.*/, '臺中市政店');
-            }
-
-            return '<div style="background:white; border:1px solid #e5e7eb; border-radius:12px; padding:1rem; cursor:pointer; transition:all 0.2s; hover:box-shadow 0 4px 12px rgba(0,0,0,0.1)" onclick="viewEmpDetail(\'' + esc(emp.empId) + '\')">' +
-                '<div style="font-size:15px; font-weight:600; color:#1f2937; margin-bottom:0.5rem">' + esc(emp.empName) + '</div>' +
-                '<div style="font-size:13px; color:#64748b; margin-bottom:0.75rem">' + esc(emp.empId) + '</div>' +
-                (emp.title ? '<div style="font-size:12px; color:#2563eb; font-weight:600; margin-bottom:0.5rem">📌 ' + esc(emp.title) + '</div>' : '') +
-                '<div style="font-size:12px; color:#64748b; margin-bottom:0.5rem">' + esc(deptDisplay) + '</div>' +
-                (emp.phone ? '<div style="font-size:12px; color:#64748b; margin-bottom:0.5rem">📞 ' + esc(emp.phone) + '</div>' : '') +
-                (emp.email ? '<div style="font-size:12px; color:#64748b">📧 ' + esc(emp.email) + '</div>' : '') +
-                '</div>';
-        }).join('');
-
-        container.innerHTML = html;
-    }
-
-    function viewEmpDetail(empId) {
-        var emp = allEmployeesDir.find(function(e) { return e.empId === empId; });
-        if (!emp) return;
-
-        var emergency = emp.emergencyContact || {};
-        var detailHtml = '<div style="padding:1.5rem; max-height:70vh; overflow-y:auto">' +
-            '<div style="font-size:18px; font-weight:700; color:#1f2937; margin-bottom:0.5rem">' + esc(emp.empName) + '</div>' +
-            '<div style="font-size:13px; color:#64748b; margin-bottom:1.5rem">' + esc(emp.empId) + '</div>' +
-            '<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; font-size:13px">' +
-                '<div>' +
-                    '<div style="color:#64748b; margin-bottom:0.25rem">職稱</div>' +
-                    '<div style="color:#1f2937; font-weight:600">' + esc(emp.title || '—') + '</div>' +
-                '</div>' +
-                '<div>' +
-                    '<div style="color:#64748b; margin-bottom:0.25rem">合約類型</div>' +
-                    '<div style="color:#1f2937; font-weight:600">' + esc(emp.contractType || '—') + '</div>' +
-                '</div>' +
-                '<div>' +
-                    '<div style="color:#64748b; margin-bottom:0.25rem">電話</div>' +
-                    '<div style="color:#1f2937; font-weight:600">' + esc(emp.phone || '—') + '</div>' +
-                '</div>' +
-                '<div>' +
-                    '<div style="color:#64748b; margin-bottom:0.25rem">電子郵件</div>' +
-                    '<div style="color:#1f2937; font-weight:600" style="word-break:break-all">' + esc(emp.email || '—') + '</div>' +
-                '</div>' +
-            '</div>' +
-            '<div style="border-top:1px solid #e5e7eb; margin:1.5rem 0; padding-top:1rem">' +
-                '<div style="color:#64748b; margin-bottom:0.5rem; font-size:12px; font-weight:600">地址</div>' +
-                '<div style="color:#1f2937; font-size:13px">' + esc(emp.address || '未填寫') + '</div>' +
-            '</div>' +
-            (emergency.name ? '<div style="border-top:1px solid #e5e7eb; margin:1.5rem 0; padding-top:1rem">' +
-                '<div style="color:#64748b; margin-bottom:0.75rem; font-size:12px; font-weight:600">緊急聯絡人</div>' +
-                '<div style="display:grid; gap:0.5rem; font-size:13px">' +
-                    '<div><span style="color:#64748b">姓名：</span><span style="color:#1f2937">' + esc(emergency.name) + '</span></div>' +
-                    '<div><span style="color:#64748b">電話：</span><span style="color:#1f2937">' + esc(emergency.phone) + '</span></div>' +
-                    '<div><span style="color:#64748b">關係：</span><span style="color:#1f2937">' + esc(emergency.relationship) + '</span></div>' +
-                '</div>' +
-            '</div>' : '') +
-            '</div>';
-
-        alert(emp.empName + '的完整資料如下：\n\n' +
-              '工號：' + emp.empId + '\n' +
-              '職稱：' + (emp.title || '—') + '\n' +
-              '電話：' + (emp.phone || '—') + '\n' +
-              '郵件：' + (emp.email || '—') + '\n' +
-              '地址：' + (emp.address || '—'));
-    }
-
-    async function initApp() {
-        if (!isConfigured()) {
-            hideSplash();
-            setCloud('error', '未設定');
-            showState('stateNotConfigured');
-            return;
-        }
-        try {
-            setCloud('', '連線中');
-            firebase.initializeApp(FIREBASE_CONFIG);
-            db = firebase.firestore();
-            await initAppData();
-        } catch(e) {
-            hideSplash();
-            setCloud('error', '失敗');
-            document.getElementById('errorDesc').textContent = e.message || '請檢查網路連線後重新整理';
-            showState('stateError');
-        }
-    }
-
-    async function initAppData() {
-        loadEmployeeTitles();
-        await loadAvailableMonths();
-        await loadEmployeeDirectory();
-    }
-
-    // ========== ROLE SWITCHER (admin only) ==========
-    function getEffectiveRole() {
-        if (!currentProfile) return 'staff';
-        if (currentProfile.role === 'admin' && viewRole !== null) return viewRole;
-        return currentProfile.role || 'staff';
-    }
-    function getEffectiveStore() {
-        var role = getEffectiveRole();
-        if (role === 'staff') {
-            return (currentProfile && currentProfile.role === 'admin' && viewStore !== null)
-                ? viewStore : (currentProfile ? currentProfile.store || '' : '');
-        }
-        return '';
-    }
-
-    function toggleRoleSwitcher() {
-        document.getElementById('roleSwitcherPanel').classList.toggle('hidden');
-    }
-    function setViewRole(role, store) {
-        viewRole  = role;
-        viewStore = store;
-        document.getElementById('roleSwitcherPanel').classList.add('hidden');
-        var btn   = document.getElementById('roleSwitcherBtn');
-        var label = document.getElementById('roleSwitcherLabel');
-        btn.className = 'role-switcher-btn';
-        if (role === null)        { btn.classList.add('rs-admin');   label.textContent = '管理員'; }
-        else if (role === 'manager') { btn.classList.add('rs-manager'); label.textContent = '主管'; }
-        else { btn.classList.add('rs-staff'); label.textContent = '員工 · ' + (store === '信義店' ? '信義' : '市政'); }
-        applyRoleToUI();
-        filterAndDisplay();
-    }
-    function applyRoleToUI() {
-        var eff  = getEffectiveRole();
-        var filterBar = document.querySelector('.filter-bar');
-        if (filterBar) filterBar.style.display = eff === 'staff' ? 'none' : '';
-    }
-    // Close role switcher panel when clicking outside
-    document.addEventListener('click', function(e) {
-        var wrap = document.getElementById('roleSwitcherWrap');
-        if (wrap && !wrap.contains(e.target)) {
-            var panel = document.getElementById('roleSwitcherPanel');
-            if (panel) panel.classList.add('hidden');
-        }
-    });
-
-    // ========== DATA LOADING ==========
-    async function loadAvailableMonths() {
-        try {
-            var snap = await db.collection('schedules').orderBy('yearMonth', 'desc').get();
-            availableMonths = snap.docs.map(function(d) {
-                return Object.assign({ id: d.id }, d.data());
-            });
-
-            hideSplash();
-            setCloud('connected', '已連線');
-
-            if (availableMonths.length === 0) {
-                showState('stateNoData');
-                return;
-            }
-
-            showState('stateMain');
-            setDefaultDate();
-        } catch(e) {
-            hideSplash();
-            setCloud('error', '失敗');
-            document.getElementById('errorDesc').textContent = e.message || '載入資料失敗';
-            showState('stateError');
-        }
-    }
-
-    // ========== DATE NAVIGATION ==========
-    var WEEKDAYS = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
-
-    // 使用本地時間避免 toISOString() 的 UTC 偏移問題（台灣 UTC+8 會造成日期偏差）
-    function localDateStr(d) {
-        return d.getFullYear() + '-' +
-            String(d.getMonth() + 1).padStart(2, '0') + '-' +
-            String(d.getDate()).padStart(2, '0');
-    }
-
-    function updateDateDisplay(dateStr) {
-        if (!dateStr) return;
-        var d = new Date(dateStr + 'T00:00:00');
-        var today     = new Date();
-        var yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
-        var tomorrow  = new Date(today); tomorrow.setDate(today.getDate() + 1);
-
-        var elMain = document.getElementById('dateCenterMain');
-        if (elMain) elMain.textContent = (d.getMonth() + 1) + '月' + d.getDate() + '日';
-        var elWd = document.getElementById('dateCenterWeekday');
-        if (elWd) elWd.textContent = WEEKDAYS[d.getDay()];
-
-        var elYest = document.getElementById('chipYesterday');
-        if (elYest) elYest.classList.toggle('today-active', dateStr === localDateStr(yesterday));
-        var elTod = document.getElementById('chipToday');
-        if (elTod) elTod.classList.toggle('today-active', dateStr === localDateStr(today));
-        var elTomor = document.getElementById('chipTomorrow');
-        if (elTomor) elTomor.classList.toggle('today-active', dateStr === localDateStr(tomorrow));
-    }
-
-    function shiftDay(delta) {
-        var cur = document.getElementById('queryDate').value;
-        if (!cur) return;
-        var d = new Date(cur + 'T00:00:00');
-        d.setDate(d.getDate() + delta);
-        var next = localDateStr(d);           // 本地日期字串，不受 UTC 偏移影響
-        document.getElementById('queryDate').value = next;
-        updateDateDisplay(next);
-        onDateChange();
-    }
-
-    function jumpRelDay(delta) {
-        var d = new Date();
-        d.setDate(d.getDate() + delta);
-        var target = localDateStr(d);
-        document.getElementById('queryDate').value = target;
-        updateDateDisplay(target);
-        onDateChange();
-    }
-
-    function jumpToToday() {
-        var today = localDateStr(new Date());
-        document.getElementById('queryDate').value = today;
-        updateDateDisplay(today);
-        onDateChange();
-    }
-
-    function onPickerChange(val) {
-        if (!val) return;
-        document.getElementById('queryDate').value = val;
-        updateDateDisplay(val);
-        onDateChange();
-        var picker = document.getElementById('datePicker');
-        if (picker) picker.value = '';
-    }
-
-    function selectStore(store) {
-        document.getElementById('queryStore').value = store;
-        document.getElementById('storePillAll').classList.toggle('active', store === '');
-        document.getElementById('storePillXinyi').classList.toggle('active', store === '信義店');
-        document.getElementById('storePillTaichung').classList.toggle('active', store === '臺中市政店');
-        filterAndDisplay();
-    }
-
-    // Touch-swipe on date card for prev/next day
-    (function() {
-        var sx = 0;
-        var el = document.getElementById('dateSwitcher');
-        if (!el) return;
-        el.addEventListener('touchstart', function(e) { sx = e.touches[0].clientX; }, { passive: true });
-        el.addEventListener('touchend', function(e) {
-            var dx = sx - e.changedTouches[0].clientX;
-            if (Math.abs(dx) > 48) shiftDay(dx > 0 ? 1 : -1);
-        }, { passive: true });
-    })();
-
-    function setDefaultDate() {
-        var today = localDateStr(new Date());
-        var todayYM = today.substring(0, 7);
-        var dateInput = document.getElementById('queryDate');
-
-        if (availableMonths.find(function(m) { return m.id === todayYM; })) {
-            dateInput.value = today;
-        } else {
-            var latest = availableMonths[0];
-            dateInput.value = (latest.dateRange && latest.dateRange.end) ? latest.dateRange.end : latest.id + '-01';
-        }
-        updateDateDisplay(dateInput.value);
-        onDateChange();
-        renderCalendarGrid();
-    }
-
-    async function loadDaySchedule(date) {
-        if (!date) return;
-
-        var ym = date.substring(0, 7);
-        var monthMeta = availableMonths.find(function(m) { return m.id === ym; });
-
-        // Highlight active month badge
-        document.querySelectorAll('.month-badge').forEach(function(b) {
-            b.classList.toggle('active', b.dataset.ym === ym);
-        });
-
-        if (!monthMeta) {
-            currentDayData = [];
-            updateStoreSelector();
-            document.getElementById('statsContainer').innerHTML = '';
-            document.getElementById('resultsContainer').innerHTML = '';
-            document.getElementById('emptyState').classList.remove('hidden');
-            return;
-        }
-
-        // Show inline loading
-        document.getElementById('dayLoading').classList.remove('hidden');
-        document.getElementById('resultsContainer').innerHTML = '';
-        document.getElementById('emptyState').classList.add('hidden');
-        document.getElementById('statsContainer').innerHTML = '';
-
-        try {
-            var doc = await db.collection('schedules').doc(ym).collection('days').doc(date).get();
-            currentDayData = (doc.exists && doc.data().records) ? doc.data().records : [];
-        } catch(e) {
-            showToast('載入失敗：' + e.message, 'error');
-            currentDayData = [];
-        }
-
-        document.getElementById('dayLoading').classList.add('hidden');
-        updateStoreSelector();
-        filterAndDisplay();
-    }
-
-    // ========== CALENDAR ==========
-    function renderCalendarGrid() {
-        var year = currentCalendarDate.getFullYear();
-        var month = currentCalendarDate.getMonth();
-        document.getElementById('calendarTitle').textContent = year + '年' + (month + 1) + '月';
-
-        var grid = document.getElementById('calendarGrid');
-        grid.innerHTML = '';
-
-        // Weekdays header
-        WEEKDAYS.forEach(function(wd) {
-            var el = document.createElement('div');
-            el.className = 'calendar-weekday';
-            el.textContent = wd;
-            grid.appendChild(el);
-        });
-
-        var firstDay = new Date(year, month, 1);
-        var lastDay = new Date(year, month + 1, 0);
-        var startPadding = firstDay.getDay(); // 0 (Sun) to 6 (Sat)
-        var totalDays = lastDay.getDate();
-
-        var todayStr = localDateStr(new Date());
-        var selectedStr = document.getElementById('queryDate').value;
-
-        // Previous month padding
-        var prevLastDay = new Date(year, month, 0).getDate();
-        for (var i = startPadding - 1; i >= 0; i--) {
-            var el = document.createElement('div');
-            var pd = new Date(year, month - 1, prevLastDay - i);
-            var pdStr = localDateStr(pd);
-            el.className = 'calendar-day other-month';
-            if (pdStr === selectedStr) el.classList.add('selected');
-            el.textContent = prevLastDay - i;
-            el.onclick = (function(d){ return function() { goToCalendarDate(d); }; })(pdStr);
-            grid.appendChild(el);
-        }
-
-        // Current month days
-        for (var i = 1; i <= totalDays; i++) {
-            var d = new Date(year, month, i);
-            var dStr = localDateStr(d);
-            var el = document.createElement('div');
-            el.className = 'calendar-day';
-            if (dStr === selectedStr) el.classList.add('selected');
-            if (dStr === todayStr && dStr !== selectedStr) el.classList.add('today');
-            el.textContent = i;
-            el.onclick = (function(ds){ return function() { goToCalendarDate(ds); }; })(dStr);
-            grid.appendChild(el);
-        }
-
-        // Next month padding
-        var currentElements = startPadding + totalDays;
-        var endPadding = (7 - (currentElements % 7)) % 7;
-        // Also ensure at least 6 rows total if needed, but 5 or 6 rows is fine based on CSS grid.
-        for (var i = 1; i <= endPadding; i++) {
-            var el = document.createElement('div');
-            var nd = new Date(year, month + 1, i);
-            var ndStr = localDateStr(nd);
-            el.className = 'calendar-day other-month';
-            if (ndStr === selectedStr) el.classList.add('selected');
-            el.textContent = i;
-            el.onclick = (function(d){ return function() { goToCalendarDate(d); }; })(ndStr);
-            grid.appendChild(el);
-        }
-    }
-
-    function navCalendarMonth(delta) {
-        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
-        renderCalendarGrid();
-    }
-
-    function goToCalendarDate(dateStrOrObj) {
-        var dStr = (typeof dateStrOrObj === 'string') ? dateStrOrObj : localDateStr(dateStrOrObj);
-        document.getElementById('queryDate').value = dStr;
-        updateDateDisplay(dStr);
-        onDateChange();
-        renderCalendarGrid();
-    }
-
-    // ========== UI ==========
-    function renderMonthsBar() {
-        var bar = document.getElementById('monthsBar');
-        bar.innerHTML = '';
-        availableMonths.forEach(function(m) {
-            var btn = document.createElement('button');
-            btn.className = 'month-badge';
-            btn.dataset.ym = m.id;
-            btn.textContent = m.id;
-            btn.addEventListener('click', function() { jumpToMonth(m); });
-            bar.appendChild(btn);
-        });
-    }
-
-    function jumpToMonth(monthMeta) {
-        var dateInput = document.getElementById('queryDate');
-        var currentDay = dateInput.value ? dateInput.value.substring(8) : '01';
-        var start = (monthMeta.dateRange && monthMeta.dateRange.start) ? monthMeta.dateRange.start : monthMeta.id + '-01';
-        var end   = (monthMeta.dateRange && monthMeta.dateRange.end)   ? monthMeta.dateRange.end   : monthMeta.id + '-28';
-        var target = monthMeta.id + '-' + currentDay;
-
-        dateInput.value = (target >= start && target <= end) ? target : end;
-        updateDateDisplay(dateInput.value);
-        onDateChange();
-    }
-
-    function updateStoreSelector() {
-        var stores = [];
-        var seen = {};
-        currentDayData.forEach(function(r) {
-            var s = getStore(r.dept);
-            if (!seen[s]) { seen[s] = true; stores.push(s); }
-        });
-        stores.sort();
-
-        var sel = document.getElementById('queryStore');
-        var prev = sel.value;
-        sel.innerHTML = '<option value="">全部</option>';
-        stores.forEach(function(s) {
-            var o = document.createElement('option');
-            o.value = s;
-            o.textContent = s;
-            if (s === prev) o.selected = true;
-            sel.appendChild(o);
-        });
-
-        applyRoleToUI();
-    }
-
-    function filterAndDisplay() {
-        var store   = document.getElementById('queryStore').value;
-        var showAll = document.getElementById('showVacationToggle').checked;
-        var isToday = (document.getElementById('queryDate').value === localDateStr(new Date()));
-
-        // Role-based store enforcement: staff is locked to their store
-        var effRole  = getEffectiveRole();
-        var effStore = getEffectiveStore();
-        if (effRole === 'staff' && effStore) store = effStore;
-
-        var data = store
-            ? currentDayData.filter(function(r) { return getStore(r.dept) === store; })
-            : currentDayData;
-
-        // Today default: hide vacation/holiday; show only shift-scheduled staff
-        if (isToday && !showAll) {
-            data = data.filter(function(r) { return r.status === 'working'; });
-        }
-
-        updateStats(data);
-        displayResults(data);
-    }
-
-    var DEPT_SPECTRUM = [
-        { key: 'dtype-book',    color: '#5D4037', label: '書店' },
-        { key: 'dtype-floor',   color: '#A3B1C6', label: '外場' },
-        { key: 'dtype-kitchen', color: '#E5E5E5', label: '內場' },
-        { key: 'dtype-admin',   color: '#C9C0B7', label: '行政' }
-    ];
-
-    var DEPT_TYPE_ORDER = { 'dtype-admin': 0, 'dtype-book': 1, 'dtype-floor': 2, 'dtype-kitchen': 3 };
-    function deptTypePriority(r) {
-        var dt = getDeptType(r.dept, r.empId);
-        if (!dt) return 99;
-        var v = DEPT_TYPE_ORDER[dt.cls];
-        return v !== undefined ? v : 99;
-    }
-    function sortByDeptThenTime(a, b) {
-        var dp = deptTypePriority(a) - deptTypePriority(b);
-        if (dp !== 0) return dp;
-        return (a.sortValue || 0) - (b.sortValue || 0);
-    }
-
-    var TIME_PERIODS = [
-        [0,   360,  '深夜'],
-        [360, 510,  '開店準備'],
-        [510, 720,  '上午'],
-        [720, 840,  '午間高峰'],
-        [840, 960,  '換班時段'],
-        [960, 1080, '下午'],
-        [1080,1200, '傍晚'],
-        [1200,1320, '晚間'],
-        [1320,1440, '打烊']
-    ];
-
-    function getTimePeriod(min) {
-        for (var i = 0; i < TIME_PERIODS.length; i++) {
-            if (min >= TIME_PERIODS[i][0] && min < TIME_PERIODS[i][1]) return TIME_PERIODS[i][2];
-        }
-        return '';
-    }
-
-    function parseTimeToMin(t) {
-        if (!t || t.length < 5) return -1;
-        return parseInt(t) * 60 + parseInt(t.substring(3));
-    }
-
-    function updateStats(data) {
-        var container = document.getElementById('statsContainer');
-        if (!data.length) { container.innerHTML = ''; return; }
-
-        var storeMap = {};
-        data.forEach(function(r) {
-            var store = getStore(r.dept);
-            if (!storeMap[store]) storeMap[store] = [];
-            storeMap[store].push(r);
-        });
-
-        var now          = new Date();
-        var nowMin       = now.getHours() * 60 + now.getMinutes();
-        var timeStr      = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-        var periodLabel  = getTimePeriod(nowMin);
-        var selectedDate = document.getElementById('queryDate').value;
-        var isToday      = (selectedDate === localDateStr(new Date()));
-        var storeOrder   = ['信義店', '臺中市政店'];
-        var shortNames   = { '信義店': '信義', '臺中市政店': '市政' };
-
-        var DEPT_ROWS = [
-            { key: 'dtype-book',    label: '書店', color: '#8D6E63' },
-            { key: 'dtype-floor',   label: '外場', color: '#7B93B5' },
-            { key: 'dtype-kitchen', label: '內場', color: '#A0A0A0' }
-        ];
-
-        function fmtHours(mins) {
-            if (!mins) return '—';
-            var h = mins / 60;
-            return (h % 1 === 0 ? String(h) : h.toFixed(1)) + 'h';
-        }
-
-        var html = '';
-        storeOrder.forEach(function(store) {
-            var rows = storeMap[store];
-            if (!rows) return;
-
-            /* ── Per-dept stats ── */
-            var deptStats = {};
-            DEPT_ROWS.forEach(function(d) { deptStats[d.key] = { onSite: 0, total: 0, mins: 0 }; });
-
-            rows.forEach(function(r) {
-                var dt = getDeptType(r.dept, r.empId);
-                if (!dt || !deptStats[dt.cls]) return;
-                var ds = deptStats[dt.cls];
-                if (r.status === 'working') {
-                    ds.total++;
-                    if (r.isValidTime) {
-                        var s = parseTimeToMin(r.startTime), e = parseTimeToMin(r.endTime);
-                        if (s >= 0 && e > s) ds.mins += (e - s);
-                    }
-                }
-                if (isToday && r.status === 'working' && r.isValidTime) {
-                    var s = parseTimeToMin(r.startTime), e = parseTimeToMin(r.endTime);
-                    if (s >= 0 && e >= 0 && s <= nowMin && e > nowMin) ds.onSite++;
-                }
-            });
-
-            /* ── Totals ── */
-            var totalOnSite  = DEPT_ROWS.reduce(function(sum, d) { return sum + deptStats[d.key].onSite;  }, 0);
-            var totalWorking = DEPT_ROWS.reduce(function(sum, d) { return sum + deptStats[d.key].total;   }, 0);
-            var totalMins    = DEPT_ROWS.reduce(function(sum, d) { return sum + deptStats[d.key].mins;    }, 0);
-
-            /* ── Column header row ── */
-            var colHdrHtml =
-                '<div class="sc-dept-row sc-col-header">' +
-                    '<div></div>' +
-                    (isToday ? '<div class="sc-col-hd sc-col-hd-onsite">現場</div>' : '') +
-                    '<div class="sc-col-hd">今日</div>' +
-                    '<div class="sc-col-hd">時數</div>' +
-                '</div>';
-
-            /* ── Dept data rows ── */
-            var deptRowsHtml = '';
-            DEPT_ROWS.forEach(function(d) {
-                var ds = deptStats[d.key];
-                if (!ds.total) return;
-                deptRowsHtml +=
-                    '<div class="sc-dept-row">' +
-                        '<div class="sc-dept-name">' +
-                            '<span class="sfoot-dot" style="background:' + d.color + '"></span>' +
-                            d.label +
-                        '</div>' +
-                        (isToday ? '<div class="sc-val sc-val-onsite">' + ds.onSite + '</div>' : '') +
-                        '<div class="sc-val">' + ds.total + '</div>' +
-                        '<div class="sc-val sc-val-hrs">' + fmtHours(ds.mins) + '</div>' +
-                    '</div>';
-            });
-
-            if (!deptRowsHtml) return;
-
-            /* ── Total row ── */
-            var totalRowHtml =
-                '<div class="sc-dept-row sc-total-row">' +
-                    '<div class="sc-dept-name sc-total-label">合計</div>' +
-                    (isToday ? '<div class="sc-val sc-total-val sc-val-onsite">' + totalOnSite + '</div>' : '') +
-                    '<div class="sc-val sc-total-val">' + totalWorking + '</div>' +
-                    '<div class="sc-val sc-val-hrs sc-total-val">' + fmtHours(totalMins) + '</div>' +
-                '</div>';
-
-            /* ── Card HTML ── */
-            var periodHtml = periodLabel ? '<span class="staffing-period">' + periodLabel + '</span>' : '';
-            var gridClass  = 'sc-dept-grid' + (isToday ? '' : ' no-onsite');
-            html +=
-                '<div class="staffing-card">' +
-                    '<div class="staffing-header">' +
-                        '<span class="staffing-store-name">' + shortNames[store] + '</span>' +
-                        '<div class="staffing-header-right">' +
-                            periodHtml +
-                            '<span class="staffing-time">' + timeStr + '</span>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="' + gridClass + '">' +
-                        colHdrHtml +
-                        deptRowsHtml +
-                        '<div class="sc-divider"></div>' +
-                        totalRowHtml +
-                    '</div>' +
-                '</div>';
-        });
-
-        container.innerHTML = html;
-    }
-
-    function makeEmpRow(r, statusText, badgeClass, rowClass) {
-        var div = document.createElement('div');
-        var dt = getDeptType(r.dept, r.empId);
-        var deptBgClass = 'row-dept-none';
-        if (dt) {
-            if (dt.cls === 'dtype-book')                                      deptBgClass = 'row-dept-book';
-            else if (dt.cls === 'dtype-floor' || dt.cls === 'dtype-kitchen')  deptBgClass = 'row-dept-restaurant';
-            else if (dt.cls === 'dtype-admin')                                deptBgClass = 'row-dept-admin';
-        }
-        div.className = 'employee-row ' + rowClass + ' ' + deptBgClass;
-        var dtBadge = dt ? '<span class="dtype-badge ' + dt.cls + '">' + dt.label + '</span>' : '';
-        var titleBadge = empTitles[r.empId] ? '<span class="emp-title-badge">' + esc(empTitles[r.empId]) + '</span>' : '';
-        var isShiftRow = rowClass === 'row-working' || rowClass === 'row-upcoming' || rowClass === 'row-finished';
-        var timeText = isShiftRow
-            ? (r.isValidTime ? esc(r.startTime) + ' — ' + esc(r.endTime) : esc(r.shiftRaw))
-            : '<em>' + esc(r.shiftRaw) + '</em>';
-        div.innerHTML =
-            '<div class="emp-header">' +
-            '<div class="emp-info">' +
-            '<div class="emp-name">' + dtBadge + titleBadge + esc(r.empName) + '</div>' +
-            '<div class="emp-id">' + esc(r.empId) + '</div>' +
-            '</div>' +
-            '<span class="status-badge ' + badgeClass + '">' + statusText + '</span>' +
-            '</div>' +
-            '<div class="time-display">' + timeText + '</div>';
-        return div;
-    }
-
-    function displayResults(data) {
-        var container  = document.getElementById('resultsContainer');
-        var emptyState = document.getElementById('emptyState');
-        var showAll    = document.getElementById('showVacationToggle').checked;
-        var selectedDate = document.getElementById('queryDate').value;
-        var isToday    = (selectedDate === localDateStr(new Date()));
-
-        if (!data.length) {
-            container.innerHTML = '';
-            emptyState.classList.remove('hidden');
-            return;
-        }
-        emptyState.classList.add('hidden');
-
-        var storeOrder = ['信義店', '臺中市政店'];
-        var frag = document.createDocumentFragment();
-        var hasVisible = false;
-
-        if (isToday) {
-            /* ── TODAY: realtime status groups (上班中 / 未上班 / 已下班) ── */
-            var now    = new Date();
-            var nowMin = now.getHours() * 60 + now.getMinutes();
-            var slotH  = now.getHours();
-            var slotM  = now.getMinutes() >= 30 ? 30 : 0;
-            var slotStr = String(slotH).padStart(2,'0') + ':' + String(slotM).padStart(2,'0');
-
-            // Group by store then by realtime status
-            var grouped = {};
-            data.forEach(function(r) {
-                var s = getStore(r.dept);
-                if (!grouped[s]) grouped[s] = { active: [], upcoming: [], finished: [], vacation: [] };
-                if (r.status !== 'working') { grouped[s].vacation.push(r); return; }
-                if (!r.isValidTime) { grouped[s].active.push(r); return; }
-                var sMin = parseTimeToMin(r.startTime), eMin = parseTimeToMin(r.endTime);
-                if (sMin < 0 || eMin < 0)    { grouped[s].active.push(r); return; }
-                if (sMin > nowMin)             grouped[s].upcoming.push(r);
-                else if (eMin <= nowMin)       grouped[s].finished.push(r);
-                else                           grouped[s].active.push(r);
-            });
-
-            storeOrder.forEach(function(store) {
-                var g = grouped[store];
-                if (!g) return;
-                if (!g.active.length && !g.upcoming.length && !g.finished.length && !g.vacation.length) return;
-                hasVisible = true;
-
-                var section = document.createElement('div');
-                section.className = 'dept-section';
-
-                var header = document.createElement('div');
-                header.className = 'dept-header';
-                header.style.borderLeft = '4px solid ' + (store === '信義店' ? '#3b82f6' : '#10b981');
-                header.innerHTML =
-                    '<div class="dept-title">' + esc(store) + '</div>' +
-                    '<div class="dept-badge">' +
-                    '<span class="badge">' + slotStr + ' 時段</span>' +
-                    '<span class="badge">場上 ' + g.active.length + '</span>' +
-                    '</div>';
-                section.appendChild(header);
-
-                var list = document.createElement('div');
-                list.className = 'employee-list';
-
-                // 上班中
-                g.active.sort(sortByDeptThenTime);
-                g.active.forEach(function(r) {
-                    list.appendChild(makeEmpRow(r, '上班中', 'badge-working', 'row-working'));
-                });
-
-                // 未上班
-                if (g.upcoming.length) {
-                    var lbl1 = document.createElement('div');
-                    lbl1.className = 'time-sub-label';
-                    lbl1.textContent = '未上班 ' + g.upcoming.length + ' 人';
-                    list.appendChild(lbl1);
-                    g.upcoming.sort(sortByDeptThenTime);
-                    g.upcoming.forEach(function(r) {
-                        list.appendChild(makeEmpRow(r, '未上班', 'badge-upcoming', 'row-upcoming'));
-                    });
-                }
-
-                // 已下班
-                if (g.finished.length) {
-                    var lbl2 = document.createElement('div');
-                    lbl2.className = 'time-sub-label';
-                    lbl2.textContent = '已下班 ' + g.finished.length + ' 人';
-                    list.appendChild(lbl2);
-                    g.finished.sort(sortByDeptThenTime);
-                    g.finished.forEach(function(r) {
-                        list.appendChild(makeEmpRow(r, '已下班', 'badge-finished', 'row-finished'));
-                    });
-                }
-
-                // 休假 (只在 全體 ON 時顯示)
-                if (showAll && g.vacation.length) {
-                    var lbl3 = document.createElement('div');
-                    lbl3.className = 'time-sub-label';
-                    lbl3.textContent = '休假 ' + g.vacation.length + ' 人';
-                    list.appendChild(lbl3);
-                    g.vacation.sort(sortByDeptThenTime);
-                    g.vacation.forEach(function(r) {
-                        var isHoliday = r.status === 'holiday';
-                        list.appendChild(makeEmpRow(r,
-                            isHoliday ? '例假日' : '休息日',
-                            isHoliday ? 'badge-holiday' : 'badge-rest',
-                            isHoliday ? 'row-holiday' : 'row-rest'
-                        ));
-                    });
-                }
-
-                section.appendChild(list);
-                frag.appendChild(section);
-            });
-
-        } else {
-            /* ── OTHER DAYS: original working / rest view ── */
-            var grouped2 = {};
-            data.forEach(function(r) {
-                var s = getStore(r.dept);
-                if (!grouped2[s]) grouped2[s] = { working: [], rest: [] };
-                if (r.status === 'working') grouped2[s].working.push(r);
-                else grouped2[s].rest.push(r);
-            });
-
-            var allStores = Object.keys(grouped2).sort(function(a, b) {
-                var ia = storeOrder.indexOf(a), ib = storeOrder.indexOf(b);
-                if (ia < 0) ia = 99; if (ib < 0) ib = 99;
-                return ia - ib || a.localeCompare(b);
-            });
-
-            allStores.forEach(function(store) {
-                var g = grouped2[store];
-                if (!showAll && g.working.length === 0) return;
-                hasVisible = true;
-
-                var section = document.createElement('div');
-                section.className = 'dept-section';
-
-                var header = document.createElement('div');
-                header.className = 'dept-header';
-                header.style.borderLeft = '4px solid ' + (store === '信義店' ? '#3b82f6' : '#10b981');
-                header.innerHTML =
-                    '<div class="dept-title">' + esc(store) + '</div>' +
-                    '<div class="dept-badge">' +
-                    '<span class="badge">上班 ' + g.working.length + '</span>' +
-                    (showAll ? '<span class="badge">休假 ' + g.rest.length + '</span>' : '') +
-                    '</div>';
-                section.appendChild(header);
-
-                var list = document.createElement('div');
-                list.className = 'employee-list';
-
-                g.working.sort(sortByDeptThenTime);
-                g.working.forEach(function(r) {
-                    list.appendChild(makeEmpRow(r, '上班', 'badge-working', 'row-working'));
-                });
-
-                if (showAll) {
-                    g.rest.sort(sortByDeptThenTime);
-                    g.rest.forEach(function(r) {
-                        var isHoliday = r.status === 'holiday';
-                        list.appendChild(makeEmpRow(r,
-                            isHoliday ? '例假日' : '休息日',
-                            isHoliday ? 'badge-holiday' : 'badge-rest',
-                            isHoliday ? 'row-holiday' : 'row-rest'
-                        ));
-                    });
-                }
-
-                section.appendChild(list);
-                frag.appendChild(section);
-            });
-        }
-
-        container.innerHTML = '';
-        if (hasVisible) {
-            container.appendChild(frag);
-        } else {
-            emptyState.classList.remove('hidden');
-        }
-    }
-
-    // ========== EVENT HANDLERS ==========
-    function onDateChange() {
-        var date = document.getElementById('queryDate').value;
-        if (date) {
-            updateDateDisplay(date);
-            loadDaySchedule(date);
-        }
-    }
-
-    // ========== PWA ==========
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(function() {});
-    }
-
-    window.addEventListener('beforeinstallprompt', function(e) {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById('installPrompt').classList.remove('hidden');
-    });
-
-    function installApp() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(function() {
-                deferredPrompt = null;
-                document.getElementById('installPrompt').classList.add('hidden');
-            });
-        }
-    }
-    function dismissInstall() {
-        document.getElementById('installPrompt').classList.add('hidden');
-    }
-
-    // ========== 清除快取 ==========
-    async function clearCacheAndReload() {
-        try {
-            // 登出所有 Service Worker
             if ('serviceWorker' in navigator) {
-                var regs = await navigator.serviceWorker.getRegistrations();
-                await Promise.all(regs.map(function(r) { return r.unregister(); }));
+                navigator.serviceWorker.register('sw.js').catch(() => {});
             }
-            // 清除所有快取
-            if ('caches' in window) {
-                var keys = await caches.keys();
-                await Promise.all(keys.map(function(k) { return caches.delete(k); }));
-            }
-        } catch(e) {}
-        window.location.reload(true);
-    }
+        })();
 
-    // ========== RECONNECT ==========
-    async function retryConnection() {
-        if (!isConfigured()) return;
-        setCloud('', '連線中');
-        document.getElementById('stateError').classList.add('hidden');
-        try {
-            if (!firebase.apps.length) {
-                firebase.initializeApp(FIREBASE_CONFIG);
-                db = firebase.firestore();
+        // ── Layout: peek pattern ──
+        function positionTrack(animate = true) {
+            const viewport = document.getElementById('viewViewport');
+            const track    = document.getElementById('viewTrack');
+            const sections = track.querySelectorAll('.view-section');
+            const W = viewport.offsetWidth;
+            const sectionW = W - 2 * PEEK;
+
+            sections.forEach(s => { s.style.width = sectionW + 'px'; });
+
+            const tx = PEEK - state.view * sectionW;
+            if (!animate) track.style.transition = 'none';
+            track.style.transform = `translateX(${tx}px)`;
+            if (!animate) {
+                // Re-enable transition on next frame
+                requestAnimationFrame(() => {
+                    track.style.transition = '';
+                });
             }
-            await initAppData();
-        } catch(e) {
-            setCloud('error', '失敗');
-            document.getElementById('errorDesc').textContent = e.message || '請檢查網路連線後重新整理';
-            showState('stateError');
         }
-    }
 
-    // ========== BOOT ==========
-    initApp();
+        window.addEventListener('resize', () => positionTrack(false));
+
+        // ── View switching ──
+        function switchView(idx) {
+            state.view = Math.max(0, Math.min(2, idx));
+            positionTrack(true);
+        }
+
+        // ── Month view ──
+        const MONTH_NAMES = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+
+        function renderMonth() {
+            document.getElementById('calMonthName').textContent = MONTH_NAMES[state.calMonth];
+            document.getElementById('calYearSmall').textContent = state.calYear;
+
+            const grid = document.getElementById('calGrid');
+            const headers = Array.from(grid.querySelectorAll('.cal-hdr'));
+            grid.innerHTML = '';
+            headers.forEach(h => grid.appendChild(h));
+
+            const firstDow  = new Date(state.calYear, state.calMonth, 1).getDay();
+            const daysInMon = new Date(state.calYear, state.calMonth + 1, 0).getDate();
+            const todayStr  = localDateStr(new Date());
+            const selStr    = localDateStr(state.viewDate);
+
+            for (let i = 0; i < firstDow; i++) {
+                const el = document.createElement('div');
+                el.className = 'cal-day empty';
+                grid.appendChild(el);
+            }
+
+            for (let d = 1; d <= daysInMon; d++) {
+                const dateStr = `${state.calYear}-${pad(state.calMonth + 1)}-${pad(d)}`;
+                const el = document.createElement('div');
+                el.className = 'cal-day';
+                if (dateStr === todayStr) el.classList.add('today');
+                if (dateStr === selStr)   el.classList.add('selected');
+                el.innerHTML = `<span class="day-num">${d}</span>`;
+                el.addEventListener('click', () => {
+                    state.viewDate = new Date(dateStr + 'T00:00:00');
+                    renderDay();
+                    switchView(2);
+                });
+                grid.appendChild(el);
+            }
+        }
+
+        // ── Week view ──
+        function renderWeek() {
+            const sunday = weekSunday(state.viewDate);
+            const todayStr = localDateStr(new Date());
+            const container = document.getElementById('weekStrips');
+            container.innerHTML = '';
+
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(sunday);
+                d.setDate(sunday.getDate() + i);
+                const dStr = localDateStr(d);
+
+                const showMonth = (i === 0) || (d.getMonth() !== new Date(sunday.getTime() + (i - 1) * 86400000).getMonth());
+                const monthStr = showMonth ? `${d.getMonth() + 1}月` : '';
+
+                const strip = document.createElement('div');
+                strip.className = 'day-strip' + (dStr === todayStr ? ' today' : '');
+
+                const isToday = dStr === todayStr;
+                strip.innerHTML = `
+                    <div class="strip-month">
+                        ${showMonth ? `<span class="strip-month-label">${monthStr}</span>` : ''}
+                    </div>
+                    <div class="strip-date">
+                        <span class="strip-weekday">${WEEKDAYS[d.getDay()]}</span>
+                        <span class="strip-num">${d.getDate()}</span>
+                        ${isToday ? '<div class="strip-today-dot"></div>' : ''}
+                    </div>
+                    <div class="strip-body">
+                        <span class="strip-empty">尚無事件</span>
+                        <div class="strip-weather">
+                            <span class="strip-weather-icon">—</span>
+                            <span>—°</span>
+                        </div>
+                    </div>`;
+
+                strip.addEventListener('click', () => {
+                    state.viewDate = new Date(d);
+                    renderDay();
+                    switchView(2);
+                });
+
+                container.appendChild(strip);
+            }
+        }
+
+        // ── Day view ──
+        const DAY_MONTHS_EN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+
+        function renderDay() {
+            const d = state.viewDate;
+            const todayStr  = localDateStr(new Date());
+            const dStr      = localDateStr(d);
+            const isToday   = dStr === todayStr;
+            const tomorrow  = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+            const isTomorrow = dStr === localDateStr(tomorrow);
+            const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+            const isYesterday = dStr === localDateStr(yesterday);
+
+            // Day label
+            let label;
+            if (isToday)     label = '今日';
+            else if (isTomorrow)  label = '明日';
+            else if (isYesterday) label = '昨日';
+            else label = `週${WEEKDAYS[d.getDay()]}`;
+
+            document.getElementById('dayLabel').textContent   = label;
+            document.getElementById('dayDateSub').textContent =
+                `${d.getDate()} ${DAY_MONTHS_EN[d.getMonth()]} ${d.getFullYear()}`;
+
+            // Events (placeholder — real data TBD)
+            const eventsEl = document.getElementById('dayEvents');
+            eventsEl.innerHTML = `<div class="day-empty">尚無班表行程</div>`;
+
+            // Scroll day section to top
+            const viewDay = document.getElementById('viewDay');
+            viewDay.scrollTop = 0;
+        }
+
+        // ── Swipe gestures ──
+        function onTouchStart(e) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }
+
+        function onTouchEnd(e) {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+                switchView(state.view + (dx < 0 ? 1 : -1));
+            }
+        }
+
+        // ── Week vertical swipe (prev/next week) ──
+        let weekTouchStartX = 0, weekTouchStartY = 0;
+
+        function onWeekTouchStart(e) {
+            weekTouchStartX = e.touches[0].clientX;
+            weekTouchStartY = e.touches[0].clientY;
+        }
+
+        function onWeekTouchEnd(e) {
+            const dx = e.changedTouches[0].clientX - weekTouchStartX;
+            const dy = e.changedTouches[0].clientY - weekTouchStartY;
+            if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 40) {
+                shiftWeek(dy < 0 ? 7 : -7);
+            }
+        }
+
+        function shiftWeek(days) {
+            const strips = document.getElementById('weekStrips');
+            const dir = days > 0 ? -1 : 1;  // swipe up = next week = slide up
+            // Slide out
+            strips.style.transition = 'transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.22s';
+            strips.style.transform  = `translateY(${dir * -50}%)`;
+            strips.style.opacity    = '0';
+            setTimeout(() => {
+                // Update date and re-render
+                state.viewDate = new Date(state.viewDate.getTime() + days * 86400000);
+                renderWeek();
+                // Snap to opposite side instantly, then slide in
+                strips.style.transition = 'none';
+                strips.style.transform  = `translateY(${dir * 50}%)`;
+                strips.style.opacity    = '0';
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        strips.style.transition = 'transform 0.28s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.22s';
+                        strips.style.transform  = 'translateY(0)';
+                        strips.style.opacity    = '1';
+                    });
+                });
+            }, 200);
+        }
+
+        // ── Settings overlay ──
+        function openSettings() {
+            document.getElementById('overlayBackdrop').classList.add('open');
+            document.getElementById('settingsPanel').classList.add('open');
+        }
+
+        function closeSettings() {
+            document.getElementById('overlayBackdrop').classList.remove('open');
+            document.getElementById('settingsPanel').classList.remove('open');
+        }
+
+        // ── Utilities ──
+        function weekSunday(d) {
+            const s = new Date(d);
+            s.setDate(d.getDate() - d.getDay());
+            s.setHours(0,0,0,0);
+            return s;
+        }
+
+        function localDateStr(d) {
+            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+        }
+
+        function pad(n) { return String(n).padStart(2, '0'); }
     </script>
 </body>
 </html>

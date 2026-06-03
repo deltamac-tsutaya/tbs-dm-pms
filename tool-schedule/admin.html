@@ -1,0 +1,1982 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
+    <title>班表後台管理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            color: #1f2937;
+            background: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Admin bar */
+        .admin-bar {
+            background: linear-gradient(to right, #1e40af, #1e3a8a);
+            color: white;
+            padding: 0.875rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+        }
+        .admin-bar-title { font-size: 17px; font-weight: 700; }
+        .admin-bar-right { display: flex; align-items: center; gap: 1rem; font-size: 13px; opacity: 0.9; }
+        .logout-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 6px;
+            padding: 0.35rem 0.85rem;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .logout-btn:hover { background: rgba(255,255,255,0.25); }
+
+        /* Content */
+        .content { flex: 1; overflow-y: auto; padding: 1.5rem; max-width: 860px; margin: 0 auto; width: 100%; }
+        @media (max-width: 640px) { .content { padding: 1rem; } }
+
+        /* Section card */
+        .section-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .refresh-btn {
+            background: none;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.4rem 0.75rem;
+            font-size: 13px;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .refresh-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+        /* Login */
+        #loginSection {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 56px);
+            padding: 1.5rem;
+        }
+        .login-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .login-title { font-size: 22px; font-weight: 700; margin-bottom: 0.35rem; color: #1e293b; }
+        .login-subtitle { font-size: 13px; color: #94a3b8; margin-bottom: 1.75rem; }
+        .field-label { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.4rem; display: block; }
+        .field-input {
+            width: 100%;
+            padding: 0.7rem 0.875rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s;
+        }
+        .field-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        .login-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(37,99,235,0.3);
+        }
+        .login-btn:active { transform: scale(0.98); }
+        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .login-error {
+            margin-top: 0.75rem;
+            padding: 0.65rem 0.875rem;
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #991b1b;
+        }
+        .spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Drop zone */
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+        .drop-icon { font-size: 40px; margin-bottom: 0.75rem; }
+        .drop-title { font-size: 15px; font-weight: 600; color: #475569; margin-bottom: 0.35rem; }
+        .drop-hint { font-size: 13px; color: #94a3b8; margin-bottom: 1rem; }
+        .browse-btn {
+            display: inline-block;
+            padding: 0.6rem 1.5rem;
+            background: white;
+            border: 1.5px solid #2563eb;
+            border-radius: 8px;
+            color: #2563eb;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .browse-btn:hover { background: #eff6ff; }
+
+        /* Preview */
+        .preview-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.875rem 1rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .preview-filename { font-size: 14px; font-weight: 600; color: #334155; }
+        .preview-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #94a3b8;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0.1rem 0.3rem;
+        }
+        .preview-body { padding: 1rem; }
+        .preview-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.65rem 0.875rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+        .preview-ym { font-size: 15px; font-weight: 700; color: #1e293b; }
+        .preview-meta { font-size: 12px; color: #64748b; margin-top: 0.2rem; }
+        .preview-exist-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+            white-space: nowrap;
+        }
+        .preview-actions {
+            display: flex;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .confirm-btn {
+            flex: 1;
+            padding: 0.7rem;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .confirm-btn:active { transform: scale(0.98); }
+        .cancel-btn {
+            padding: 0.7rem 1.25rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        /* Progress */
+        .progress-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-top: 1rem;
+            background: #f8fafc;
+        }
+        .progress-text { font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 0.75rem; }
+        .progress-bar-wrap {
+            background: #e2e8f0;
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #2563eb, #3b82f6);
+            border-radius: 8px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .progress-detail { font-size: 12px; color: #94a3b8; }
+
+        /* Month list */
+        .month-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            background: #f8fafc;
+            transition: all 0.15s;
+        }
+        .month-item:last-child { margin-bottom: 0; }
+        .month-item-left {}
+        .month-item-ym { font-size: 17px; font-weight: 700; color: #1e293b; }
+        .month-item-meta { font-size: 12px; color: #94a3b8; margin-top: 0.3rem; }
+        .month-item-tags { display: flex; gap: 0.4rem; margin-top: 0.5rem; flex-wrap: wrap; }
+        .month-tag {
+            font-size: 11px;
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            background: #dbeafe;
+            color: #1e40af;
+            font-weight: 600;
+        }
+        .delete-btn {
+            padding: 0.45rem 0.875rem;
+            background: white;
+            border: 1.5px solid #fca5a5;
+            border-radius: 8px;
+            color: #ef4444;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .delete-btn:hover { background: #fee2e2; }
+
+        /* Not configured banner */
+        .not-configured {
+            background: #fef3c7;
+            border: 1.5px solid #fde68a;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            font-size: 14px;
+            color: #92400e;
+        }
+        .not-configured strong { display: block; margin-bottom: 0.25rem; }
+
+        /* Loading text */
+        .loading-text { text-align: center; padding: 2rem; color: #94a3b8; font-size: 14px; }
+        .empty-months { text-align: center; padding: 2rem 1rem; color: #94a3b8; font-size: 14px; }
+
+        /* Account creation dialog */
+        .acct-dialog-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 300;
+            display: flex; align-items: center; justify-content: center;
+            padding: 1rem;
+        }
+        .acct-dialog-backdrop.hidden { display: none; }
+        .acct-dialog {
+            background: #fff;
+            border-radius: 16px;
+            width: 100%; max-width: 380px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            overflow: hidden;
+        }
+        .acct-dialog-header {
+            padding: 1.25rem 1.25rem 0;
+        }
+        .acct-dialog-title {
+            font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 0.25rem;
+        }
+        .acct-dialog-sub {
+            font-size: 13px; color: #64748b;
+        }
+        .acct-dialog-body {
+            padding: 1rem 1.25rem;
+        }
+        .acct-dialog-label {
+            font-size: 12px; font-weight: 600; color: #64748b;
+            text-transform: uppercase; letter-spacing: 0.04em;
+            margin-bottom: 0.35rem; display: block;
+        }
+        .acct-dialog-input {
+            width: 100%; box-sizing: border-box;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px; color: #1f2937;
+            outline: none; transition: border-color 0.15s;
+        }
+        .acct-dialog-input:focus { border-color: #2563eb; }
+        .acct-dialog-hint {
+            margin-top: 0.5rem;
+            font-size: 12px; color: #64748b; line-height: 1.5;
+        }
+        .acct-dialog-footer {
+            display: flex; gap: 0.75rem;
+            padding: 0.75rem 1.25rem 1.25rem;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 1rem; right: 1rem;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+        .toast {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            animation: slideIn 0.25s ease;
+            pointer-events: all;
+        }
+        .toast-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .toast-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .toast-info    { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+        @keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .hidden { display: none !important; }
+
+        /* Employee title management */
+        .search-input {
+            width: 100%;
+            padding: 0.65rem 0.875rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
+        .emp-title-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: #f8fafc;
+            transition: border-color 0.15s;
+        }
+        .emp-title-row:last-child { margin-bottom: 0; }
+        .emp-title-info { flex: 1; min-width: 0; }
+        .emp-title-name { font-size: 14px; font-weight: 600; color: #1e293b; }
+        .emp-title-id { font-size: 12px; color: #94a3b8; margin-top: 0.2rem; }
+        .emp-title-input {
+            width: 150px;
+            padding: 0.45rem 0.65rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            flex-shrink: 0;
+            transition: border-color 0.2s;
+        }
+        .emp-title-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
+        .save-titles-btn {
+            padding: 0.7rem 1.75rem;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(37,99,235,0.25);
+        }
+        .save-titles-btn:active { transform: scale(0.98); }
+
+        /* Employee account & role */
+        .emp-title-row { flex-wrap: wrap; }
+        .emp-row-meta { display: flex; align-items: center; gap: 0.4rem; width: 100%; margin-top: 0.4rem; flex-wrap: wrap; }
+        .emp-role-select {
+            padding: 0.25rem 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px;
+            font-size: 12px; background: white; cursor: pointer; color: #374151;
+        }
+        .emp-account-btn {
+            padding: 0.25rem 0.65rem; font-size: 12px; font-weight: 600;
+            border: 1.5px solid #2563eb; border-radius: 6px; background: white;
+            color: #2563eb; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+        }
+        .emp-account-btn:hover { background: #eff6ff; }
+        .emp-account-btn:disabled { opacity: 0.5; cursor: default; }
+        .emp-account-ok { font-size: 12px; color: #15803d; font-weight: 600; }
+        .emp-account-pending { font-size: 12px; color: #92400e; font-weight: 500; }
+
+        /* Title roster upload */
+        .title-upload-zone {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 10px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-wrap: wrap;
+            margin-bottom: 0.75rem;
+        }
+        .title-upload-zone:hover, .title-upload-zone.drag-over { border-color: #2563eb; background: #eff6ff; }
+        .title-upload-text { font-size: 13px; color: #64748b; flex: 1; }
+        .title-upload-hint { font-size: 12px; color: #94a3b8; }
+        .browse-btn-sm {
+            padding: 0.3rem 0.75rem;
+            background: white;
+            border: 1.5px solid #2563eb;
+            border-radius: 6px;
+            color: #2563eb;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .browse-btn-sm:hover { background: #eff6ff; }
+        .title-upload-preview {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.65rem 0.875rem;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            background: #f0fdf4;
+            margin-bottom: 0.75rem;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: #166534;
+        }
+    </style>
+</head>
+<body>
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div class="admin-bar">
+        <span class="admin-bar-title">班表後台管理</span>
+        <div class="admin-bar-right" id="adminBarRight">
+            <span id="adminEmail" class="hidden"></span>
+            <button class="logout-btn hidden" id="logoutBtn" onclick="logout()">登出</button>
+        </div>
+    </div>
+
+    <!-- Login -->
+    <div id="loginSection">
+        <div class="login-card">
+            <div class="login-title">管理員登入</div>
+            <div class="login-subtitle">請使用管理員帳號登入後台</div>
+            <label class="field-label">電子郵件</label>
+            <input id="loginEmail" type="email" class="field-input" placeholder="admin@example.com"
+                   onkeydown="if(event.key==='Enter') login()" />
+            <label class="field-label">密碼</label>
+            <div style="position: relative;">
+                <input id="loginPassword" type="password" class="field-input" placeholder="••••••••"
+                       onkeydown="if(event.key==='Enter') login()" style="padding-right: 2.75rem;" />
+                <button type="button" onclick="togglePassword()" style="position: absolute; right: 0.75rem; top: 0.6rem; background: none; border: none; cursor: pointer; color: #94a3b8; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0;">
+                    <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg id="eyeClosed" class="hidden" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                    </svg>
+                </button>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 1.25rem; margin-top: -0.5rem;">
+                <button type="button" onclick="forgotPassword()" style="background: none; border: none; color: #2563eb; font-size: 13px; font-weight: 500; cursor: pointer; padding: 0;">忘記密碼？</button>
+            </div>
+            <button class="login-btn" id="loginBtn" onclick="login()">登入</button>
+            <div id="loginError" class="login-error hidden"></div>
+            <div id="loginSuccess" class="login-error hidden" style="background: #dcfce7; border-color: #86efac; color: #166534;"></div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboardSection" class="hidden">
+        <div class="content">
+
+            <!-- Not configured banner -->
+            <div id="notConfiguredBanner" class="not-configured hidden">
+                <strong>⚠️ 尚未設定 Firebase</strong>
+                請編輯 firebase-config.js 填入您的 Firebase 專案設定後重新載入。
+            </div>
+
+            <!-- Access denied banner -->
+            <div id="accessDeniedBanner" class="hidden" style="background:#fee2e2;border:1.5px solid #fca5a5;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:14px;color:#991b1b;">
+                <strong style="display:block;margin-bottom:0.25rem;">🔒 權限不足</strong>
+                您的帳號沒有管理員權限，無法使用後台功能。請聯絡系統管理員。
+                <div style="margin-top:0.75rem;">
+                    <a href="index.html" style="color:#991b1b;font-weight:600;">← 返回前台</a>
+                </div>
+            </div>
+
+            <!-- Upload section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">📤 上傳班表</div>
+                </div>
+
+                <!-- Drop zone -->
+                <div id="dropZone" class="drop-zone"
+                     ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                     ondragleave="this.classList.remove('drag-over')"
+                     ondrop="handleDrop(event)">
+                    <div class="drop-icon">📂</div>
+                    <div class="drop-title">拖曳 Excel 班表到此處</div>
+                    <div class="drop-hint">支援 .xlsx / .xls 格式</div>
+                    <button class="browse-btn" onclick="document.getElementById('fileInput').click()">選擇檔案</button>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none"
+                           onchange="handleFileChange(this)" />
+                </div>
+
+                <!-- Preview -->
+                <div id="previewSection" class="hidden">
+                    <div class="preview-card">
+                        <div class="preview-header">
+                            <span class="preview-filename" id="previewFilename"></span>
+                            <button class="preview-close" onclick="hidePreview()">✕</button>
+                        </div>
+                        <div class="preview-body" id="previewBody"></div>
+                        <div class="preview-actions">
+                            <button class="confirm-btn" onclick="confirmUpload()">確認上傳</button>
+                            <button class="cancel-btn" onclick="hidePreview()">取消</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress -->
+                <div id="progressSection" class="hidden">
+                    <div class="progress-card">
+                        <div class="progress-text" id="progressText">準備上傳...</div>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-detail" id="progressDetail"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Months list -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">📅 已上傳月份</div>
+                    <button class="refresh-btn" onclick="loadMonths()">重新整理</button>
+                </div>
+                <div id="monthsList"><div class="loading-text">載入中...</div></div>
+            </div>
+
+            <!-- Employee data management -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">👤 員工資料管理</div>
+                    <button class="refresh-btn" onclick="loadEmployees()">重新整理</button>
+                </div>
+                <p style="font-size:13px;color:#64748b;margin-bottom:0.875rem;">管理完整的員工資料（姓名、聯絡方式、緊急聯絡人等）。批量上傳或逐筆編輯。</p>
+
+                <!-- Bulk employee data upload -->
+                <div style="margin-bottom:1.5rem;padding:1rem;border:1px dashed #cbd5e1;border-radius:10px;background:#f8fafc">
+                    <div style="font-size:14px;font-weight:600;color:#334155;margin-bottom:0.75rem">📋 批量上傳員工資料</div>
+                    <p style="font-size:13px;color:#64748b;margin-bottom:0.875rem">上傳包含以下欄位的 Excel：工號、姓名、部門、職稱、電話、電子郵件、地址、聘僱日期、合約類型、緊急聯絡人姓名、緊急聯絡人電話、緊急聯絡人關係</p>
+                    <div class="title-upload-zone" id="empDataDropZone"
+                         onclick="document.getElementById('empDataFileInput').click()"
+                         ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                         ondragleave="this.classList.remove('drag-over')"
+                         ondrop="event.preventDefault(); this.classList.remove('drag-over'); handleEmpDataFileDrop(event)">
+                        <span>📤</span>
+                        <span class="title-upload-text">拖曳員工資料 Excel 至此，或點擊上傳</span>
+                        <span class="title-upload-hint">.xlsx / .xls</span>
+                        <button class="browse-btn-sm" type="button" onclick="event.stopPropagation(); document.getElementById('empDataFileInput').click()">選擇檔案</button>
+                    </div>
+                    <input type="file" id="empDataFileInput" accept=".xlsx,.xls" style="display:none"
+                           onchange="handleEmpDataFileSelect(this)" />
+                    <div id="empDataUploadPreview" class="title-upload-preview hidden">
+                        <span id="empDataPreviewText"></span>
+                        <div style="display:flex;gap:0.5rem;flex-shrink:0">
+                            <button class="browse-btn-sm" type="button" onclick="cancelEmpDataUpload()">取消</button>
+                            <button class="save-titles-btn" id="applyEmpDataBtn" style="padding:0.45rem 1rem;font-size:13px" type="button" onclick="applyEmpDataUpload()">套用</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Title roster upload -->
+                <div class="title-upload-zone" id="titleDropZone"
+                     onclick="document.getElementById('titleFileInput').click()"
+                     ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                     ondragleave="this.classList.remove('drag-over')"
+                     ondrop="event.preventDefault(); this.classList.remove('drag-over'); handleTitleFileDrop(event)">
+                    <span>📋</span>
+                    <span class="title-upload-text">拖曳職位清冊至此，或點擊上傳</span>
+                    <span class="title-upload-hint">.xlsx / .xls</span>
+                    <button class="browse-btn-sm" type="button" onclick="event.stopPropagation(); document.getElementById('titleFileInput').click()">選擇檔案</button>
+                </div>
+                <input type="file" id="titleFileInput" accept=".xlsx,.xls" style="display:none"
+                       onchange="handleTitleFileSelect(this)" />
+                <div id="titleUploadPreview" class="title-upload-preview hidden">
+                    <span id="titlePreviewText"></span>
+                    <div style="display:flex;gap:0.5rem;flex-shrink:0">
+                        <button class="browse-btn-sm" type="button" onclick="cancelTitleUpload()">取消</button>
+                        <button class="save-titles-btn" id="applyTitleBtn" style="padding:0.45rem 1rem;font-size:13px" type="button" onclick="applyTitleUpload()">套用</button>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:0.75rem;">
+                    <input type="text" id="empSearch" class="search-input"
+                           placeholder="搜尋姓名或工號..." oninput="filterEmployeeList()" />
+                </div>
+                <div id="empList"><div class="loading-text">載入中...</div></div>
+                <div style="margin-top:1rem;display:flex;justify-content:flex-end;">
+                    <button class="save-titles-btn" onclick="saveAllTitles()">儲存所有職稱</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+    // ========== STATE ==========
+    let db = null;
+    let auth = null;
+    let currentUser = null;
+    let pendingUpload = null;     // { byMonth: {ym: records[]}, filename }
+    let existingMonths = new Set();
+
+    // ========== UTILS ==========
+    function esc(s) {
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function showToast(msg, type, ms) {
+        if (type === undefined) type = 'info';
+        if (ms === undefined) ms = 3500;
+        var c = document.getElementById('toastContainer');
+        var t = document.createElement('div');
+        t.className = 'toast toast-' + type;
+        t.textContent = msg;
+        c.appendChild(t);
+        setTimeout(function() {
+            t.style.cssText = 'opacity:0;transition:opacity 0.3s';
+            setTimeout(function() { t.remove(); }, 300);
+        }, ms);
+    }
+
+    function isConfigured() {
+        try {
+            return typeof FIREBASE_CONFIG !== 'undefined' &&
+                   FIREBASE_CONFIG.apiKey &&
+                   FIREBASE_CONFIG.apiKey.indexOf('YOUR_') !== 0;
+        } catch(e) { return false; }
+    }
+
+    // ========== AUTH ==========
+    async function initAdmin() {
+        if (!isConfigured()) {
+            document.getElementById('notConfiguredBanner').classList.remove('hidden');
+            // Still show dashboard shell so user can see the banner
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            return;
+        }
+
+        firebase.initializeApp(FIREBASE_CONFIG);
+        db = firebase.firestore();
+        auth = firebase.auth();
+
+        auth.onAuthStateChanged(async function(user) {
+            if (user) {
+                currentUser = user;
+                document.getElementById('accessDeniedBanner').classList.add('hidden');
+                showDashboard(user);
+                loadMonths();
+                loadEmployees();
+            } else {
+                currentUser = null;
+                showLogin();
+            }
+        });
+    }
+
+    function showLogin() {
+        document.getElementById('loginSection').classList.remove('hidden');
+        document.getElementById('dashboardSection').classList.add('hidden');
+        document.getElementById('logoutBtn').classList.add('hidden');
+        document.getElementById('adminEmail').classList.add('hidden');
+        
+        document.getElementById('loginPassword').value = '';
+        var errEl = document.getElementById('loginError');
+        if (errEl) errEl.classList.add('hidden');
+        var sucEl = document.getElementById('loginSuccess');
+        if (sucEl) sucEl.classList.add('hidden');
+    }
+
+    function showDashboard(user) {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('dashboardSection').classList.remove('hidden');
+        document.getElementById('adminEmail').textContent = user.email;
+        document.getElementById('adminEmail').classList.remove('hidden');
+        document.getElementById('logoutBtn').classList.remove('hidden');
+    }
+
+    function togglePassword() {
+        var pwd = document.getElementById('loginPassword');
+        var eyeOpen = document.getElementById('eyeOpen');
+        var eyeClosed = document.getElementById('eyeClosed');
+        if (pwd.type === 'password') {
+            pwd.type = 'text';
+            eyeOpen.classList.add('hidden');
+            eyeClosed.classList.remove('hidden');
+        } else {
+            pwd.type = 'password';
+            eyeOpen.classList.remove('hidden');
+            eyeClosed.classList.add('hidden');
+        }
+    }
+
+    async function forgotPassword() {
+        var email = document.getElementById('loginEmail').value.trim();
+        var errEl = document.getElementById('loginError');
+        var sucEl = document.getElementById('loginSuccess');
+        
+        if (errEl) errEl.classList.add('hidden');
+        if (sucEl) sucEl.classList.add('hidden');
+
+        if (!email) {
+            errEl.textContent = '請先填寫上方電子郵件，再點擊忘記密碼';
+            errEl.classList.remove('hidden');
+            return;
+        }
+
+        try {
+            await auth.sendPasswordResetEmail(email);
+            sucEl.textContent = '密碼重設信件已發送，請檢查您的信箱';
+            sucEl.classList.remove('hidden');
+        } catch(e) {
+            var msgs = {
+                'auth/user-not-found': '帳號不存在',
+                'auth/invalid-email': '電子郵件格式錯誤',
+            };
+            errEl.textContent = msgs[e.code] || ('發送信件失敗：' + e.message);
+            errEl.classList.remove('hidden');
+        }
+    }
+
+    async function login() {
+        var email = document.getElementById('loginEmail').value.trim();
+        var password = document.getElementById('loginPassword').value;
+        var btn = document.getElementById('loginBtn');
+        var errEl = document.getElementById('loginError');
+        var sucEl = document.getElementById('loginSuccess');
+        
+        if (sucEl) sucEl.classList.add('hidden');
+
+        if (!email || !password) {
+            errEl.textContent = '請填入電子郵件與密碼';
+            errEl.classList.remove('hidden');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>登入中...';
+        errEl.classList.add('hidden');
+
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+        } catch(e) {
+            var msgs = {
+                'auth/user-not-found': '帳號不存在',
+                'auth/wrong-password': '密碼錯誤',
+                'auth/invalid-email': '電子郵件格式錯誤',
+                'auth/too-many-requests': '嘗試次數過多，請稍後再試',
+                'auth/invalid-credential': '帳號或密碼錯誤'
+            };
+            errEl.textContent = msgs[e.code] || ('登入失敗：' + e.message);
+            errEl.classList.remove('hidden');
+        }
+
+        btn.disabled = false;
+        btn.textContent = '登入';
+    }
+
+    function logout() {
+        if (auth) auth.signOut();
+    }
+
+    // ========== FILE HANDLING ==========
+    function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById('dropZone').classList.remove('drag-over');
+        var file = e.dataTransfer.files[0];
+        if (file) processFile(file);
+    }
+
+    function handleFileChange(input) {
+        var file = input.files[0];
+        if (file) processFile(file);
+        input.value = ''; // allow re-selecting same file
+    }
+
+    function processFile(file) {
+        var ext = file.name.split('.').pop().toLowerCase();
+        if (ext !== 'xlsx' && ext !== 'xls') {
+            showToast('請上傳 Excel 檔案（.xlsx 或 .xls）', 'error');
+            return;
+        }
+        hidePreview();
+        document.getElementById('progressSection').classList.add('hidden');
+        readExcel(file);
+    }
+
+    function readExcel(file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                var wb = XLSX.read(e.target.result, { type: 'array' });
+                var ws = wb.Sheets[wb.SheetNames[0]];
+                var raw = XLSX.utils.sheet_to_json(ws);
+                var records = parseScheduleData(raw);
+
+                if (records.length === 0) {
+                    showToast('無法讀取班表，請確認欄位格式', 'error');
+                    return;
+                }
+
+                // Group by yearMonth
+                var byMonth = {};
+                records.forEach(function(r) {
+                    if (!byMonth[r.yearMonth]) byMonth[r.yearMonth] = [];
+                    byMonth[r.yearMonth].push(r);
+                });
+
+                pendingUpload = { byMonth: byMonth, filename: file.name };
+                showPreview(byMonth, file.name);
+            } catch(err) {
+                showToast('解析失敗：' + err.message, 'error');
+            }
+        };
+        reader.onerror = function() { showToast('檔案讀取失敗', 'error'); };
+        reader.readAsArrayBuffer(file);
+    }
+
+    // ========== SCHEDULE PARSING ==========
+    function parseShiftTime(shiftStr) {
+        var match = shiftStr.match(/^[BC]-(\d{2})(\d{2})~(\d{2})(\d{2})$/);
+        if (match) {
+            return {
+                startTime: pad(parseInt(match[1])) + ':' + pad(parseInt(match[2])),
+                endTime:   pad(parseInt(match[3])) + ':' + pad(parseInt(match[4])),
+                sortValue: parseInt(match[1]) * 100 + parseInt(match[2]),
+                isValidTime: true
+            };
+        }
+        return { startTime: shiftStr, endTime: '', sortValue: 9999, isValidTime: false };
+    }
+
+    function getShiftStatus(v) {
+        if (v === '例假日') return 'holiday';
+        if (v === '休息日') return 'rest';
+        return 'working';
+    }
+
+    // ===== 部門名稱對照（上傳時直接轉換，存入 Firestore 的就是正式名稱）=====
+    // key 統一移除所有空白後比對，避免 Excel 空格格式不一致的問題
+    var DEPT_DISPLAY = {
+        '1部BOOK':    'TSUTAYA BOOKSTORE 信義店',
+        '1部CAFE外場': 'WIRED TOKYO 信義店 外場',
+        '1部CAFE內場': 'WIRED TOKYO 信義店 內場',
+        '2部BOOK':    'TSUTAYA BOOKSTORE 台中市政店',
+        '2部CAFE外場': 'WIRED TOKYO 台中市政店 外場',
+        '2部CAFE內場': 'WIRED TOKYO 台中市政店 內場'
+    };
+
+    function normDept(s) {
+        return String(s)
+            .replace(/\s+/g, '')   // 移除所有空白（含全形空格）
+            .toUpperCase()         // 統一大寫
+            .replace(/É/g, 'E')   // CAFÉ → CAFE
+            .replace(/é/g, 'E');
+    }
+
+    var DEPT_NORM = {};
+    Object.keys(DEPT_DISPLAY).forEach(function(k) {
+        DEPT_NORM[normDept(k)] = DEPT_DISPLAY[k];
+    });
+
+    function mapDept(raw) {
+        var mapped = DEPT_NORM[normDept(raw)];
+        if (!mapped) console.warn('[部門未對照]', JSON.stringify(raw), '→', JSON.stringify(normDept(raw)));
+        return mapped || raw;
+    }
+
+    function parseScheduleData(rawData) {
+        var result = [];
+        rawData.forEach(function(row) {
+            var empId   = String(row['工號'] || '').trim();
+            var empName = String(row['姓名'] || '').trim();
+            var dept    = mapDept(String(row['部門'] || '未分類').trim());
+            if (!empId || !empName) return;
+
+            Object.keys(row).forEach(function(key) {
+                var dm = key.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+                if (!dm) return;
+
+                var dateStr = dm[1] + '-' + pad(parseInt(dm[2])) + '-' + pad(parseInt(dm[3]));
+                var ym = dateStr.substring(0, 7);
+                var shiftValue = String(row[key] || '').trim();
+                if (!shiftValue) return;
+
+                var status   = getShiftStatus(shiftValue);
+                var timeInfo = parseShiftTime(shiftValue);
+
+                result.push({
+                    empId:       empId,
+                    empName:     empName,
+                    dept:        dept,
+                    date:        dateStr,
+                    yearMonth:   ym,
+                    shiftRaw:    shiftValue,
+                    startTime:   timeInfo.startTime,
+                    endTime:     timeInfo.endTime,
+                    sortValue:   timeInfo.sortValue,
+                    status:      status,
+                    isValidTime: timeInfo.isValidTime
+                });
+            });
+        });
+        return result;
+    }
+
+    // ========== PREVIEW ==========
+    function showPreview(byMonth, filename) {
+        var months = Object.keys(byMonth).sort();
+        var body = document.getElementById('previewBody');
+        body.innerHTML = '';
+
+        months.forEach(function(ym) {
+            var records  = byMonth[ym];
+            var empSet   = {}, deptSet = {}, dateSet = {};
+            records.forEach(function(r) { empSet[r.empId]=1; deptSet[r.dept]=1; dateSet[r.date]=1; });
+
+            var row = document.createElement('div');
+            row.className = 'preview-row';
+            var exists = existingMonths.has(ym);
+            row.innerHTML =
+                '<div>' +
+                '<div class="preview-ym">' + esc(ym) + '</div>' +
+                '<div class="preview-meta">' +
+                Object.keys(dateSet).length + ' 天 · ' +
+                Object.keys(empSet).length + ' 人 · ' +
+                Object.keys(deptSet).length + ' 部門' +
+                '</div>' +
+                '</div>' +
+                (exists ? '<span class="preview-exist-badge">將覆蓋舊資料</span>' : '');
+            body.appendChild(row);
+        });
+
+        document.getElementById('previewFilename').textContent = filename;
+        document.getElementById('previewSection').classList.remove('hidden');
+    }
+
+    function hidePreview() {
+        document.getElementById('previewSection').classList.add('hidden');
+        pendingUpload = null;
+    }
+
+    // ========== UPLOAD ==========
+    async function confirmUpload() {
+        if (!pendingUpload) return;
+        if (!db || !currentUser) { showToast('請先登入', 'error'); return; }
+
+        var months = Object.keys(pendingUpload.byMonth).sort();
+        var total  = months.length;
+        var allRecs = [];
+
+        document.getElementById('previewSection').classList.add('hidden');
+        document.getElementById('progressSection').classList.remove('hidden');
+        setProgress(0, total, '準備上傳...', '');
+
+        try {
+            for (var i = 0; i < months.length; i++) {
+                var ym = months[i];
+                setProgress(i, total, '上傳 ' + ym + '...', (i + 1) + ' / ' + total + ' 個月份');
+                await uploadMonthData(ym, pendingUpload.byMonth[ym], pendingUpload.filename);
+                pendingUpload.byMonth[ym].forEach(function(r) { allRecs.push(r); });
+                setProgress(i + 1, total, '完成 ' + ym, (i + 1) + ' / ' + total + ' 個月份');
+            }
+
+            // Sync employee roster for title management
+            try {
+                setProgress(total, total, '同步員工資料...', '請稍候');
+                await syncEmployees(allRecs);
+            } catch(e2) { console.warn('syncEmployees failed:', e2); }
+
+            showToast('成功上傳 ' + total + ' 個月份的班表，請至下方設定職稱', 'success', 5000);
+            pendingUpload = null;
+            setTimeout(function() {
+                document.getElementById('progressSection').classList.add('hidden');
+            }, 1500);
+            loadMonths();
+            loadEmployees();
+
+            // Scroll to title section
+            setTimeout(function() {
+                document.getElementById('empList').closest('.section-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 1800);
+        } catch(e) {
+            showToast('上傳失敗：' + e.message, 'error');
+            document.getElementById('progressSection').classList.add('hidden');
+        }
+    }
+
+    function setProgress(done, total, text, detail) {
+        var pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        document.getElementById('progressText').textContent = text;
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('progressDetail').textContent = detail;
+    }
+
+    async function uploadMonthData(yearMonth, records, filename) {
+        var year  = parseInt(yearMonth.split('-')[0]);
+        var month = parseInt(yearMonth.split('-')[1]);
+
+        var empSet  = {}, deptArr = [], dateArr = [];
+        var deptSeen = {}, dateSeen = {};
+        records.forEach(function(r) {
+            empSet[r.empId] = 1;
+            if (!deptSeen[r.dept])  { deptSeen[r.dept] = 1; deptArr.push(r.dept); }
+            if (!dateSeen[r.date])  { dateSeen[r.date] = 1; dateArr.push(r.date); }
+        });
+        deptArr.sort();
+        dateArr.sort();
+
+        // Write month metadata
+        await db.collection('schedules').doc(yearMonth).set({
+            yearMonth:      yearMonth,
+            year:           year,
+            month:          month,
+            filename:       filename,
+            uploadedAt:     firebase.firestore.FieldValue.serverTimestamp(),
+            uploadedBy:     currentUser.email,
+            totalEmployees: Object.keys(empSet).length,
+            departments:    deptArr,
+            dateRange:      { start: dateArr[0], end: dateArr[dateArr.length - 1] }
+        });
+
+        // Group records by date
+        var byDate = {};
+        records.forEach(function(r) {
+            if (!byDate[r.date]) byDate[r.date] = [];
+            byDate[r.date].push({
+                empId:       r.empId,
+                empName:     r.empName,
+                dept:        r.dept,
+                shiftRaw:    r.shiftRaw,
+                startTime:   r.startTime,
+                endTime:     r.endTime,
+                status:      r.status,
+                sortValue:   r.sortValue,
+                isValidTime: r.isValidTime
+            });
+        });
+
+        // Batch write daily records (≤500 ops each)
+        var dates = Object.keys(byDate);
+        var BATCH_LIMIT = 480;
+        var batch = db.batch();
+        var opCount = 0;
+
+        for (var i = 0; i < dates.length; i++) {
+            var date = dates[i];
+            var ref  = db.collection('schedules').doc(yearMonth).collection('days').doc(date);
+            batch.set(ref, { date: date, yearMonth: yearMonth, records: byDate[date] });
+            opCount++;
+            if (opCount >= BATCH_LIMIT) {
+                await batch.commit();
+                batch = db.batch();
+                opCount = 0;
+            }
+        }
+        if (opCount > 0) await batch.commit();
+
+        existingMonths.add(yearMonth);
+    }
+
+    // ========== MONTH LIST ==========
+    async function loadMonths() {
+        var container = document.getElementById('monthsList');
+        container.innerHTML = '<div class="loading-text">載入中...</div>';
+        existingMonths.clear();
+
+        try {
+            var snap = await db.collection('schedules').orderBy('yearMonth', 'desc').get();
+            if (snap.empty) {
+                container.innerHTML = '<div class="empty-months">尚未上傳任何班表</div>';
+                return;
+            }
+
+            var frag = document.createDocumentFragment();
+            snap.forEach(function(doc) {
+                var d = doc.data();
+                existingMonths.add(doc.id);
+
+                var item = document.createElement('div');
+                item.className = 'month-item';
+
+                var uploadDate = '';
+                if (d.uploadedAt) {
+                    try { uploadDate = d.uploadedAt.toDate().toLocaleDateString('zh-TW'); } catch(e) {}
+                }
+
+                var tagsHtml = (d.departments || []).slice(0, 5).map(function(dept) {
+                    return '<span class="month-tag">' + esc(dept) + '</span>';
+                }).join('');
+                if ((d.departments || []).length > 5) {
+                    tagsHtml += '<span class="month-tag">+' + (d.departments.length - 5) + '</span>';
+                }
+
+                item.innerHTML =
+                    '<div class="month-item-left">' +
+                    '<div class="month-item-ym">' + esc(doc.id) + '</div>' +
+                    '<div class="month-item-meta">' +
+                    (d.totalEmployees || 0) + ' 人 · ' +
+                    (d.dateRange ? esc(d.dateRange.start) + ' ~ ' + esc(d.dateRange.end) : '') +
+                    (uploadDate ? ' · 上傳於 ' + uploadDate : '') +
+                    (d.uploadedBy ? ' · ' + esc(d.uploadedBy) : '') +
+                    '</div>' +
+                    '<div class="month-item-tags">' + tagsHtml + '</div>' +
+                    '</div>' +
+                    '<button class="delete-btn" onclick="deleteMonth(\'' + esc(doc.id) + '\')">刪除</button>';
+                frag.appendChild(item);
+            });
+
+            container.innerHTML = '';
+            container.appendChild(frag);
+        } catch(e) {
+            container.innerHTML = '<div class="loading-text" style="color:#ef4444">載入失敗：' + esc(e.message) + '</div>';
+        }
+    }
+
+    async function deleteMonth(yearMonth) {
+        if (!confirm('確定要刪除 ' + yearMonth + ' 的班表資料嗎？此操作無法復原。')) return;
+
+        showToast('刪除中...', 'info', 10000);
+
+        try {
+            // Delete all day sub-documents first
+            var daysSnap = await db.collection('schedules').doc(yearMonth).collection('days').get();
+
+            var BATCH_LIMIT = 480;
+            var batch = db.batch();
+            var opCount = 0;
+
+            daysSnap.forEach(function(doc) {
+                batch.delete(doc.ref);
+                opCount++;
+            });
+
+            // Delete month metadata in same or new batch
+            if (opCount >= BATCH_LIMIT) {
+                await batch.commit();
+                batch = db.batch();
+            }
+            batch.delete(db.collection('schedules').doc(yearMonth));
+            await batch.commit();
+
+            showToast(yearMonth + ' 已刪除', 'success');
+            loadMonths();
+        } catch(e) {
+            showToast('刪除失敗：' + e.message, 'error');
+        }
+    }
+
+    // ========== EMPLOYEE TITLE MANAGEMENT ==========
+    var allEmployees = []; // [{empId, empName, dept, title}]
+
+    var MANAGER_TITLES = ['店長', '組長', '領班', '副主廚'];
+    function autoRoleFromTitle(title) {
+        return MANAGER_TITLES.indexOf(title) >= 0 ? 'manager' : 'staff';
+    }
+    function getStoreFromDept(dept) {
+        if (!dept) return '';
+        if (dept.indexOf('信義') >= 0) return '信義店';
+        if (dept.indexOf('台中') >= 0 || dept.indexOf('臺中') >= 0) return '臺中市政店';
+        return '';
+    }
+
+    // After upload: extract unique employees, preserving uid / role / store / title
+    async function syncEmployees(records) {
+        var empMap = {};
+        records.forEach(function(r) {
+            if (!empMap[r.empId]) {
+                empMap[r.empId] = { empId: r.empId, empName: r.empName, dept: r.dept };
+            }
+        });
+        var empIds = Object.keys(empMap);
+        if (empIds.length === 0) return;
+
+        var existing = {};
+        try {
+            var snap = await db.collection('employees').get();
+            snap.forEach(function(doc) { existing[doc.id] = doc.data(); });
+        } catch(e) {}
+
+        var BATCH_LIMIT = 480;
+        var batch = db.batch();
+        var opCount = 0;
+        for (var i = 0; i < empIds.length; i++) {
+            var empId = empIds[i];
+            var emp   = empMap[empId];
+            var prev  = existing[empId] || {};
+            var ref   = db.collection('employees').doc(empId);
+            batch.set(ref, {
+                empId:      empId,
+                empName:    emp.empName,
+                dept:       emp.dept,
+                store:      getStoreFromDept(emp.dept),
+                title:      prev.title      !== undefined ? prev.title      : '',
+                role:       prev.role       !== undefined ? prev.role       : autoRoleFromTitle(prev.title || ''),
+                uid:        prev.uid        !== undefined ? prev.uid        : '',
+                email:      prev.email      !== undefined ? prev.email      : '',
+                needsSetup: prev.needsSetup !== undefined ? prev.needsSetup : true
+            });
+            opCount++;
+            if (opCount >= BATCH_LIMIT) {
+                await batch.commit();
+                batch = db.batch();
+                opCount = 0;
+            }
+        }
+        if (opCount > 0) await batch.commit();
+    }
+
+    async function loadEmployees() {
+        var container = document.getElementById('empList');
+        container.innerHTML = '<div class="loading-text">載入中...</div>';
+        try {
+            var snap = await db.collection('employees').orderBy('empName').get();
+            allEmployees = snap.docs.map(function(doc) {
+                return Object.assign({ id: doc.id }, doc.data());
+            });
+            filterEmployeeList();
+        } catch(e) {
+            container.innerHTML = '<div class="loading-text" style="color:#ef4444">載入失敗：' + esc(e.message) + '</div>';
+        }
+    }
+
+    function renderEmployeeList(employees) {
+        var container = document.getElementById('empList');
+        if (employees.length === 0) {
+            container.innerHTML = '<div class="empty-months">尚無員工資料，請先上傳班表</div>';
+            return;
+        }
+        var frag = document.createDocumentFragment();
+        employees.forEach(function(emp) {
+            var row = document.createElement('div');
+            row.className = 'emp-title-row';
+
+            var role    = emp.role || autoRoleFromTitle(emp.title || '');
+            var hasAcct = !!emp.uid;
+
+            // Role label options
+            var roleOpts = [
+                { value: 'staff',   label: '員工' },
+                { value: 'manager', label: '主管' },
+                { value: 'admin',   label: '管理員' }
+            ].map(function(o) {
+                return '<option value="' + o.value + '"' + (role === o.value ? ' selected' : '') + '>' + o.label + '</option>';
+            }).join('');
+
+            // Account status
+            var acctHtml = hasAcct
+                ? '<span class="emp-account-ok">✓ 帳號已建立</span>' +
+                  (emp.needsSetup ? '<span class="emp-account-pending">（待初始化）</span>' : '')
+                : '<button class="emp-account-btn" data-empid="' + esc(emp.empId) + '" onclick="createEmployeeAccount(this)">建立帳號</button>';
+
+            row.innerHTML =
+                '<div class="emp-title-info">' +
+                    '<div class="emp-title-name">' + esc(emp.empName) + '</div>' +
+                    '<div class="emp-title-id">' + esc(emp.empId) +
+                        (emp.dept ? ' · ' + esc(emp.dept) : '') + '</div>' +
+                '</div>' +
+                '<button class="emp-account-btn" style="padding:0.35rem 0.75rem;font-size:12px" data-empid="' + esc(emp.empId) + '" onclick="openEmpEditDialog(this)">編輯資料</button>' +
+                '<div class="emp-row-meta">' +
+                    '<select class="emp-role-select" data-empid="' + esc(emp.empId) + '" onchange="updateEmpRole(this)">' +
+                        roleOpts +
+                    '</select>' +
+                    acctHtml +
+                '</div>';
+
+            frag.appendChild(row);
+        });
+        container.innerHTML = '';
+        container.appendChild(frag);
+    }
+
+    function filterEmployeeList() {
+        var q = (document.getElementById('empSearch').value || '').trim().toLowerCase();
+        var list = q ? allEmployees.filter(function(emp) {
+            return emp.empName.toLowerCase().indexOf(q) >= 0 ||
+                   emp.empId.toLowerCase().indexOf(q) >= 0;
+        }) : allEmployees;
+        renderEmployeeList(list);
+    }
+
+    async function saveAllTitles() {
+        var inputs = document.querySelectorAll('.emp-title-input');
+        if (inputs.length === 0) { showToast('沒有可儲存的資料', 'info'); return; }
+
+        var btn = document.querySelector('.save-titles-btn');
+        if (btn) { btn.disabled = true; btn.textContent = '儲存中...'; }
+
+        try {
+            var BATCH_LIMIT = 480;
+            var batch = db.batch();
+            var opCount = 0;
+            var count = 0;
+
+            for (var i = 0; i < inputs.length; i++) {
+                var input = inputs[i];
+                var empId = input.dataset.empid;
+                if (!empId) continue;
+                var title = input.value.trim();
+                // Use set+merge so it works even if the doc was somehow deleted
+                batch.set(db.collection('employees').doc(empId), { title: title }, { merge: true });
+                opCount++;
+                count++;
+                if (opCount >= BATCH_LIMIT) {
+                    await batch.commit();
+                    batch = db.batch();
+                    opCount = 0;
+                }
+            }
+            if (opCount > 0) await batch.commit();
+
+            // Update in-memory list so filter stays consistent
+            inputs.forEach(function(input) {
+                var emp = allEmployees.find(function(e) { return e.empId === input.dataset.empid; });
+                if (emp) emp.title = input.value.trim();
+            });
+
+            showToast('已儲存 ' + count + ' 筆職稱', 'success');
+        } catch(e) {
+            showToast('儲存失敗：' + e.message, 'error');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = '儲存所有職稱'; }
+        }
+    }
+
+    // ========== ACCOUNT CREATION ==========
+    var _acctTarget = null; // { empId, btn }
+
+    function createEmployeeAccount(btn) {
+        var empId = btn.dataset.empid;
+        var emp   = allEmployees.find(function(e) { return e.empId === empId; });
+        if (!emp) return;
+        _acctTarget = { empId: empId, btn: btn };
+        document.getElementById('acctDialogSub').textContent = emp.empName + '（' + empId + '）';
+        document.getElementById('acctDialogFakeEmail').textContent = empId + '@tsutaya.staff';
+        document.getElementById('acctDialogEmail').value = '';
+        document.getElementById('acctDialog').classList.remove('hidden');
+        document.getElementById('acctDialogEmail').focus();
+    }
+
+    function closeAcctDialog() {
+        document.getElementById('acctDialog').classList.add('hidden');
+        _acctTarget = null;
+    }
+
+    async function confirmCreateAccount() {
+        if (!_acctTarget) return;
+        var empId     = _acctTarget.empId;
+        var btn       = _acctTarget.btn;
+        var emp       = allEmployees.find(function(e) { return e.empId === empId; });
+        if (!emp) { closeAcctDialog(); return; }
+
+        var inputEmail = (document.getElementById('acctDialogEmail').value || '').trim().toLowerCase();
+        var useRealEmail = inputEmail.length > 0 && inputEmail.indexOf('@') > 0;
+        var email      = useRealEmail ? inputEmail : (empId + '@tsutaya.staff');
+        var needsSetup = !useRealEmail;
+
+        var confirmBtn = document.getElementById('acctDialogConfirm');
+        confirmBtn.disabled = true; confirmBtn.textContent = '建立中...';
+        closeAcctDialog();
+        btn.disabled = true; btn.textContent = '建立中...';
+
+        var secondary;
+        try {
+            secondary = firebase.initializeApp(FIREBASE_CONFIG, 'acct_' + empId);
+            var secAuth = secondary.auth();
+            var cred    = await secAuth.createUserWithEmailAndPassword(email, empId);
+            var uid     = cred.user.uid;
+            await cred.user.updateProfile({ displayName: empId });
+            await secAuth.signOut();
+
+            var store = getStoreFromDept(emp.dept || '');
+            var role  = emp.role || autoRoleFromTitle(emp.title || '');
+            await db.collection('employees').doc(empId).update({
+                uid: uid, email: email, store: store, role: role, needsSetup: needsSetup
+            });
+            emp.uid = uid; emp.email = email; emp.store = store; emp.role = role; emp.needsSetup = needsSetup;
+            var msg = useRealEmail
+                ? emp.empName + ' 帳號已建立，初始密碼：工號'
+                : emp.empName + ' 帳號已建立，員工首次登入時完成設定';
+            showToast(msg, 'success', 6000);
+            filterEmployeeList();
+        } catch(e) {
+            if (e.code === 'auth/email-already-in-use') {
+                showToast('此信箱已被使用', 'info');
+            } else {
+                showToast('建立失敗：' + e.message, 'error');
+            }
+            btn.disabled = false; btn.textContent = '建立帳號';
+        } finally {
+            if (secondary) try { await secondary.delete(); } catch(_) {}
+            confirmBtn.disabled = false; confirmBtn.textContent = '確認建立';
+        }
+    }
+
+    async function updateEmpRole(select) {
+        var empId = select.dataset.empid;
+        var role  = select.value;
+        try {
+            await db.collection('employees').doc(empId).update({ role: role });
+            var emp = allEmployees.find(function(e) { return e.empId === empId; });
+            if (emp) emp.role = role;
+            showToast('角色已更新', 'success');
+        } catch(e) {
+            showToast('更新失敗：' + e.message, 'error');
+            filterEmployeeList(); // revert UI
+        }
+    }
+
+    // ========== EMPLOYEE DATA EDIT ==========
+    var _editingEmp = null;
+
+    function openEmpEditDialog(btn) {
+        var empId = btn.dataset.empid;
+        var emp = allEmployees.find(function(e) { return e.empId === empId; });
+        if (!emp) return;
+
+        _editingEmp = emp;
+        document.getElementById('empEditDialogSub').textContent = emp.empName + '（' + empId + '）';
+        document.getElementById('empEditName').value = emp.empName || '';
+        document.getElementById('empEditDepts').value = (emp.departments || []).join(', ') || emp.dept || '';
+        document.getElementById('empEditTitle').value = emp.title || '';
+        document.getElementById('empEditPhone').value = emp.phone || '';
+        document.getElementById('empEditEmail').value = emp.email || '';
+        document.getElementById('empEditAddress').value = emp.address || '';
+        document.getElementById('empEditHireDate').value = emp.hireDate || '';
+        document.getElementById('empEditContractType').value = emp.contractType || '';
+        document.getElementById('empEditEmergencyName').value = (emp.emergencyContact && emp.emergencyContact.name) || '';
+        document.getElementById('empEditEmergencyPhone').value = (emp.emergencyContact && emp.emergencyContact.phone) || '';
+        document.getElementById('empEditEmergencyRelationship').value = (emp.emergencyContact && emp.emergencyContact.relationship) || '';
+        document.getElementById('empEditRole').value = emp.role || 'staff';
+        document.getElementById('empEditStatus').value = emp.accountStatus || 'active';
+        document.getElementById('empEditDialogBackdrop').classList.remove('hidden');
+    }
+
+    function closeEmpEditDialog() {
+        document.getElementById('empEditDialogBackdrop').classList.add('hidden');
+        _editingEmp = null;
+    }
+
+    async function confirmEmpEdit() {
+        if (!_editingEmp) return;
+        var empId = _editingEmp.empId;
+        var deptStr = (document.getElementById('empEditDepts').value || '').trim();
+        var departments = deptStr ? deptStr.split(',').map(function(s) { return s.trim(); }) : [deptStr];
+
+        var btn = document.getElementById('empEditConfirm');
+        btn.disabled = true;
+        btn.textContent = '儲存中...';
+
+        try {
+            var emergencyContact = {
+                name: (document.getElementById('empEditEmergencyName').value || '').trim(),
+                phone: (document.getElementById('empEditEmergencyPhone').value || '').trim(),
+                relationship: (document.getElementById('empEditEmergencyRelationship').value || '').trim()
+            };
+
+            await db.collection('employees').doc(empId).update({
+                empName: (document.getElementById('empEditName').value || '').trim(),
+                departments: departments,
+                title: (document.getElementById('empEditTitle').value || '').trim(),
+                phone: (document.getElementById('empEditPhone').value || '').trim(),
+                email: (document.getElementById('empEditEmail').value || '').trim(),
+                address: (document.getElementById('empEditAddress').value || '').trim(),
+                hireDate: document.getElementById('empEditHireDate').value || '',
+                contractType: (document.getElementById('empEditContractType').value || '').trim(),
+                emergencyContact: emergencyContact,
+                role: document.getElementById('empEditRole').value,
+                accountStatus: document.getElementById('empEditStatus').value,
+                updatedAt: new Date()
+            });
+
+            // Update in-memory
+            var emp = allEmployees.find(function(e) { return e.empId === empId; });
+            if (emp) {
+                emp.empName = document.getElementById('empEditName').value;
+                emp.departments = departments;
+                emp.title = document.getElementById('empEditTitle').value;
+                emp.phone = document.getElementById('empEditPhone').value;
+                emp.email = document.getElementById('empEditEmail').value;
+                emp.address = document.getElementById('empEditAddress').value;
+                emp.hireDate = document.getElementById('empEditHireDate').value;
+                emp.contractType = document.getElementById('empEditContractType').value;
+                emp.emergencyContact = emergencyContact;
+                emp.role = document.getElementById('empEditRole').value;
+                emp.accountStatus = document.getElementById('empEditStatus').value;
+            }
+
+            showToast('員工資料已儲存', 'success');
+            closeEmpEditDialog();
+            filterEmployeeList();
+        } catch(e) {
+            showToast('儲存失敗：' + e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '儲存';
+        }
+    }
+
+    async function deleteEmployee() {
+        if (!_editingEmp) return;
+        if (!confirm('確定要刪除 ' + _editingEmp.empName + ' 的資料嗎？此操作無法復原。')) return;
+
+        var btn = document.getElementById('empEditDelete');
+        btn.disabled = true;
+        closeEmpEditDialog();
+
+        try {
+            await db.collection('employees').doc(_editingEmp.empId).delete();
+            allEmployees = allEmployees.filter(function(e) { return e.empId !== _editingEmp.empId; });
+            showToast(_editingEmp.empName + ' 已刪除', 'success');
+            filterEmployeeList();
+        } catch(e) {
+            showToast('刪除失敗：' + e.message, 'error');
+            btn.disabled = false;
+        }
+    }
+
+    // ========== TITLE ROSTER UPLOAD ==========
+    var pendingTitleUpload = null; // [{empId, title}]
+
+    function handleTitleFileDrop(e) {
+        var file = e.dataTransfer.files[0];
+        if (file) processTitleFile(file);
+    }
+
+    function handleTitleFileSelect(input) {
+        var file = input.files[0];
+        if (file) processTitleFile(file);
+        input.value = '';
+    }
+
+    function processTitleFile(file) {
+        var ext = file.name.split('.').pop().toLowerCase();
+        if (ext !== 'xlsx' && ext !== 'xls') {
+            showToast('請上傳 Excel 檔案（.xlsx 或 .xls）', 'error');
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                var wb = XLSX.read(e.target.result, { type: 'array' });
+                var ws = wb.Sheets[wb.SheetNames[0]];
+                var rows = XLSX.utils.sheet_to_json(ws);
+
+                if (rows.length === 0) { showToast('檔案內沒有資料', 'error'); return; }
+
+                var keys = Object.keys(rows[0]);
+                var idCol    = keys.find(function(k) { return k.trim() === '工號'; });
+                var titleCol = keys.find(function(k) { return k.trim() === '職位名稱' || k.trim() === '職稱'; });
+
+                if (!idCol || !titleCol) {
+                    showToast('找不到「工號」或「職位名稱」欄位，請確認格式', 'error');
+                    return;
+                }
+
+                var parsed = [];
+                rows.forEach(function(row) {
+                    var empId = String(row[idCol] || '').trim();
+                    var title = String(row[titleCol] || '').trim();
+                    if (empId) parsed.push({ empId: empId, title: title });
+                });
+
+                if (parsed.length === 0) { showToast('沒有找到有效資料', 'error'); return; }
+
+                pendingTitleUpload = parsed;
+                document.getElementById('titlePreviewText').textContent =
+                    '解析到 ' + parsed.length + ' 筆職稱，套用後將覆寫現有設定';
+                document.getElementById('titleUploadPreview').classList.remove('hidden');
+            } catch(err) {
+                showToast('解析失敗：' + err.message, 'error');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function cancelTitleUpload() {
+        pendingTitleUpload = null;
+        document.getElementById('titleUploadPreview').classList.add('hidden');
+    }
+
+    async function applyTitleUpload() {
+        if (!pendingTitleUpload || pendingTitleUpload.length === 0) return;
+        var btn = document.getElementById('applyTitleBtn');
+        if (btn) { btn.disabled = true; btn.textContent = '套用中...'; }
+
+        try {
+            var BATCH_LIMIT = 480;
+            var batch = db.batch();
+            var opCount = 0;
+
+            for (var i = 0; i < pendingTitleUpload.length; i++) {
+                var item = pendingTitleUpload[i];
+                batch.set(db.collection('employees').doc(item.empId), { title: item.title }, { merge: true });
+                opCount++;
+                if (opCount >= BATCH_LIMIT) {
+                    await batch.commit();
+                    batch = db.batch();
+                    opCount = 0;
+                }
+            }
+            if (opCount > 0) await batch.commit();
+
+            // Sync in-memory state and visible inputs
+            var titleMap = {};
+            pendingTitleUpload.forEach(function(item) { titleMap[item.empId] = item.title; });
+            allEmployees.forEach(function(emp) {
+                if (titleMap[emp.empId] !== undefined) emp.title = titleMap[emp.empId];
+            });
+            document.querySelectorAll('.emp-title-input').forEach(function(input) {
+                if (titleMap[input.dataset.empid] !== undefined) input.value = titleMap[input.dataset.empid];
+            });
+
+            showToast('已套用 ' + pendingTitleUpload.length + ' 筆職稱', 'success');
+            cancelTitleUpload();
+        } catch(err) {
+            showToast('套用失敗：' + err.message, 'error');
+            if (btn) { btn.disabled = false; btn.textContent = '套用'; }
+        }
+    }
+
+    // ========== EMPLOYEE DATA BULK UPLOAD ==========
+    var pendingEmpDataUpload = null; // [{empId, ...full data}]
+
+    function handleEmpDataFileDrop(e) {
+        var file = e.dataTransfer.files[0];
+        if (file) processEmpDataFile(file);
+    }
+
+    function handleEmpDataFileSelect(input) {
+        var file = input.files[0];
+        if (file) processEmpDataFile(file);
+        input.value = '';
+    }
+
+    function processEmpDataFile(file) {
+        var ext = file.name.split('.').pop().toLowerCase();
+        if (ext !== 'xlsx' && ext !== 'xls') {
+            showToast('請上傳 Excel 檔案（.xlsx 或 .xls）', 'error');
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                var wb = XLSX.read(e.target.result, { type: 'array' });
+                var ws = wb.Sheets[wb.SheetNames[0]];
+                var rows = XLSX.utils.sheet_to_json(ws);
+
+                if (rows.length === 0) { showToast('檔案內沒有資料', 'error'); return; }
+
+                var parsed = [];
+                rows.forEach(function(row) {
+                    var empId = String(row['工號'] || '').trim();
+                    if (!empId) return;
+
+                    var deptStr = String(row['部門'] || '').trim();
+                    var departments = deptStr ? deptStr.split(/[,，]/).map(function(s) { return s.trim(); }) : [];
+
+                    var emergencyName = String(row['緊急聯絡人姓名'] || '').trim();
+                    var emergencyPhone = String(row['緊急聯絡人電話'] || '').trim();
+                    var emergencyRelationship = String(row['緊急聯絡人關係'] || '').trim();
+
+                    parsed.push({
+                        empId: empId,
+                        empName: String(row['姓名'] || '').trim(),
+                        departments: departments.length > 0 ? departments : [deptStr],
+                        title: String(row['職稱'] || '').trim(),
+                        phone: String(row['電話'] || '').trim(),
+                        email: String(row['電子郵件'] || '').trim(),
+                        address: String(row['地址'] || '').trim(),
+                        hireDate: row['聘僱日期'] ? String(row['聘僱日期']).trim() : '',
+                        contractType: String(row['合約類型'] || '').trim(),
+                        emergencyContact: {
+                            name: emergencyName,
+                            phone: emergencyPhone,
+                            relationship: emergencyRelationship
+                        }
+                    });
+                });
+
+                if (parsed.length === 0) { showToast('沒有找到有效資料', 'error'); return; }
+
+                pendingEmpDataUpload = parsed;
+                document.getElementById('empDataPreviewText').textContent =
+                    '解析到 ' + parsed.length + ' 筆員工資料，套用後將更新或新增記錄';
+                document.getElementById('empDataUploadPreview').classList.remove('hidden');
+            } catch(err) {
+                showToast('解析失敗：' + err.message, 'error');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function cancelEmpDataUpload() {
+        pendingEmpDataUpload = null;
+        document.getElementById('empDataUploadPreview').classList.add('hidden');
+    }
+
+    async function applyEmpDataUpload() {
+        if (!pendingEmpDataUpload || pendingEmpDataUpload.length === 0) return;
+        var btn = document.getElementById('applyEmpDataBtn');
+        if (btn) { btn.disabled = true; btn.textContent = '套用中...'; }
+
+        try {
+            var BATCH_LIMIT = 480;
+            var batch = db.batch();
+            var opCount = 0;
+
+            for (var i = 0; i < pendingEmpDataUpload.length; i++) {
+                var item = pendingEmpDataUpload[i];
+                var ref = db.collection('employees').doc(item.empId);
+                batch.set(ref, {
+                    empId: item.empId,
+                    empName: item.empName,
+                    departments: item.departments,
+                    title: item.title,
+                    phone: item.phone,
+                    email: item.email,
+                    address: item.address,
+                    hireDate: item.hireDate,
+                    contractType: item.contractType,
+                    emergencyContact: item.emergencyContact,
+                    updatedAt: new Date()
+                }, { merge: true });
+                opCount++;
+                if (opCount >= BATCH_LIMIT) {
+                    await batch.commit();
+                    batch = db.batch();
+                    opCount = 0;
+                }
+            }
+            if (opCount > 0) await batch.commit();
+
+            // Update in-memory state
+            pendingEmpDataUpload.forEach(function(item) {
+                var existing = allEmployees.find(function(e) { return e.empId === item.empId; });
+                if (existing) {
+                    existing.empName = item.empName;
+                    existing.departments = item.departments;
+                    existing.title = item.title;
+                    existing.phone = item.phone;
+                    existing.email = item.email;
+                    existing.address = item.address;
+                    existing.hireDate = item.hireDate;
+                    existing.contractType = item.contractType;
+                    existing.emergencyContact = item.emergencyContact;
+                } else {
+                    allEmployees.push(item);
+                }
+            });
+
+            showToast('已套用 ' + pendingEmpDataUpload.length + ' 筆員工資料', 'success');
+            cancelEmpDataUpload();
+            filterEmployeeList();
+        } catch(err) {
+            showToast('套用失敗：' + err.message, 'error');
+            if (btn) { btn.disabled = false; btn.textContent = '套用'; }
+        }
+    }
+
+    // ========== BOOT ==========
+    initAdmin();
+    </script>
+
+    <!-- Employee data edit dialog -->
+    <div id="empEditDialogBackdrop" class="acct-dialog-backdrop hidden">
+        <div class="acct-dialog" style="max-width:520px">
+            <div class="acct-dialog-header">
+                <div class="acct-dialog-title">編輯員工資料</div>
+                <div class="acct-dialog-sub" id="empEditDialogSub"></div>
+            </div>
+            <div class="acct-dialog-body" style="max-height:60vh;overflow-y:auto">
+                <label class="acct-dialog-label">姓名</label>
+                <input id="empEditName" class="acct-dialog-input" type="text" placeholder="員工姓名" />
+
+                <label class="acct-dialog-label">部門（多個用逗號分隔）</label>
+                <input id="empEditDepts" class="acct-dialog-input" type="text" placeholder="例：TSUTAYA BOOKSTORE 信義店, WIRED TOKYO 信義店 外場" />
+
+                <label class="acct-dialog-label">職稱</label>
+                <input id="empEditTitle" class="acct-dialog-input" type="text" placeholder="例：店長" />
+
+                <label class="acct-dialog-label">電話</label>
+                <input id="empEditPhone" class="acct-dialog-input" type="tel" placeholder="0912-345-678" />
+
+                <label class="acct-dialog-label">電子郵件</label>
+                <input id="empEditEmail" class="acct-dialog-input" type="email" placeholder="employee@example.com" />
+
+                <label class="acct-dialog-label">地址</label>
+                <input id="empEditAddress" class="acct-dialog-input" type="text" placeholder="台北市..." />
+
+                <label class="acct-dialog-label">聘僱日期</label>
+                <input id="empEditHireDate" class="acct-dialog-input" type="date" />
+
+                <label class="acct-dialog-label">合約類型</label>
+                <select id="empEditContractType" class="acct-dialog-input" style="padding:0.6rem 0.75rem">
+                    <option value="">-- 選擇 --</option>
+                    <option value="正職">正職</option>
+                    <option value="兼職">兼職</option>
+                    <option value="派遣">派遣</option>
+                </select>
+
+                <label class="acct-dialog-label">緊急聯絡人</label>
+                <input id="empEditEmergencyName" class="acct-dialog-input" type="text" placeholder="姓名" />
+                <input id="empEditEmergencyPhone" class="acct-dialog-input" type="tel" placeholder="電話" style="margin-top:0.5rem" />
+                <input id="empEditEmergencyRelationship" class="acct-dialog-input" type="text" placeholder="關係（例：母親）" style="margin-top:0.5rem" />
+
+                <label class="acct-dialog-label">角色</label>
+                <select id="empEditRole" class="acct-dialog-input" style="padding:0.6rem 0.75rem">
+                    <option value="staff">員工</option>
+                    <option value="manager">主管</option>
+                    <option value="admin">管理員</option>
+                </select>
+
+                <label class="acct-dialog-label">帳號狀態</label>
+                <select id="empEditStatus" class="acct-dialog-input" style="padding:0.6rem 0.75rem">
+                    <option value="active">啟用中</option>
+                    <option value="pending">待設定</option>
+                    <option value="disabled">已停用</option>
+                </select>
+            </div>
+            <div class="acct-dialog-footer">
+                <button class="cancel-btn" onclick="closeEmpEditDialog()">取消</button>
+                <button class="confirm-btn" id="empEditConfirm" onclick="confirmEmpEdit()">儲存</button>
+                <button class="delete-btn" style="padding:0.7rem 1.25rem;margin-left:auto" id="empEditDelete" onclick="deleteEmployee()">刪除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account creation dialog -->
+    <div id="acctDialog" class="acct-dialog-backdrop hidden">
+        <div class="acct-dialog">
+            <div class="acct-dialog-header">
+                <div class="acct-dialog-title">建立員工帳號</div>
+                <div class="acct-dialog-sub" id="acctDialogSub"></div>
+            </div>
+            <div class="acct-dialog-body">
+                <label class="acct-dialog-label">電子信箱（選填）</label>
+                <input id="acctDialogEmail" class="acct-dialog-input" type="email"
+                    placeholder="留空則使用工號暫時信箱" autocomplete="off" />
+                <div class="acct-dialog-hint">
+                    填入真實信箱：帳號直接啟用，無需初始設定。<br>
+                    留空：初始信箱為 <span id="acctDialogFakeEmail" style="font-family:monospace"></span>，員工首次登入時自行完成設定。
+                </div>
+            </div>
+            <div class="acct-dialog-footer">
+                <button class="cancel-btn" onclick="closeAcctDialog()">取消</button>
+                <button class="confirm-btn" id="acctDialogConfirm" onclick="confirmCreateAccount()">確認建立</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
