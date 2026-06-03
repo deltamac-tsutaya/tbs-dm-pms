@@ -41,13 +41,22 @@
         }
 
 
+        /* ── Black stage bars ── */
+        .stage-bar {
+            flex-shrink: 0;
+            height: calc(52px + env(safe-area-inset-top));
+            background: #000;
+        }
+        .stage-bar.bottom {
+            height: calc(52px + env(safe-area-inset-bottom));
+        }
+
         /* ── View carousel (peek pattern) ── */
         .view-viewport {
             flex: 1;
             overflow: hidden;
             position: relative;
             min-height: 0;
-            padding-top: env(safe-area-inset-top);
         }
 
         .view-track {
@@ -251,6 +260,8 @@
 </head>
 <body>
 
+    <div class="stage-bar top"></div>
+
     <!-- Views carousel -->
     <div class="view-viewport" id="viewViewport">
         <div class="view-track" id="viewTrack">
@@ -282,6 +293,8 @@
 
         </div>
     </div>
+
+    <div class="stage-bar bottom"></div>
 
     <!-- Settings overlay -->
     <div class="overlay-backdrop" id="overlayBackdrop" onclick="closeSettings()"></div>
