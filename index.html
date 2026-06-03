@@ -49,7 +49,22 @@
         }
         .stage-bar.bottom {
             height: calc(52px + env(safe-area-inset-bottom));
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 20px;
+            padding-bottom: env(safe-area-inset-bottom);
         }
+        .settings-fab {
+            width: 36px; height: 36px;
+            border: none; background: none;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.45);
+            transition: color 0.15s;
+        }
+        .settings-fab:hover { color: rgba(255,255,255,0.8); }
+        .settings-fab svg { width: 20px; height: 20px; }
 
         /* ── View carousel (peek pattern) ── */
         .view-viewport {
@@ -79,48 +94,70 @@
 
 
         /* ── Month view ── */
-        .month-content { padding: 12px 4px 24px; }
+        #viewMonth { background: #000; }
+
+        .month-content { padding: 0 12px 24px; }
+
+        .cal-month-big {
+            padding: 20px 4px 16px;
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+        .cal-month-name {
+            font-size: 48px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+        .cal-year-small {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.35);
+            letter-spacing: 0.5px;
+        }
 
         .cal-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 2px;
-            padding: 0 8px;
         }
         .cal-hdr {
             text-align: center;
             font-size: 10px; font-weight: 700;
-            color: var(--on-surface-var);
-            padding: 4px 0 8px;
+            color: rgba(255,255,255,0.3);
+            padding: 4px 0 10px;
+            letter-spacing: 0.5px;
         }
         .cal-day {
             aspect-ratio: 1;
-            border-radius: 8px;
-            display: flex; flex-direction: column;
+            border-radius: 50%;
+            display: flex;
             align-items: center; justify-content: center;
             cursor: pointer;
-            font-size: 13px; font-weight: 500;
+            font-size: 14px; font-weight: 500;
+            color: #fff;
             transition: background 0.12s;
             position: relative;
         }
-        .cal-day:hover { background: rgba(0,0,0,0.04); }
+        .cal-day:hover { background: rgba(255,255,255,0.08); }
         .cal-day.empty { cursor: default; pointer-events: none; }
+        .cal-day.other-month { color: rgba(255,255,255,0.18); }
         .cal-day.today {
-            background: var(--primary); color: #fff; font-weight: 700;
-            box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+            box-shadow: 0 0 0 2px #fff;
+            font-weight: 700;
         }
         .cal-day.selected:not(.today) {
-            background: var(--primary-light); color: var(--primary); font-weight: 700;
+            background: #1a9b8a;
+            color: #fff;
+            font-weight: 700;
         }
-        .cal-day .day-num { font-size: 13px; }
-        .cal-day .event-dot {
-            width: 4px; height: 4px;
-            border-radius: 50%;
-            background: var(--primary);
-            opacity: 0.5;
-            margin-top: 2px;
+        .cal-day.today.selected {
+            background: #1a9b8a;
+            box-shadow: 0 0 0 2px #fff;
         }
-        .cal-day.today .event-dot { background: rgba(255,255,255,0.7); opacity: 1; }
+        .cal-day .day-num { font-size: 14px; }
 
         /* ── Week view ── */
         #viewWeek {
@@ -367,6 +404,10 @@
             <!-- ─ Month view ─ -->
             <section class="view-section" id="viewMonth">
                 <div class="month-content">
+                    <div class="cal-month-big">
+                        <span class="cal-month-name" id="calMonthName"></span>
+                        <span class="cal-year-small" id="calYearSmall"></span>
+                    </div>
                     <div class="cal-grid" id="calGrid">
                         <div class="cal-hdr">日</div>
                         <div class="cal-hdr">一</div>
@@ -406,7 +447,14 @@
         </div>
     </div>
 
-    <div class="stage-bar bottom"></div>
+    <div class="stage-bar bottom">
+        <button class="settings-fab" onclick="openSettings()" title="設定">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+        </button>
+    </div>
 
     <!-- Settings overlay -->
     <div class="overlay-backdrop" id="overlayBackdrop" onclick="closeSettings()"></div>
@@ -499,7 +547,12 @@
         }
 
         // ── Month view ──
+        const MONTH_NAMES = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+
         function renderMonth() {
+            document.getElementById('calMonthName').textContent = MONTH_NAMES[state.calMonth];
+            document.getElementById('calYearSmall').textContent = state.calYear;
+
             const grid = document.getElementById('calGrid');
             const headers = Array.from(grid.querySelectorAll('.cal-hdr'));
             grid.innerHTML = '';
