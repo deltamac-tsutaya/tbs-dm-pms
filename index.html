@@ -25,6 +25,7 @@
             --primary-light:  #dbeafe;
             --success:        #10b981;
             --success-light:  #dcfce7;
+            --peek:           14px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -39,12 +40,12 @@
             overflow: hidden;
         }
 
-        /* ── Header ── */
-        .header {
+        /* ── App header ── */
+        .app-header {
             background: var(--surface);
             border-bottom: 1px solid var(--outline);
             padding-top: max(14px, env(safe-area-inset-top));
-            padding-bottom: 14px;
+            padding-bottom: 12px;
             padding-left: 16px;
             padding-right: 16px;
             display: flex;
@@ -55,163 +56,110 @@
         }
         .header-left { display: flex; align-items: center; gap: 10px; }
         .logo {
-            width: 30px; height: 30px;
+            width: 28px; height: 28px;
             background: #000;
             border-radius: 7px;
             display: flex; align-items: center; justify-content: center;
             font-family: 'Noto Serif TC', serif;
-            font-size: 17px; font-weight: 700;
-            color: #fff;
+            font-size: 16px; font-weight: 700; color: #fff;
+            flex-shrink: 0;
         }
-        .header-title { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; }
-
-
-        /* ── Scrollable content ── */
-        .content {
-            flex: 1;
-            overflow-y: auto;
-            padding-bottom: calc(68px + env(safe-area-inset-bottom));
+        .header-title { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
+        .header-date-label {
+            font-size: 11px; color: var(--on-surface-var);
+            font-weight: 500; margin-top: 1px;
         }
 
-        .page { display: none; }
-        .page.active { display: block; }
-
-        /* ── Today page ── */
-        .today-hero {
+        /* ── View pills ── */
+        .view-pills {
             background: var(--surface);
             border-bottom: 1px solid var(--outline);
-            padding: 20px 20px 18px;
-        }
-        .today-label {
-            font-size: 11px; font-weight: 700;
-            color: var(--primary);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
-        .today-date {
-            font-family: 'Noto Serif TC', serif;
-            font-size: 28px; font-weight: 700;
-            line-height: 1.15;
-            letter-spacing: -0.5px;
-        }
-        .today-weekday {
-            font-size: 14px; color: var(--on-surface-var);
-            margin-top: 4px; font-weight: 500;
-        }
-
-        /* Mini week strip */
-        .week-strip {
             display: flex;
+            justify-content: center;
             gap: 6px;
-            padding: 12px 16px 10px;
+            padding: 8px 16px;
+            flex-shrink: 0;
+        }
+        .view-pill {
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-size: 12px; font-weight: 700;
+            color: var(--on-surface-var);
+            background: rgba(0,0,0,0.04);
+            border: none; cursor: pointer;
+            transition: background 0.18s, color 0.18s;
+        }
+        .view-pill.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(37,99,235,0.28);
+        }
+
+        /* ── View carousel (peek pattern) ── */
+        .view-viewport {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            min-height: 0;
+        }
+
+        .view-track {
+            display: flex;
+            height: 100%;
+            transition: transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+        }
+
+        .view-section {
+            /* width set by JS after layout, so peek formula is applied */
+            flex-shrink: 0;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: var(--bg);
+            border-radius: 14px 14px 0 0;
+            box-shadow: 0 -1px 4px rgba(0,0,0,0.06);
+        }
+
+        /* ── Shared sub-header (nav bar inside each view) ── */
+        .view-nav-bar {
             background: var(--surface);
             border-bottom: 1px solid var(--outline);
-            overflow-x: auto;
-            scrollbar-width: none;
-            flex-shrink: 0;
-        }
-        .week-strip::-webkit-scrollbar { display: none; }
-        .week-day-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            flex-shrink: 0;
-            width: 38px;
-        }
-        .wdi-label { font-size: 10px; font-weight: 700; color: var(--on-surface-var); }
-        .wdi-num {
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 13px; font-weight: 600;
-            color: var(--on-bg);
-            transition: background 0.15s;
-        }
-        .wdi-num:hover { background: var(--bg); }
-        .wdi-num.today { background: var(--primary); color: #fff; font-weight: 700; }
-        .wdi-num.selected:not(.today) { background: var(--primary-light); color: var(--primary); font-weight: 700; }
-
-        /* Agenda section */
-        .agenda-wrap {
-            padding: 16px;
-            max-width: 680px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .agenda-section-title {
-            font-size: 11px; font-weight: 700;
-            color: var(--on-surface-var);
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            margin-top: 4px;
-        }
-
-        .card {
-            background: var(--surface);
-            border-radius: 14px;
-            border: 1px solid var(--outline);
-            padding: 16px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-        }
-
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            padding: 24px 0 20px;
-            color: var(--on-surface-var);
-        }
-        .empty-icon { font-size: 30px; opacity: 0.45; }
-        .empty-text { font-size: 13px; text-align: center; line-height: 1.5; }
-        .planning-badge {
-            font-size: 10px; font-weight: 700;
-            background: var(--bg);
-            border: 1px solid var(--outline);
-            border-radius: 20px;
-            padding: 3px 10px;
-            color: var(--on-surface-var);
-        }
-
-        /* ── Calendar (month) page ── */
-        .cal-page-wrap {
-            padding: 16px;
-            max-width: 680px;
-            margin: 0 auto;
-        }
-        .cal-nav {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 14px;
+            padding: 10px 14px;
+            position: sticky; top: 0; z-index: 10;
         }
-        .cal-nav-btn {
-            width: 32px; height: 32px;
-            border: 1px solid var(--outline);
-            border-radius: 8px;
-            background: var(--surface);
+        .view-nav-bar-title {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 16px; font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .nav-icon-btn {
+            width: 30px; height: 30px;
+            border: none; background: none;
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             color: var(--on-surface-var);
+            border-radius: 8px;
             transition: background 0.15s;
         }
-        .cal-nav-btn:hover { background: var(--bg); }
-        .cal-nav-btn svg { width: 16px; height: 16px; }
-        .cal-month-label { font-family: 'Noto Serif TC', serif; font-size: 18px; font-weight: 700; }
+        .nav-icon-btn:hover { background: var(--bg); }
+        .nav-icon-btn svg { width: 18px; height: 18px; }
+
+        /* ── Month view ── */
+        .month-content { padding: 12px 4px 24px; }
 
         .cal-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
+            gap: 2px;
+            padding: 0 8px;
         }
         .cal-hdr {
             text-align: center;
-            font-size: 11px; font-weight: 700;
+            font-size: 10px; font-weight: 700;
             color: var(--on-surface-var);
             padding: 4px 0 8px;
         }
@@ -222,178 +170,209 @@
             align-items: center; justify-content: center;
             cursor: pointer;
             font-size: 13px; font-weight: 500;
-            color: var(--on-bg);
             transition: background 0.12s;
-            gap: 3px;
+            position: relative;
         }
         .cal-day:hover { background: rgba(0,0,0,0.04); }
         .cal-day.empty { cursor: default; pointer-events: none; }
-        .cal-day.today { background: var(--primary); color: #fff; font-weight: 700; }
-        .cal-day.today:hover { background: #1d4ed8; }
-        .cal-day.selected:not(.today) { background: var(--primary-light); color: var(--primary); font-weight: 700; }
+        .cal-day.today {
+            background: var(--primary); color: #fff; font-weight: 700;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+        }
+        .cal-day.selected:not(.today) {
+            background: var(--primary-light); color: var(--primary); font-weight: 700;
+        }
+        .cal-day .day-num { font-size: 13px; }
+        .cal-day .event-dot {
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: var(--primary);
+            opacity: 0.5;
+            margin-top: 2px;
+        }
+        .cal-day.today .event-dot { background: rgba(255,255,255,0.7); opacity: 1; }
 
-        /* ── Tools page ── */
-        .tools-wrap {
-            padding: 16px;
-            max-width: 600px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .tools-section-title {
-            font-size: 11px; font-weight: 700;
-            color: var(--on-surface-var);
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            margin-top: 4px;
-        }
-        .tool-card {
-            background: var(--surface);
-            border: 1px solid var(--outline);
-            border-radius: 14px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            cursor: default;
-            color: inherit;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-        }
-        /* .tool-card hover reserved for when links are wired up */
-        .tool-icon {
-            width: 48px; height: 48px;
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 22px;
-            flex-shrink: 0;
-        }
-        .tool-icon.green { background: var(--success-light); }
-        .tool-icon.blue  { background: var(--primary-light); }
-        .tool-icon.gray  { background: #f3f4f6; }
-        .tool-info { flex: 1; min-width: 0; }
-        .tool-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
-        .tool-desc { font-size: 12px; color: var(--on-surface-var); line-height: 1.4; }
-        .tool-arrow { color: var(--on-surface-var); flex-shrink: 0; }
-        .tool-arrow svg { width: 18px; height: 18px; }
+        /* ── Week view ── */
+        .week-strips { padding-bottom: 24px; }
 
-        /* ── Settings page ── */
-        .settings-wrap {
-            padding: 16px;
-            max-width: 500px;
-            margin: 0 auto;
+        .day-strip {
             display: flex;
-            flex-direction: column;
+            align-items: flex-start;
             gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--outline);
+            min-height: 72px;
+            cursor: pointer;
+            transition: background 0.12s;
         }
-        .settings-row {
+        .day-strip:hover { background: rgba(0,0,0,0.02); }
+        .day-strip.today {
+            background: var(--primary-light);
+            border-left: 3px solid var(--primary);
+            padding-left: 13px;
+        }
+
+        .strip-date {
+            width: 44px; flex-shrink: 0;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 2px;
+        }
+        .strip-weekday {
+            font-size: 10px; font-weight: 700;
+            color: var(--on-surface-var);
+            text-transform: uppercase;
+        }
+        .strip-num { font-size: 22px; font-weight: 700; line-height: 1; }
+        .day-strip.today .strip-num { color: var(--primary); }
+
+        .strip-body {
+            flex: 1;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
+            min-height: 48px;
+        }
+        .strip-empty {
+            font-size: 12px; color: var(--on-surface-var);
+            font-style: italic;
+        }
+
+        /* ── Day view ── */
+        .day-timeline {
+            padding-bottom: 40px;
+        }
+        .time-slot {
+            display: flex;
+            border-bottom: 1px solid var(--outline);
+            min-height: 64px;
+        }
+        .time-slot.current-hour {
+            border-left: 3px solid var(--primary);
+            background: rgba(37,99,235,0.03);
+        }
+        .time-label {
+            width: 52px; flex-shrink: 0;
+            font-size: 11px; font-weight: 600;
+            color: var(--on-surface-var);
+            padding: 10px 8px 0;
+            text-align: right;
+        }
+        .time-slot.current-hour .time-label { color: var(--primary); }
+        .slot-body {
+            flex: 1;
+            padding: 8px 12px;
+        }
+        .slot-placeholder {
+            font-size: 12px; color: #d1d5db;
+            padding-top: 10px;
+        }
+
+        /* ── Settings overlay ── */
+        .overlay-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 500;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .overlay-backdrop.open { opacity: 1; pointer-events: auto; }
+
+        .settings-panel {
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            width: min(300px, 85vw);
+            background: var(--surface);
+            z-index: 501;
+            transform: translateX(-100%);
+            transition: transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex; flex-direction: column;
+            padding-top: max(0px, env(safe-area-inset-top));
+        }
+        .settings-panel.open { transform: translateX(0); }
+
+        .settings-header {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid var(--outline);
+        }
+        .settings-header-title {
+            font-size: 16px; font-weight: 700;
+            font-family: 'Noto Serif TC', serif;
+        }
+        .settings-close {
+            width: 28px; height: 28px;
+            border: none; background: none;
+            cursor: pointer;
+            font-size: 18px; color: var(--on-surface-var);
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+        .settings-close:hover { background: var(--bg); }
+
+        .settings-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+        .settings-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 11px 0;
             border-bottom: 1px solid var(--outline);
             font-size: 13px;
         }
         .settings-row:last-child { border-bottom: none; }
         .settings-label { color: var(--on-surface-var); }
-        .settings-val { font-weight: 600; }
-
-        /* ── Bottom Nav ── */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background: var(--surface);
-            border-top: 1px solid var(--outline);
-            display: flex;
-            padding-bottom: env(safe-area-inset-bottom);
-            z-index: 200;
-        }
-        .nav-btn {
-            flex: 1;
-            display: flex; flex-direction: column;
-            align-items: center; gap: 4px;
-            padding: 10px 4px;
-            border: none; background: none;
-            cursor: pointer;
+        .settings-val { font-weight: 600; font-size: 12px; text-align: right; }
+        .settings-section-title {
+            font-size: 10px; font-weight: 700;
             color: var(--on-surface-var);
-            font-size: 10px; font-weight: 600;
-            transition: color 0.15s;
+            letter-spacing: 0.8px; text-transform: uppercase;
+            padding: 16px 0 6px;
         }
-        .nav-btn svg { width: 22px; height: 22px; }
-        .nav-btn.active { color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header class="header">
+    <!-- App header -->
+    <header class="app-header">
         <div class="header-left">
             <div class="logo">蔦</div>
-            <div class="header-title">得利蔦屋 管理系統</div>
+            <div>
+                <div class="header-title">得利蔦屋 管理系統</div>
+                <div class="header-date-label" id="headerDateLabel"></div>
+            </div>
         </div>
     </header>
 
-    <!-- Pages -->
-    <div class="content">
+    <!-- View pills -->
+    <div class="view-pills">
+        <button class="view-pill active" id="pill0" onclick="switchView(0)">月</button>
+        <button class="view-pill"        id="pill1" onclick="switchView(1)">週</button>
+        <button class="view-pill"        id="pill2" onclick="switchView(2)">日</button>
+    </div>
 
-        <!-- ── Today page ── -->
-        <section id="pageToday" class="page active">
+    <!-- Views carousel -->
+    <div class="view-viewport" id="viewViewport">
+        <div class="view-track" id="viewTrack">
 
-            <!-- Hero date block -->
-            <div class="today-hero">
-                <div class="today-label">TODAY</div>
-                <div class="today-date" id="todayDate"></div>
-                <div class="today-weekday" id="todayWeekday"></div>
-            </div>
-
-            <!-- Week strip -->
-            <div class="week-strip" id="weekStrip"></div>
-
-            <!-- Agenda -->
-            <div class="agenda-wrap">
-                <div class="agenda-section-title">當日摘要</div>
-
-                <div class="card">
-                    <div class="empty-state">
-                        <div class="empty-icon">📋</div>
-                        <div class="empty-text">當日事件尚未串接</div>
-                        <div class="planning-badge">規劃中</div>
-                    </div>
-                </div>
-
-                <div class="agenda-section-title">展區預約</div>
-                <div class="card">
-                    <div class="empty-state">
-                        <div class="empty-icon">🗓</div>
-                        <div class="empty-text">展區排程資料尚未串接</div>
-                        <div class="planning-badge">規劃中</div>
-                    </div>
-                </div>
-
-                <div class="agenda-section-title">人力班表</div>
-                <div class="card">
-                    <div class="empty-state">
-                        <div class="empty-icon">👥</div>
-                        <div class="empty-text">人力資料尚未串接</div>
-                        <div class="planning-badge">規劃中</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ── Calendar (month view) page ── -->
-        <section id="pageCalendar" class="page">
-            <div class="cal-page-wrap">
-                <div class="card">
-                    <div class="cal-nav">
-                        <button class="cal-nav-btn" onclick="shiftMonth(-1)">
+            <!-- ─ Month view ─ -->
+            <section class="view-section" id="viewMonth">
+                <!-- Sticky nav bar -->
+                <div class="view-nav-bar">
+                    <button class="nav-icon-btn" id="btnSettings" onclick="openSettings()" title="設定">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </button>
+                    <span class="view-nav-bar-title" id="monthLabel"></span>
+                    <div style="display:flex;gap:4px;align-items:center;">
+                        <button class="nav-icon-btn" onclick="shiftMonth(-1)">
                             <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
                         </button>
-                        <span class="cal-month-label" id="calLabel"></span>
-                        <button class="cal-nav-btn" onclick="shiftMonth(1)">
+                        <button class="nav-icon-btn" onclick="shiftMonth(1)">
                             <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
                         </button>
                     </div>
+                </div>
+                <div class="month-content">
                     <div class="cal-grid" id="calGrid">
                         <div class="cal-hdr">日</div>
                         <div class="cal-hdr">一</div>
@@ -404,194 +383,168 @@
                         <div class="cal-hdr">六</div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- ── Tools page ── -->
-        <section id="pageTools" class="page">
-            <div class="tools-wrap">
-                <div class="tools-section-title">系統工具</div>
-
-                <div class="tool-card">
-                    <div class="tool-icon green">👥</div>
-                    <div class="tool-info">
-                        <div class="tool-name">人力班表系統</div>
-                        <div class="tool-desc">查詢員工班表、部門出勤狀況與當日人力配置</div>
-                    </div>
-                    <div class="planning-badge">規劃中</div>
+            <!-- ─ Week view ─ -->
+            <section class="view-section" id="viewWeek">
+                <div class="view-nav-bar">
+                    <button class="nav-icon-btn" onclick="shiftWeek(-1)">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <span class="view-nav-bar-title" id="weekLabel"></span>
+                    <button class="nav-icon-btn" onclick="shiftWeek(1)">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                    </button>
                 </div>
+                <div class="week-strips" id="weekStrips"></div>
+            </section>
 
-                <div class="tool-card">
-                    <div class="tool-icon blue">🗓</div>
-                    <div class="tool-info">
-                        <div class="tool-name">展區排程系統</div>
-                        <div class="tool-desc">管理大型主題平台展區預約、衝突偵測與租金試算</div>
-                    </div>
-                    <div class="planning-badge">規劃中</div>
+            <!-- ─ Day view ─ -->
+            <section class="view-section" id="viewDay">
+                <div class="view-nav-bar">
+                    <button class="nav-icon-btn" onclick="shiftDay(-1)">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <span class="view-nav-bar-title" id="dayLabel"></span>
+                    <button class="nav-icon-btn" onclick="shiftDay(1)">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                    </button>
                 </div>
+                <div class="day-timeline" id="dayTimeline"></div>
+            </section>
 
-                <div class="tool-card">
-                    <div class="tool-icon gray">⚙️</div>
-                    <div class="tool-info">
-                        <div class="tool-name">後台管理</div>
-                        <div class="tool-desc">上傳班表 Excel、管理員工職稱與系統設定</div>
-                    </div>
-                    <div class="planning-badge">規劃中</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ── Settings page ── -->
-        <section id="pageSettings" class="page">
-            <div class="settings-wrap">
-                <div class="card">
-                    <div class="settings-row">
-                        <span class="settings-label">系統名稱</span>
-                        <span class="settings-val">得利蔦屋 管理系統</span>
-                    </div>
-                    <div class="settings-row">
-                        <span class="settings-label">版本</span>
-                        <span class="settings-val">v1.0</span>
-                    </div>
-                    <div class="settings-row">
-                        <span class="settings-label">時區</span>
-                        <span class="settings-val">Asia/Taipei (UTC+8)</span>
-                    </div>
-                    <div class="settings-row">
-                        <span class="settings-label">PWA 快取</span>
-                        <span class="settings-val">management-v1</span>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="settings-row">
-                        <span class="settings-label">人力班表系統</span>
-                        <span class="planning-badge">規劃中</span>
-                    </div>
-                    <div class="settings-row">
-                        <span class="settings-label">展區排程系統</span>
-                        <span class="planning-badge">規劃中</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
+        </div>
     </div>
 
-    <!-- Bottom nav -->
-    <nav class="bottom-nav">
-        <button id="navToday" class="nav-btn active" onclick="switchTab('Today')">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            今日
-        </button>
-        <button id="navCalendar" class="nav-btn" onclick="switchTab('Calendar')">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            月曆
-        </button>
-        <button id="navTools" class="nav-btn" onclick="switchTab('Tools')">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-            工具
-        </button>
-        <button id="navSettings" class="nav-btn" onclick="switchTab('Settings')">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            設定
-        </button>
-    </nav>
+    <!-- Settings overlay -->
+    <div class="overlay-backdrop" id="overlayBackdrop" onclick="closeSettings()"></div>
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <span class="settings-header-title">設定</span>
+            <button class="settings-close" onclick="closeSettings()">✕</button>
+        </div>
+        <div class="settings-body">
+            <div class="settings-section-title">系統資訊</div>
+            <div class="settings-row">
+                <span class="settings-label">系統名稱</span>
+                <span class="settings-val">得利蔦屋 管理系統</span>
+            </div>
+            <div class="settings-row">
+                <span class="settings-label">版本</span>
+                <span class="settings-val">v1.0</span>
+            </div>
+            <div class="settings-row">
+                <span class="settings-label">時區</span>
+                <span class="settings-val">Asia/Taipei (UTC+8)</span>
+            </div>
+            <div class="settings-row">
+                <span class="settings-label">PWA 快取</span>
+                <span class="settings-val">management-v2</span>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // ── State ──
+        // ── Constants ──
         const WEEKDAYS = ['日','一','二','三','四','五','六'];
-        let viewYear, viewMonth;
-        let selectedCalDate;
+        const DAY_HOURS = [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
+        const PEEK = 14; // px peek amount
+
+        // ── State ──
+        const state = {
+            view:     0,                  // 0=月 1=週 2=日
+            viewDate: new Date(),         // shared focused date
+            calYear:  new Date().getFullYear(),
+            calMonth: new Date().getMonth(), // 0-indexed
+        };
+
+        // ── Swipe tracking ──
+        let touchStartX = 0, touchStartY = 0;
+
         // ── Init ──
         (function init() {
-            const now = new Date();
-            viewYear  = now.getFullYear();
-            viewMonth = now.getMonth();
-            selectedCalDate = localDateStr(now);
+            updateHeaderDate();
+            renderMonth();
+            renderWeek();
+            renderDay();
+            positionTrack(false);
 
-            renderTodayHero(now);
-            renderWeekStrip(now);
-            renderCalendar();
+            const track = document.getElementById('viewTrack');
+            track.addEventListener('touchstart', onTouchStart, { passive: true });
+            track.addEventListener('touchend',   onTouchEnd,   { passive: true });
 
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js').catch(() => {});
             }
         })();
 
-        // ── Tab navigation ──
-        function switchTab(tab) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('page' + tab).classList.add('active');
-            document.getElementById('nav'  + tab).classList.add('active');
-        }
+        // ── Layout: peek pattern ──
+        function positionTrack(animate = true) {
+            const viewport = document.getElementById('viewViewport');
+            const track    = document.getElementById('viewTrack');
+            const sections = track.querySelectorAll('.view-section');
+            const W = viewport.offsetWidth;
+            const sectionW = W - 2 * PEEK;
 
-        // ── Today hero ──
-        function renderTodayHero(now) {
-            const months = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
-            document.getElementById('todayDate').textContent =
-                `${now.getMonth()+1} 月 ${now.getDate()} 日`;
-            document.getElementById('todayWeekday').textContent =
-                `${now.getFullYear()} · 週${WEEKDAYS[now.getDay()]}`;
-        }
+            sections.forEach(s => { s.style.width = sectionW + 'px'; });
 
-        // ── Week strip (Mon–Sun of current week) ──
-        function renderWeekStrip(now) {
-            const strip = document.getElementById('weekStrip');
-            strip.innerHTML = '';
-
-            const todayStr = localDateStr(now);
-            // Start from Sunday of this week
-            const sunday = new Date(now);
-            sunday.setDate(now.getDate() - now.getDay());
-
-            for (let i = 0; i < 7; i++) {
-                const d = new Date(sunday);
-                d.setDate(sunday.getDate() + i);
-                const dStr = localDateStr(d);
-
-                const item = document.createElement('div');
-                item.className = 'week-day-item';
-
-                const lbl = document.createElement('div');
-                lbl.className = 'wdi-label';
-                lbl.textContent = WEEKDAYS[d.getDay()];
-
-                const num = document.createElement('div');
-                num.className = 'wdi-num';
-                if (dStr === todayStr) num.classList.add('today');
-                num.textContent = d.getDate();
-                num.addEventListener('click', () => jumpToDate(dStr));
-
-                item.appendChild(lbl);
-                item.appendChild(num);
-                strip.appendChild(item);
+            const tx = PEEK - state.view * sectionW;
+            if (!animate) track.style.transition = 'none';
+            track.style.transform = `translateX(${tx}px)`;
+            if (!animate) {
+                // Re-enable transition on next frame
+                requestAnimationFrame(() => {
+                    track.style.transition = '';
+                });
             }
         }
 
-        function jumpToDate(dateStr) {
-            // Navigate to month calendar on the selected date
-            const [y, m] = dateStr.split('-').map(Number);
-            viewYear  = y;
-            viewMonth = m - 1;
-            selectedCalDate = dateStr;
-            renderCalendar();
-            switchTab('Calendar');
+        window.addEventListener('resize', () => positionTrack(false));
+
+        // ── View switching ──
+        function switchView(idx) {
+            state.view = Math.max(0, Math.min(2, idx));
+            document.querySelectorAll('.view-pill').forEach((p, i) => {
+                p.classList.toggle('active', i === state.view);
+            });
+            positionTrack(true);
+            updateHeaderDate();
         }
 
-        // ── Monthly calendar ──
-        function renderCalendar() {
-            document.getElementById('calLabel').textContent =
-                `${viewYear} 年 ${String(viewMonth + 1).padStart(2, '0')} 月`;
+        // ── Header date ──
+        function updateHeaderDate() {
+            const d = state.viewDate;
+            const label = [
+                `${state.calYear} 年 ${pad(state.calMonth + 1)} 月`,
+                weekRangeLabel(),
+                `${d.getMonth()+1} 月 ${d.getDate()} 日 週${WEEKDAYS[d.getDay()]}`,
+            ][state.view];
+            document.getElementById('headerDateLabel').textContent = label;
+        }
+
+        function weekRangeLabel() {
+            const sunday = weekSunday(state.viewDate);
+            const saturday = new Date(sunday); saturday.setDate(sunday.getDate() + 6);
+            if (sunday.getMonth() === saturday.getMonth()) {
+                return `${sunday.getMonth()+1} 月 ${sunday.getDate()}–${saturday.getDate()} 日`;
+            }
+            return `${sunday.getMonth()+1}/${sunday.getDate()} – ${saturday.getMonth()+1}/${saturday.getDate()}`;
+        }
+
+        // ── Month view ──
+        function renderMonth() {
+            document.getElementById('monthLabel').textContent =
+                `${state.calYear} 年 ${pad(state.calMonth + 1)} 月`;
 
             const grid = document.getElementById('calGrid');
             const headers = Array.from(grid.querySelectorAll('.cal-hdr'));
             grid.innerHTML = '';
             headers.forEach(h => grid.appendChild(h));
 
-            const firstDow  = new Date(viewYear, viewMonth, 1).getDay();
-            const daysInMon = new Date(viewYear, viewMonth + 1, 0).getDate();
+            const firstDow  = new Date(state.calYear, state.calMonth, 1).getDay();
+            const daysInMon = new Date(state.calYear, state.calMonth + 1, 0).getDate();
             const todayStr  = localDateStr(new Date());
+            const selStr    = localDateStr(state.viewDate);
 
             for (let i = 0; i < firstDow; i++) {
                 const el = document.createElement('div');
@@ -600,31 +553,151 @@
             }
 
             for (let d = 1; d <= daysInMon; d++) {
-                const dateStr = `${viewYear}-${pad(viewMonth + 1)}-${pad(d)}`;
+                const dateStr = `${state.calYear}-${pad(state.calMonth + 1)}-${pad(d)}`;
                 const el = document.createElement('div');
                 el.className = 'cal-day';
-                if (dateStr === todayStr)       el.classList.add('today');
-                if (dateStr === selectedCalDate) el.classList.add('selected');
-                el.innerHTML = `<span>${d}</span>`;
+                if (dateStr === todayStr) el.classList.add('today');
+                if (dateStr === selStr)   el.classList.add('selected');
+                el.innerHTML = `<span class="day-num">${d}</span>`;
                 el.addEventListener('click', () => {
-                    selectedCalDate = dateStr;
-                    renderCalendar();
+                    state.viewDate = new Date(dateStr + 'T00:00:00');
+                    renderDay();
+                    switchView(2);
                 });
                 grid.appendChild(el);
             }
         }
 
         function shiftMonth(delta) {
-            viewMonth += delta;
-            if (viewMonth > 11) { viewMonth = 0;  viewYear++; }
-            if (viewMonth < 0)  { viewMonth = 11; viewYear--; }
-            renderCalendar();
+            state.calMonth += delta;
+            if (state.calMonth > 11) { state.calMonth = 0;  state.calYear++; }
+            if (state.calMonth < 0)  { state.calMonth = 11; state.calYear--; }
+            renderMonth();
+            updateHeaderDate();
         }
 
-        // ── Utils ──
+        // ── Week view ──
+        function renderWeek() {
+            const sunday = weekSunday(state.viewDate);
+            const todayStr = localDateStr(new Date());
+
+            // Label
+            document.getElementById('weekLabel').textContent = weekRangeLabel();
+
+            const container = document.getElementById('weekStrips');
+            container.innerHTML = '';
+
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(sunday);
+                d.setDate(sunday.getDate() + i);
+                const dStr = localDateStr(d);
+
+                const strip = document.createElement('div');
+                strip.className = 'day-strip' + (dStr === todayStr ? ' today' : '');
+
+                strip.innerHTML = `
+                    <div class="strip-date">
+                        <span class="strip-weekday">${WEEKDAYS[d.getDay()]}</span>
+                        <span class="strip-num">${d.getDate()}</span>
+                    </div>
+                    <div class="strip-body">
+                        <span class="strip-empty">尚無事件</span>
+                    </div>`;
+
+                strip.addEventListener('click', () => {
+                    state.viewDate = new Date(d);
+                    renderDay();
+                    switchView(2);
+                });
+
+                container.appendChild(strip);
+            }
+        }
+
+        function shiftWeek(delta) {
+            state.viewDate.setDate(state.viewDate.getDate() + delta * 7);
+            renderWeek();
+            updateHeaderDate();
+        }
+
+        // ── Day view ──
+        function renderDay() {
+            const d = state.viewDate;
+            const nowHour = new Date().getHours();
+            const isToday = localDateStr(d) === localDateStr(new Date());
+
+            document.getElementById('dayLabel').textContent =
+                `${d.getMonth()+1} 月 ${d.getDate()} 日 週${WEEKDAYS[d.getDay()]}`;
+
+            const timeline = document.getElementById('dayTimeline');
+            timeline.innerHTML = '';
+
+            DAY_HOURS.forEach(h => {
+                const slot = document.createElement('div');
+                const isCurrent = isToday && h === nowHour;
+                slot.className = 'time-slot' + (isCurrent ? ' current-hour' : '');
+                slot.innerHTML = `
+                    <div class="time-label">${pad(h)}:00</div>
+                    <div class="slot-body">
+                        <div class="slot-placeholder">—</div>
+                    </div>`;
+                timeline.appendChild(slot);
+            });
+
+            // Scroll to current hour if viewing today
+            if (isToday) {
+                requestAnimationFrame(() => {
+                    const current = document.querySelector('.time-slot.current-hour');
+                    if (current) current.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                });
+            } else {
+                document.getElementById('viewDay').scrollTop = 0;
+            }
+        }
+
+        function shiftDay(delta) {
+            state.viewDate.setDate(state.viewDate.getDate() + delta);
+            renderDay();
+            updateHeaderDate();
+        }
+
+        // ── Swipe gestures ──
+        function onTouchStart(e) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }
+
+        function onTouchEnd(e) {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+                switchView(state.view + (dx < 0 ? 1 : -1));
+            }
+        }
+
+        // ── Settings overlay ──
+        function openSettings() {
+            document.getElementById('overlayBackdrop').classList.add('open');
+            document.getElementById('settingsPanel').classList.add('open');
+        }
+
+        function closeSettings() {
+            document.getElementById('overlayBackdrop').classList.remove('open');
+            document.getElementById('settingsPanel').classList.remove('open');
+        }
+
+        // ── Utilities ──
+        function weekSunday(d) {
+            const s = new Date(d);
+            s.setDate(d.getDate() - d.getDay());
+            s.setHours(0,0,0,0);
+            return s;
+        }
+
         function localDateStr(d) {
             return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
         }
+
         function pad(n) { return String(n).padStart(2, '0'); }
     </script>
 </body>
