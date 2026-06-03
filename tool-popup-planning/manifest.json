@@ -1,0 +1,22 @@
+{
+  "name": "得利蔦屋大型主題平台展區排程系統",
+  "short_name": "蔦屋主題平台排程",
+  "description": "提供得利蔦屋台中市政店與信義店的大型主題平台展區場域申請與時程檔期排程系統。",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#F8F7F2",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23000' width='192' height='192'/><text x='5' y='185' font-size='155' font-family='serif' fill='white' text-anchor='start'>蔦</text><text x='188' y='44' font-size='38' font-family='sans-serif' font-weight='700' fill='%232563eb' text-anchor='end'>SCH</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23000' width='512' height='512'/><text x='10' y='490' font-size='410' font-family='serif' fill='white' text-anchor='start'>蔦</text><text x='500' y='110' font-size='100' font-family='sans-serif' font-weight='700' fill='%232563eb' text-anchor='end'>SCH</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
