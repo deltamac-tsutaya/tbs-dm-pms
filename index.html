@@ -65,35 +65,9 @@
             flex-shrink: 0;
         }
         .header-title { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
-        .header-date-label {
-            font-size: 11px; color: var(--on-surface-var);
-            font-weight: 500; margin-top: 1px;
-        }
+        .header-date-label { display: none; }
 
-        /* ── View pills ── */
-        .view-pills {
-            background: var(--surface);
-            border-bottom: 1px solid var(--outline);
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            padding: 8px 16px;
-            flex-shrink: 0;
-        }
-        .view-pill {
-            padding: 5px 20px;
-            border-radius: 20px;
-            font-size: 12px; font-weight: 700;
-            color: var(--on-surface-var);
-            background: rgba(0,0,0,0.04);
-            border: none; cursor: pointer;
-            transition: background 0.18s, color 0.18s;
-        }
-        .view-pill.active {
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 3px 10px rgba(37,99,235,0.28);
-        }
+        /* view pills removed */
 
         /* ── View carousel (peek pattern) ── */
         .view-viewport {
@@ -341,13 +315,6 @@
         </div>
     </header>
 
-    <!-- View pills -->
-    <div class="view-pills">
-        <button class="view-pill active" id="pill0" onclick="switchView(0)">月</button>
-        <button class="view-pill"        id="pill1" onclick="switchView(1)">週</button>
-        <button class="view-pill"        id="pill2" onclick="switchView(2)">日</button>
-    </div>
-
     <!-- Views carousel -->
     <div class="view-viewport" id="viewViewport">
         <div class="view-track" id="viewTrack">
@@ -504,9 +471,6 @@
         // ── View switching ──
         function switchView(idx) {
             state.view = Math.max(0, Math.min(2, idx));
-            document.querySelectorAll('.view-pill').forEach((p, i) => {
-                p.classList.toggle('active', i === state.view);
-            });
             positionTrack(true);
             updateHeaderDate();
         }
