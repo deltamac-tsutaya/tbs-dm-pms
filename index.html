@@ -164,6 +164,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            background: #18877a;
         }
 
         .week-strips {
@@ -175,53 +176,73 @@
         .day-strip {
             flex: 1;
             display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0 16px;
-            border-bottom: 1px solid var(--outline);
+            border-bottom: 1px solid rgba(255,255,255,0.12);
             cursor: pointer;
             transition: background 0.12s;
+            min-height: 0;
         }
-        .day-strip:hover { background: rgba(0,0,0,0.02); }
-        .day-strip.today {
-            background: var(--primary-light);
-            box-shadow: inset 3px 0 0 var(--primary);
-        }
+        .day-strip:hover { background: rgba(255,255,255,0.06); }
+        .day-strip.today { background: rgba(255,255,255,0.13); }
 
         .strip-month {
-            width: 22px; flex-shrink: 0;
+            width: 20px; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
         }
         .strip-month-label {
-            font-size: 10px; font-weight: 700;
-            color: var(--on-surface-var);
+            font-size: 8px; font-weight: 700;
+            color: rgba(255,255,255,0.4);
             writing-mode: vertical-rl;
             text-orientation: mixed;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
         }
 
         .strip-date {
-            width: 44px; flex-shrink: 0;
+            width: 68px; flex-shrink: 0;
             display: flex; flex-direction: column;
-            align-items: center; gap: 2px;
+            justify-content: center;
+            padding: 0 12px 0 6px;
         }
         .strip-weekday {
-            font-size: 10px; font-weight: 700;
-            color: var(--on-surface-var);
+            font-size: 9px; font-weight: 700;
+            color: rgba(255,255,255,0.5);
             text-transform: uppercase;
+            letter-spacing: 1.2px;
         }
-        .strip-num { font-size: 22px; font-weight: 700; line-height: 1; }
-        .day-strip.today .strip-num { color: var(--primary); }
+        .strip-num {
+            font-size: 34px; font-weight: 800;
+            color: #fff;
+            line-height: 1;
+            letter-spacing: -1.5px;
+        }
+        .day-strip.today .strip-num { color: #fff; }
+        .strip-today-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: #fff;
+            margin-top: 3px;
+        }
 
         .strip-body {
             flex: 1;
             display: flex;
             align-items: center;
+            padding: 8px 12px 8px 0;
+            position: relative;
+            min-width: 0;
         }
         .strip-empty {
-            font-size: 12px; color: var(--on-surface-var);
+            font-size: 12px; color: rgba(255,255,255,0.22);
             font-style: italic;
         }
+        .strip-weather {
+            position: absolute;
+            top: 8px; right: 0;
+            display: flex; align-items: center; gap: 3px;
+            font-size: 11px; font-weight: 600;
+            color: rgba(255,255,255,0.55);
+        }
+        .strip-weather-icon { font-size: 13px; }
 
         /* ── Day view ── */
         #viewDay {
@@ -603,6 +624,7 @@
                 const strip = document.createElement('div');
                 strip.className = 'day-strip' + (dStr === todayStr ? ' today' : '');
 
+                const isToday = dStr === todayStr;
                 strip.innerHTML = `
                     <div class="strip-month">
                         ${showMonth ? `<span class="strip-month-label">${monthStr}</span>` : ''}
@@ -610,9 +632,14 @@
                     <div class="strip-date">
                         <span class="strip-weekday">${WEEKDAYS[d.getDay()]}</span>
                         <span class="strip-num">${d.getDate()}</span>
+                        ${isToday ? '<div class="strip-today-dot"></div>' : ''}
                     </div>
                     <div class="strip-body">
                         <span class="strip-empty">尚無事件</span>
+                        <div class="strip-weather">
+                            <span class="strip-weather-icon">—</span>
+                            <span>—°</span>
+                        </div>
                     </div>`;
 
                 strip.addEventListener('click', () => {
