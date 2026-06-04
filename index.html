@@ -657,8 +657,8 @@
                 el.innerHTML = `<span class="day-num">${d}</span>`;
                 el.addEventListener('click', () => {
                     state.viewDate = new Date(dateStr + 'T00:00:00');
-                    renderDay();
-                    switchView(2);
+                    renderWeek();
+                    switchView(1);
                 });
                 grid.appendChild(el);
             }
