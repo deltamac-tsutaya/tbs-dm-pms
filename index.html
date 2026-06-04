@@ -21,11 +21,12 @@
             --outline:        #e5e7eb;
             --on-bg:          #1f2937;
             --on-surface-var: #64748b;
-            --primary:        #2563eb;
-            --primary-light:  #dbeafe;
+            --primary:        #D4C5A9;   /* paper beige */
+            --on-primary:     #3A2D1C;   /* dark warm brown */
+            --primary-dim:    rgba(58,45,28,0.08);
+            --primary-border: rgba(58,45,28,0.12);
             --success:        #10b981;
             --success-light:  #dcfce7;
-            --peek:           14px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -142,17 +143,18 @@
         .cal-day.empty { cursor: default; pointer-events: none; }
         .cal-day.other-month { color: rgba(255,255,255,0.18); }
         .cal-day.today {
-            box-shadow: 0 0 0 2px #fff;
+            background: var(--primary);
+            color: var(--on-primary);
             font-weight: 700;
         }
         .cal-day.selected:not(.today) {
-            background: #1a9b8a;
+            background: rgba(212,197,169,0.22);
             color: #fff;
             font-weight: 700;
         }
         .cal-day.today.selected {
-            background: #1a9b8a;
-            box-shadow: 0 0 0 2px #fff;
+            background: var(--primary);
+            color: var(--on-primary);
         }
         .cal-day .day-num { font-size: 14px; }
 
@@ -161,7 +163,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            background: #18877a;
+            background: var(--primary);
         }
 
         .week-strips {
@@ -175,13 +177,13 @@
         .day-strip {
             flex: 1;
             display: flex;
-            border-bottom: 1px solid rgba(255,255,255,0.12);
+            border-bottom: 1px solid var(--primary-border);
             cursor: pointer;
             transition: background 0.12s;
             min-height: 0;
         }
-        .day-strip:hover { background: rgba(255,255,255,0.06); }
-        .day-strip.today { background: rgba(255,255,255,0.13); }
+        .day-strip:hover { background: var(--primary-dim); }
+        .day-strip.today { background: rgba(58,45,28,0.1); }
 
         .strip-month {
             width: 20px; flex-shrink: 0;
@@ -189,7 +191,7 @@
         }
         .strip-month-label {
             font-size: 8px; font-weight: 700;
-            color: rgba(255,255,255,0.4);
+            color: rgba(58,45,28,0.38);
             writing-mode: vertical-rl;
             text-orientation: mixed;
             letter-spacing: 1.5px;
@@ -204,21 +206,21 @@
         }
         .strip-weekday {
             font-size: 9px; font-weight: 700;
-            color: rgba(255,255,255,0.5);
+            color: rgba(58,45,28,0.48);
             text-transform: uppercase;
             letter-spacing: 1.2px;
         }
         .strip-num {
             font-size: 34px; font-weight: 800;
-            color: #fff;
+            color: var(--on-primary);
             line-height: 1;
             letter-spacing: -1.5px;
         }
-        .day-strip.today .strip-num { color: #fff; }
+        .day-strip.today .strip-num { color: var(--on-primary); }
         .strip-today-dot {
             width: 5px; height: 5px;
             border-radius: 50%;
-            background: #fff;
+            background: var(--on-primary);
             margin-top: 3px;
         }
 
@@ -231,14 +233,14 @@
             min-width: 0;
         }
         .strip-empty {
-            font-size: 12px; color: rgba(255,255,255,0.22);
+            font-size: 12px; color: rgba(58,45,28,0.3);
             font-style: italic;
         }
         .strip-weather {
             flex-shrink: 0;
             display: flex; align-items: center; gap: 3px;
             font-size: 11px; font-weight: 600;
-            color: rgba(255,255,255,0.55);
+            color: rgba(58,45,28,0.48);
             padding-right: 12px;
             align-self: flex-start;
             padding-top: 10px;
@@ -246,7 +248,7 @@
         .strip-weather-icon { font-size: 13px; }
 
         /* ── Day view ── */
-        #viewDay { background: #18877a; }
+        #viewDay { background: var(--primary); }
 
         .day-scroll {
             padding: 28px 20px 48px;
@@ -263,19 +265,19 @@
         .day-title-left {}
         .day-label {
             font-size: 13px; font-weight: 700;
-            color: rgba(255,255,255,0.55);
+            color: rgba(58,45,28,0.48);
             letter-spacing: 1.8px;
             text-transform: uppercase;
             margin-bottom: 4px;
         }
         .day-num-big {
             font-size: 72px; font-weight: 900;
-            color: #fff; line-height: 0.9;
+            color: var(--on-primary); line-height: 0.9;
             letter-spacing: -3px;
         }
         .day-date-sub {
             font-size: 14px; font-weight: 600;
-            color: rgba(255,255,255,0.55);
+            color: rgba(58,45,28,0.5);
             letter-spacing: 0.5px;
             margin-top: 8px;
         }
@@ -284,33 +286,33 @@
         .section-label.timeline-label { margin-top: 4px; }
         .time-slot {
             display: flex;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid var(--primary-border);
             min-height: 56px;
         }
         .time-slot.current-hour {
-            border-left: 3px solid #fff;
-            background: rgba(255,255,255,0.07);
+            border-left: 3px solid var(--on-primary);
+            background: var(--primary-dim);
         }
         .time-label {
             width: 52px; flex-shrink: 0;
             font-size: 10px; font-weight: 600;
-            color: rgba(255,255,255,0.4);
+            color: rgba(58,45,28,0.38);
             padding: 10px 8px 0;
             text-align: right;
         }
-        .time-slot.current-hour .time-label { color: #fff; }
+        .time-slot.current-hour .time-label { color: var(--on-primary); }
         .slot-body { flex: 1; padding: 8px 12px; }
 
         .section-label {
             font-size: 10px; font-weight: 700;
-            color: rgba(255,255,255,0.45);
+            color: rgba(58,45,28,0.42);
             letter-spacing: 1.8px;
             text-transform: uppercase;
             margin: 0 0 10px;
         }
 
         .weather-card {
-            background: rgba(255,255,255,0.12);
+            background: rgba(58,45,28,0.07);
             padding: 18px 20px 20px;
             margin-bottom: 28px;
         }
@@ -321,30 +323,30 @@
         .weather-icon-big { font-size: 52px; line-height: 1; }
         .weather-temp-big {
             font-size: 28px; font-weight: 700;
-            color: #fff; line-height: 1.1;
+            color: var(--on-primary); line-height: 1.1;
         }
         .weather-cond {
             font-size: 16px; font-weight: 600;
-            color: #fff; margin-top: 2px;
+            color: var(--on-primary); margin-top: 2px;
         }
         .weather-loc {
-            font-size: 12px; color: rgba(255,255,255,0.55);
+            font-size: 12px; color: rgba(58,45,28,0.5);
             margin-top: 3px;
         }
         .weather-details {
             display: grid; grid-template-columns: 1fr 1fr;
             gap: 6px 0;
             padding-top: 14px;
-            border-top: 1px solid rgba(255,255,255,0.15);
+            border-top: 1px solid var(--primary-border);
         }
         .weather-detail-item {
             display: flex; align-items: center; gap: 6px;
-            font-size: 12px; color: rgba(255,255,255,0.7);
+            font-size: 12px; color: rgba(58,45,28,0.65);
         }
         .weather-detail-icon { font-size: 14px; }
 
         .event-card {
-            background: rgba(255,255,255,0.12);
+            background: rgba(58,45,28,0.07);
             padding: 14px 16px;
             margin-bottom: 10px;
             display: flex; gap: 12px; align-items: stretch;
@@ -357,19 +359,19 @@
         .event-info { flex: 1; min-width: 0; }
         .event-name {
             font-size: 15px; font-weight: 700;
-            color: #fff; line-height: 1.2;
+            color: var(--on-primary); line-height: 1.2;
         }
         .event-time {
-            font-size: 12px; color: rgba(255,255,255,0.6);
+            font-size: 12px; color: rgba(58,45,28,0.55);
             margin-top: 4px;
         }
         .event-loc {
-            font-size: 12px; color: rgba(255,255,255,0.45);
+            font-size: 12px; color: rgba(58,45,28,0.4);
             margin-top: 2px;
         }
         .day-empty {
             text-align: center; padding: 28px 0;
-            font-size: 13px; color: rgba(255,255,255,0.25);
+            font-size: 13px; color: rgba(58,45,28,0.28);
             font-style: italic;
         }
 
