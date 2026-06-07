@@ -342,6 +342,40 @@
             font-style: italic;
         }
 
+        /* ── Day modal (bottom sheet) ── */
+        .day-modal-backdrop {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 10;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .day-modal-backdrop.open { opacity: 1; pointer-events: auto; }
+        .day-modal {
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            top: 15%;
+            background: #18877a;
+            z-index: 11;
+            transform: translateY(100%);
+            transition: transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-radius: 16px 16px 0 0;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        .day-modal.open { transform: translateY(0); }
+        .day-modal-handle {
+            width: 36px; height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            margin: 10px auto 0;
+            flex-shrink: 0;
+        }
+        .day-modal-scroll {
+            flex: 1; overflow-y: auto;
+            padding: 28px 20px 48px;
+        }
+
         /* ── Settings overlay ── */
         .overlay-backdrop {
             position: fixed; inset: 0;
@@ -436,37 +470,40 @@
                 <div class="week-strips" id="weekStrips"></div>
             </section>
 
-            <!-- ─ Day view ─ -->
-            <section class="view-section" id="viewDay">
-                <div class="day-scroll">
-                    <div class="day-title-section">
-                        <div class="day-label" id="dayLabel">今日</div>
-                        <div class="day-date-sub" id="dayDateSub"></div>
-                    </div>
+        </div>
 
-                    <div class="section-label">天氣</div>
-                    <div class="weather-card">
-                        <div class="weather-card-main">
-                            <div class="weather-icon-big" id="weatherIconBig">🌤</div>
-                            <div>
-                                <div class="weather-temp-big" id="weatherTempBig">— °C</div>
-                                <div class="weather-cond" id="weatherCondText">天氣載入中</div>
-                                <div class="weather-loc">信義區・台北市</div>
-                            </div>
-                        </div>
-                        <div class="weather-details" id="weatherDetails">
-                            <div class="weather-detail-item"><span class="weather-detail-icon">🌂</span>降雨 —%</div>
-                            <div class="weather-detail-item"><span class="weather-detail-icon">☀️</span>UV —</div>
-                            <div class="weather-detail-item"><span class="weather-detail-icon">💧</span>濕度 —%</div>
-                            <div class="weather-detail-item"><span class="weather-detail-icon">💨</span>— km/h</div>
-                        </div>
-                    </div>
-
-                    <div class="section-label">班表行程</div>
-                    <div id="dayEvents"></div>
+        <!-- Day modal backdrop -->
+        <div class="day-modal-backdrop" id="dayModalBackdrop" onclick="closeDayModal()"></div>
+        <!-- Day modal -->
+        <div class="day-modal" id="dayModal">
+            <div class="day-modal-handle"></div>
+            <div class="day-modal-scroll">
+                <div class="day-title-section">
+                    <div class="day-label" id="dayLabel">今日</div>
+                    <div class="day-date-sub" id="dayDateSub"></div>
                 </div>
-            </section>
 
+                <div class="section-label">天氣</div>
+                <div class="weather-card">
+                    <div class="weather-card-main">
+                        <div class="weather-icon-big" id="weatherIconBig">🌤</div>
+                        <div>
+                            <div class="weather-temp-big" id="weatherTempBig">— °C</div>
+                            <div class="weather-cond" id="weatherCondText">天氣載入中</div>
+                            <div class="weather-loc">信義區・台北市</div>
+                        </div>
+                    </div>
+                    <div class="weather-details" id="weatherDetails">
+                        <div class="weather-detail-item"><span class="weather-detail-icon">🌂</span>降雨 —%</div>
+                        <div class="weather-detail-item"><span class="weather-detail-icon">☀️</span>UV —</div>
+                        <div class="weather-detail-item"><span class="weather-detail-icon">💧</span>濕度 —%</div>
+                        <div class="weather-detail-item"><span class="weather-detail-icon">💨</span>— km/h</div>
+                    </div>
+                </div>
+
+                <div class="section-label">班表行程</div>
+                <div id="dayEvents"></div>
+            </div>
         </div>
     </div>
 
@@ -502,7 +539,7 @@
             </div>
             <div class="settings-row">
                 <span class="settings-label">PWA 快取</span>
-                <span class="settings-val">management-v2</span>
+                <span class="settings-val">management-v3</span>
             </div>
         </div>
     </div>
@@ -514,7 +551,7 @@
 
         // ── State ──
         const state = {
-            view:     0,                  // 0=月 1=週 2=日
+            view:     0,                  // 0=月 1=週
             viewDate: new Date(),         // shared focused date
             calYear:  new Date().getFullYear(),
             calMonth: new Date().getMonth(), // 0-indexed
@@ -527,7 +564,6 @@
         (function init() {
             renderMonth();
             renderWeek();
-            renderDay();
             positionTrack(false);
 
             const track = document.getElementById('viewTrack');
@@ -568,7 +604,7 @@
 
         // ── View switching ──
         function switchView(idx) {
-            state.view = Math.max(0, Math.min(2, idx));
+            state.view = Math.max(0, Math.min(1, idx));
             positionTrack(true);
         }
 
@@ -604,8 +640,7 @@
                 el.innerHTML = `<span class="day-num">${d}</span>`;
                 el.addEventListener('click', () => {
                     state.viewDate = new Date(dateStr + 'T00:00:00');
-                    renderDay();
-                    switchView(2);
+                    switchView(1);
                 });
                 grid.appendChild(el);
             }
@@ -649,8 +684,7 @@
 
                 strip.addEventListener('click', () => {
                     state.viewDate = new Date(d);
-                    renderDay();
-                    switchView(2);
+                    openDayModal();
                 });
 
                 container.appendChild(strip);
@@ -685,9 +719,9 @@
             const eventsEl = document.getElementById('dayEvents');
             eventsEl.innerHTML = `<div class="day-empty">尚無班表行程</div>`;
 
-            // Scroll day section to top
-            const viewDay = document.getElementById('viewDay');
-            viewDay.scrollTop = 0;
+            // Scroll modal to top
+            const scroll = document.getElementById('dayModal').querySelector('.day-modal-scroll');
+            if (scroll) scroll.scrollTop = 0;
         }
 
         // ── Swipe gestures ──
@@ -743,6 +777,18 @@
                     });
                 });
             }, 200);
+        }
+
+        // ── Day modal ──
+        function openDayModal() {
+            renderDay();
+            document.getElementById('dayModalBackdrop').classList.add('open');
+            document.getElementById('dayModal').classList.add('open');
+        }
+
+        function closeDayModal() {
+            document.getElementById('dayModalBackdrop').classList.remove('open');
+            document.getElementById('dayModal').classList.remove('open');
         }
 
         // ── Settings overlay ──
