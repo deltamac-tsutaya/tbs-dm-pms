@@ -342,7 +342,7 @@
             font-style: italic;
         }
 
-        /* ── Day modal (bottom sheet) ── */
+        /* ── Day modal (bottom sheet, origin-aware fold) ── */
         .day-modal-backdrop {
             position: absolute; inset: 0;
             background: rgba(0,0,0,0.35);
@@ -354,26 +354,57 @@
         .day-modal {
             position: absolute;
             left: 0; right: 0; bottom: 0;
-            top: 15%;
+            top: 100%; /* hidden below viewport; JS drives top for animation */
             background: #18877a;
             z-index: 11;
-            transform: translateY(100%);
-            transition: transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             border-radius: 16px 16px 0 0;
             display: flex; flex-direction: column;
             overflow: hidden;
         }
-        .day-modal.open { transform: translateY(0); }
-        .day-modal-handle {
-            width: 36px; height: 4px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 2px;
-            margin: 10px auto 0;
+        /* Strip that was tapped dims while modal is open */
+        .day-strip.strip-active {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        /* Modal header — identical layout to a .day-strip */
+        .day-modal-strip-header {
             flex-shrink: 0;
+            display: flex;
+            align-items: stretch;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            position: relative;
+        }
+        .day-modal-strip-header .strip-body {
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 10px 48px 10px 0;
+        }
+        .day-modal-label {
+            font-size: 18px; font-weight: 800;
+            color: #fff; line-height: 1;
+            letter-spacing: -0.5px;
+        }
+        .day-modal-date-sub {
+            font-size: 10px; font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+        .day-modal-close {
+            position: absolute; top: 50%; right: 12px;
+            transform: translateY(-50%);
+            width: 28px; height: 28px;
+            border: none; background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            color: rgba(255,255,255,0.8); font-size: 12px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
         .day-modal-scroll {
             flex: 1; overflow-y: auto;
-            padding: 28px 20px 48px;
+            padding: 20px 20px 48px;
         }
 
         /* ── Settings overlay ── */
@@ -474,15 +505,24 @@
 
         <!-- Day modal backdrop -->
         <div class="day-modal-backdrop" id="dayModalBackdrop" onclick="closeDayModal()"></div>
-        <!-- Day modal -->
+        <!-- Day modal: header mirrors the tapped strip, body unfolds below -->
         <div class="day-modal" id="dayModal">
-            <div class="day-modal-handle"></div>
-            <div class="day-modal-scroll">
-                <div class="day-title-section">
-                    <div class="day-label" id="dayLabel">今日</div>
-                    <div class="day-date-sub" id="dayDateSub"></div>
+            <div class="day-modal-strip-header">
+                <div class="strip-month">
+                    <span class="strip-month-label" id="modalMonthLabel"></span>
                 </div>
-
+                <div class="strip-date">
+                    <span class="strip-weekday" id="modalWeekday"></span>
+                    <span class="strip-num" id="modalDayNum"></span>
+                    <div class="strip-today-dot" id="modalTodayDot" style="display:none"></div>
+                </div>
+                <div class="strip-body">
+                    <span class="day-modal-label" id="dayLabel"></span>
+                    <span class="day-modal-date-sub" id="dayDateSub"></span>
+                </div>
+                <button class="day-modal-close" onclick="closeDayModal()">✕</button>
+            </div>
+            <div class="day-modal-scroll">
                 <div class="section-label">天氣</div>
                 <div class="weather-card">
                     <div class="weather-card-main">
@@ -500,7 +540,6 @@
                         <div class="weather-detail-item"><span class="weather-detail-icon">💨</span>— km/h</div>
                     </div>
                 </div>
-
                 <div class="section-label">班表行程</div>
                 <div id="dayEvents"></div>
             </div>
@@ -539,7 +578,7 @@
             </div>
             <div class="settings-row">
                 <span class="settings-label">PWA 快取</span>
-                <span class="settings-val">management-v3</span>
+                <span class="settings-val">management-v4</span>
             </div>
         </div>
     </div>
@@ -559,6 +598,7 @@
 
         // ── Swipe tracking ──
         let touchStartX = 0, touchStartY = 0;
+        let activeStrip = null; // the strip that opened the current day modal
 
         // ── Init ──
         (function init() {
@@ -684,7 +724,7 @@
 
                 strip.addEventListener('click', () => {
                     state.viewDate = new Date(d);
-                    openDayModal();
+                    openDayModal(strip);
                 });
 
                 container.appendChild(strip);
@@ -704,22 +744,25 @@
             const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
             const isYesterday = dStr === localDateStr(yesterday);
 
-            // Day label
             let label;
-            if (isToday)     label = '今日';
+            if (isToday)          label = '今日';
             else if (isTomorrow)  label = '明日';
             else if (isYesterday) label = '昨日';
-            else label = `週${WEEKDAYS[d.getDay()]}`;
+            else                  label = `週${WEEKDAYS[d.getDay()]}`;
 
-            document.getElementById('dayLabel').textContent   = label;
-            document.getElementById('dayDateSub').textContent =
+            // Strip header
+            document.getElementById('modalMonthLabel').textContent = `${d.getMonth() + 1}月`;
+            document.getElementById('modalWeekday').textContent    = WEEKDAYS[d.getDay()];
+            document.getElementById('modalDayNum').textContent     = d.getDate();
+            document.getElementById('modalTodayDot').style.display = isToday ? '' : 'none';
+            document.getElementById('dayLabel').textContent        = label;
+            document.getElementById('dayDateSub').textContent      =
                 `${d.getDate()} ${DAY_MONTHS_EN[d.getMonth()]} ${d.getFullYear()}`;
 
-            // Events (placeholder — real data TBD)
-            const eventsEl = document.getElementById('dayEvents');
-            eventsEl.innerHTML = `<div class="day-empty">尚無班表行程</div>`;
+            // Events (placeholder)
+            document.getElementById('dayEvents').innerHTML = `<div class="day-empty">尚無班表行程</div>`;
 
-            // Scroll modal to top
+            // Scroll body to top
             const scroll = document.getElementById('dayModal').querySelector('.day-modal-scroll');
             if (scroll) scroll.scrollTop = 0;
         }
@@ -780,15 +823,57 @@
         }
 
         // ── Day modal ──
-        function openDayModal() {
+        function openDayModal(stripEl) {
             renderDay();
+
+            const viewport  = document.getElementById('viewViewport');
+            const vpRect    = viewport.getBoundingClientRect();
+            const sRect     = stripEl.getBoundingClientRect();
+            const originPct = ((sRect.top - vpRect.top) / vpRect.height * 100).toFixed(2) + '%';
+
+            const modal = document.getElementById('dayModal');
+            // Snap to strip's top edge (no transition)
+            modal.style.transition = 'none';
+            modal.style.top = originPct;
+            modal.offsetHeight; // force reflow
+
+            // Unfold upward to open position
+            modal.style.transition = 'top 0.36s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            modal.style.top = '15%';
             document.getElementById('dayModalBackdrop').classList.add('open');
-            document.getElementById('dayModal').classList.add('open');
+
+            // Dim the source strip
+            if (activeStrip) activeStrip.classList.remove('strip-active');
+            activeStrip = stripEl;
+            stripEl.classList.add('strip-active');
         }
 
         function closeDayModal() {
+            const modal = document.getElementById('dayModal');
             document.getElementById('dayModalBackdrop').classList.remove('open');
-            document.getElementById('dayModal').classList.remove('open');
+
+            if (activeStrip) {
+                // Fold back to the strip's current position
+                const viewport  = document.getElementById('viewViewport');
+                const vpRect    = viewport.getBoundingClientRect();
+                const sRect     = activeStrip.getBoundingClientRect();
+                const originPct = ((sRect.top - vpRect.top) / vpRect.height * 100).toFixed(2) + '%';
+
+                modal.style.transition = 'top 0.28s cubic-bezier(0.55, 0, 1, 0.45)';
+                modal.style.top = originPct;
+
+                const strip = activeStrip;
+                activeStrip = null;
+                setTimeout(() => {
+                    strip.classList.remove('strip-active');
+                    modal.style.transition = 'none';
+                    modal.style.top = '100%';
+                }, 280);
+            } else {
+                modal.style.transition = 'top 0.28s cubic-bezier(0.55, 0, 1, 0.45)';
+                modal.style.top = '100%';
+                setTimeout(() => { modal.style.transition = ''; }, 280);
+            }
         }
 
         // ── Settings overlay ──
