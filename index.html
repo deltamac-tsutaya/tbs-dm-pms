@@ -29,7 +29,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; width: 100%; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -69,6 +69,7 @@
         /* ── View carousel (peek pattern) ── */
         .view-viewport {
             flex: 1;
+            width: 100%;
             overflow: hidden;
             position: relative;
             min-height: 0;
@@ -578,7 +579,7 @@
             </div>
             <div class="settings-row">
                 <span class="settings-label">PWA 快取</span>
-                <span class="settings-val">management-v4</span>
+                <span class="settings-val">management-v5</span>
             </div>
         </div>
     </div>
@@ -604,7 +605,8 @@
         (function init() {
             renderMonth();
             renderWeek();
-            positionTrack(false);
+            // Defer to next frame so the browser has finished initial layout
+            requestAnimationFrame(() => positionTrack(false));
 
             const track = document.getElementById('viewTrack');
             track.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -832,15 +834,17 @@
             const originPct = ((sRect.top - vpRect.top) / vpRect.height * 100).toFixed(2) + '%';
 
             const modal = document.getElementById('dayModal');
-            // Snap to strip's top edge (no transition)
+            // Snap to strip's top edge with no transition
             modal.style.transition = 'none';
             modal.style.top = originPct;
-            modal.offsetHeight; // force reflow
+            modal.offsetHeight; // force layout commit
 
-            // Unfold upward to open position
-            modal.style.transition = 'top 0.36s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            modal.style.top = '15%';
-            document.getElementById('dayModalBackdrop').classList.add('open');
+            // RAF ensures the snap is painted before we start the transition
+            requestAnimationFrame(() => {
+                modal.style.transition = 'top 0.36s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                modal.style.top = '15%';
+                document.getElementById('dayModalBackdrop').classList.add('open');
+            });
 
             // Dim the source strip
             if (activeStrip) activeStrip.classList.remove('strip-active');
@@ -849,30 +853,38 @@
         }
 
         function closeDayModal() {
-            const modal = document.getElementById('dayModal');
-            document.getElementById('dayModalBackdrop').classList.remove('open');
+            const modal    = document.getElementById('dayModal');
+            const backdrop = document.getElementById('dayModalBackdrop');
+            backdrop.classList.remove('open');
 
             if (activeStrip) {
-                // Fold back to the strip's current position
+                // Capture strip position before clearing activeStrip
                 const viewport  = document.getElementById('viewViewport');
                 const vpRect    = viewport.getBoundingClientRect();
                 const sRect     = activeStrip.getBoundingClientRect();
                 const originPct = ((sRect.top - vpRect.top) / vpRect.height * 100).toFixed(2) + '%';
 
-                modal.style.transition = 'top 0.28s cubic-bezier(0.55, 0, 1, 0.45)';
-                modal.style.top = originPct;
-
                 const strip = activeStrip;
                 activeStrip = null;
+
+                // RAF ensures current top:15% is committed before transition starts
+                requestAnimationFrame(() => {
+                    modal.style.transition = 'top 0.28s cubic-bezier(0.55, 0, 1, 0.45)';
+                    modal.style.top = originPct;
+                });
+
+                // After fold-back completes, reset and restore strip
                 setTimeout(() => {
                     strip.classList.remove('strip-active');
                     modal.style.transition = 'none';
                     modal.style.top = '100%';
-                }, 280);
+                }, 320);
             } else {
-                modal.style.transition = 'top 0.28s cubic-bezier(0.55, 0, 1, 0.45)';
-                modal.style.top = '100%';
-                setTimeout(() => { modal.style.transition = ''; }, 280);
+                requestAnimationFrame(() => {
+                    modal.style.transition = 'top 0.28s cubic-bezier(0.55, 0, 1, 0.45)';
+                    modal.style.top = '100%';
+                });
+                setTimeout(() => { modal.style.transition = 'none'; }, 320);
             }
         }
 
