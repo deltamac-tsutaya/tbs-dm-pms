@@ -625,7 +625,8 @@
             const viewport = document.getElementById('viewViewport');
             const track    = document.getElementById('viewTrack');
             const sections = track.querySelectorAll('.view-section');
-            const W = window.innerWidth;
+            // Use viewport width directly; on mobile, innerWidth is more reliable than element-based measurement
+            const W = viewport.clientWidth;
             const sectionW = W - 2 * PEEK;
 
             sections.forEach(s => { s.style.width = sectionW + 'px'; });
