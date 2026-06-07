@@ -601,6 +601,9 @@
         let touchStartX = 0, touchStartY = 0;
         let activeStrip = null; // the strip that opened the current day modal
 
+        // ── Constants ──
+        const MONTH_NAMES = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+
         // ── Init ──
         (function init() {
             renderMonth();
@@ -642,7 +645,6 @@
         }
 
         // ── Month view ──
-        const MONTH_NAMES = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
 
         function renderMonth() {
             document.getElementById('calMonthName').textContent = MONTH_NAMES[state.calMonth];
