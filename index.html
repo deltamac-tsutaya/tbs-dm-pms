@@ -84,8 +84,7 @@
 
         .view-section {
             flex-shrink: 0;
-            /* Width set in CSS so it's correct before any JS runs */
-            width: calc(100vw - 2 * var(--peek));
+            /* width set by JS after layout, so peek formula is applied */
             height: 100%;
             overflow-y: auto;
             overflow-x: hidden;
@@ -606,7 +605,7 @@
         (function init() {
             renderMonth();
             renderWeek();
-            positionTrack(false);
+            requestAnimationFrame(() => positionTrack(false));
 
             const track = document.getElementById('viewTrack');
             track.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -622,11 +621,15 @@
         })();
 
         // ── Layout: peek pattern ──
-        // Section widths are set in CSS (calc(100vw - 2*peek)), so JS only
-        // needs window.innerWidth — no dependency on element layout timing.
         function positionTrack(animate = true) {
-            const track   = document.getElementById('viewTrack');
-            const sectionW = window.innerWidth - 2 * PEEK;
+            const viewport = document.getElementById('viewViewport');
+            const track    = document.getElementById('viewTrack');
+            const sections = track.querySelectorAll('.view-section');
+            const W = window.innerWidth;
+            const sectionW = W - 2 * PEEK;
+
+            sections.forEach(s => { s.style.width = sectionW + 'px'; });
+
             const tx = PEEK - state.view * sectionW;
             if (!animate) track.style.transition = 'none';
             track.style.transform = `translateX(${tx}px)`;
