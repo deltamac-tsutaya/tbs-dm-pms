@@ -69,10 +69,11 @@
         /* ── View carousel (peek pattern) ── */
         .view-viewport {
             flex: 1;
-            width: 100%;
+            min-height: 0;
             overflow: hidden;
             position: relative;
-            min-height: 0;
+            /* padding creates the peek margins — no JS width calc needed */
+            padding: 0 var(--peek);
         }
 
         .view-track {
@@ -83,8 +84,8 @@
         }
 
         .view-section {
-            flex-shrink: 0;
-            /* width set by JS after layout, so peek formula is applied */
+            /* 100% = track width = viewport minus peek padding on each side */
+            flex: 0 0 100%;
             height: 100%;
             overflow-y: auto;
             overflow-x: hidden;
@@ -579,7 +580,7 @@
             </div>
             <div class="settings-row">
                 <span class="settings-label">PWA 快取</span>
-                <span class="settings-val">management-v6</span>
+                <span class="settings-val">management-v7</span>
             </div>
         </div>
     </div>
@@ -587,7 +588,6 @@
     <script>
         // ── Constants ──
         const WEEKDAYS = ['日','一','二','三','四','五','六'];
-        const PEEK = 14; // px peek amount
 
         // ── State ──
         const state = {
@@ -605,7 +605,7 @@
         (function init() {
             renderMonth();
             renderWeek();
-            requestAnimationFrame(() => positionTrack(false));
+            positionTrack(false);
 
             const track = document.getElementById('viewTrack');
             track.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -621,19 +621,13 @@
         })();
 
         // ── Layout: peek pattern ──
+        // Section widths come from CSS (flex: 0 0 100% inside padded viewport).
+        // translate uses % of track width — no pixel math, no layout timing issues.
         function positionTrack(animate = true) {
-            const viewport = document.getElementById('viewViewport');
-            const track    = document.getElementById('viewTrack');
-            const sections = track.querySelectorAll('.view-section');
-            // Use viewport width directly; on mobile, innerWidth is more reliable than element-based measurement
-            const W = viewport.clientWidth;
-            const sectionW = W - 2 * PEEK;
-
-            sections.forEach(s => { s.style.width = sectionW + 'px'; });
-
-            const tx = PEEK - state.view * sectionW;
+            const track = document.getElementById('viewTrack');
+            const tx = -state.view * 100;
             if (!animate) track.style.transition = 'none';
-            track.style.transform = `translateX(${tx}px)`;
+            track.style.transform = `translateX(${tx}%)`;
             if (!animate) {
                 requestAnimationFrame(() => { track.style.transition = ''; });
             }
