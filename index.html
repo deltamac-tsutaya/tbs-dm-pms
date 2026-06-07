@@ -83,8 +83,9 @@
         }
 
         .view-section {
-            /* width set by JS after layout, so peek formula is applied */
             flex-shrink: 0;
+            /* Width set in CSS so it's correct before any JS runs */
+            width: calc(100vw - 2 * var(--peek));
             height: 100%;
             overflow-y: auto;
             overflow-x: hidden;
@@ -579,7 +580,7 @@
             </div>
             <div class="settings-row">
                 <span class="settings-label">PWA 快取</span>
-                <span class="settings-val">management-v5</span>
+                <span class="settings-val">management-v6</span>
             </div>
         </div>
     </div>
@@ -605,8 +606,7 @@
         (function init() {
             renderMonth();
             renderWeek();
-            // Defer to next frame so the browser has finished initial layout
-            requestAnimationFrame(() => positionTrack(false));
+            positionTrack(false);
 
             const track = document.getElementById('viewTrack');
             track.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -622,23 +622,16 @@
         })();
 
         // ── Layout: peek pattern ──
+        // Section widths are set in CSS (calc(100vw - 2*peek)), so JS only
+        // needs window.innerWidth — no dependency on element layout timing.
         function positionTrack(animate = true) {
-            const viewport = document.getElementById('viewViewport');
-            const track    = document.getElementById('viewTrack');
-            const sections = track.querySelectorAll('.view-section');
-            const W = viewport.offsetWidth;
-            const sectionW = W - 2 * PEEK;
-
-            sections.forEach(s => { s.style.width = sectionW + 'px'; });
-
+            const track   = document.getElementById('viewTrack');
+            const sectionW = window.innerWidth - 2 * PEEK;
             const tx = PEEK - state.view * sectionW;
             if (!animate) track.style.transition = 'none';
             track.style.transform = `translateX(${tx}px)`;
             if (!animate) {
-                // Re-enable transition on next frame
-                requestAnimationFrame(() => {
-                    track.style.transition = '';
-                });
+                requestAnimationFrame(() => { track.style.transition = ''; });
             }
         }
 
