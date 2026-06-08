@@ -21,11 +21,12 @@
             --outline:        #e5e7eb;
             --on-bg:          #1f2937;
             --on-surface-var: #64748b;
-            --primary:        #2563eb;
-            --primary-light:  #dbeafe;
+            --primary:        #FFFFF0;   /* ivory */
+            --on-primary:     #2C1F0E;   /* dark warm brown */
+            --primary-dim:    rgba(44,31,14,0.07);
+            --primary-border: rgba(44,31,14,0.10);
             --success:        #10b981;
             --success-light:  #dcfce7;
-            --peek:           14px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -33,11 +34,24 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
+            background: #000;   /* fills area outside 430px column */
             color: var(--on-bg);
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        /* ── 430px mobile column, left-aligned ── */
+        .app-column {
+            width: 100%;
+            max-width: 430px;
+            flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            background: var(--bg);
+            position: relative; /* Fixed positioning child container */
         }
 
 
@@ -67,8 +81,6 @@
             overflow-y: auto;
             overflow-x: hidden;
             background: var(--bg);
-            border-radius: 14px 14px 0 0;
-            box-shadow: 0 -1px 4px rgba(0,0,0,0.06);
         }
 
 
@@ -124,17 +136,18 @@
         .cal-day.empty { cursor: default; pointer-events: none; }
         .cal-day.other-month { color: rgba(255,255,255,0.18); }
         .cal-day.today {
-            box-shadow: 0 0 0 2px #fff;
+            background: var(--primary);
+            color: var(--on-primary);
             font-weight: 700;
         }
         .cal-day.selected:not(.today) {
-            background: #1a9b8a;
+            background: rgba(44,31,14,0.08);
             color: #fff;
             font-weight: 700;
         }
         .cal-day.today.selected {
-            background: #1a9b8a;
-            box-shadow: 0 0 0 2px #fff;
+            background: var(--primary);
+            color: var(--on-primary);
         }
         .cal-day .day-num { font-size: 14px; }
 
@@ -143,7 +156,47 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            background: #18877a;
+            background: var(--primary);
+        }
+
+        .week-nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            background: linear-gradient(rgba(44, 31, 14, 0.02), rgba(44, 31, 14, 0.02)), var(--primary);
+            color: rgba(44, 31, 14, 0.45);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            user-select: none;
+            position: relative;
+            z-index: 10;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .week-nav-bar.top-bar {
+            height: calc(40px + env(safe-area-inset-top));
+            padding-top: env(safe-area-inset-top);
+            border-bottom: 1px solid var(--primary-border);
+        }
+        .week-nav-bar.bottom-bar {
+            height: calc(40px + env(safe-area-inset-bottom));
+            padding-bottom: env(safe-area-inset-bottom);
+            border-top: 1px solid var(--primary-border);
+        }
+        .week-nav-bar:hover {
+            background: linear-gradient(rgba(44, 31, 14, 0.06), rgba(44, 31, 14, 0.06)), var(--primary);
+            color: var(--on-primary);
+        }
+        .week-nav-bar:active {
+            background: linear-gradient(rgba(44, 31, 14, 0.1), rgba(44, 31, 14, 0.1)), var(--primary);
+        }
+        .week-nav-bar svg {
+            transition: transform 0.2s;
+        }
+        .week-nav-bar:hover svg {
+            transform: scale(1.15);
         }
 
         .week-strips {
@@ -157,13 +210,13 @@
         .day-strip {
             flex: 1;
             display: flex;
-            border-bottom: 1px solid rgba(255,255,255,0.12);
+            border-bottom: 1px solid var(--primary-border);
             cursor: pointer;
             transition: background 0.12s;
             min-height: 0;
         }
-        .day-strip:hover { background: rgba(255,255,255,0.06); }
-        .day-strip.today { background: rgba(255,255,255,0.13); }
+        .day-strip:hover { background: var(--primary-dim); }
+        .day-strip.today { background: rgba(44,31,14,0.1); }
 
         .strip-month {
             width: 20px; flex-shrink: 0;
@@ -171,7 +224,7 @@
         }
         .strip-month-label {
             font-size: 8px; font-weight: 700;
-            color: rgba(255,255,255,0.4);
+            color: rgba(44,31,14,0.38);
             writing-mode: vertical-rl;
             text-orientation: mixed;
             letter-spacing: 1.5px;
@@ -186,21 +239,21 @@
         }
         .strip-weekday {
             font-size: 9px; font-weight: 700;
-            color: rgba(255,255,255,0.5);
+            color: rgba(44,31,14,0.48);
             text-transform: uppercase;
             letter-spacing: 1.2px;
         }
         .strip-num {
             font-size: 34px; font-weight: 800;
-            color: #fff;
+            color: var(--on-primary);
             line-height: 1;
             letter-spacing: -1.5px;
         }
-        .day-strip.today .strip-num { color: #fff; }
+        .day-strip.today .strip-num { color: var(--on-primary); }
         .strip-today-dot {
             width: 5px; height: 5px;
             border-radius: 50%;
-            background: #fff;
+            background: var(--on-primary);
             margin-top: 3px;
         }
 
@@ -213,51 +266,86 @@
             min-width: 0;
         }
         .strip-empty {
-            font-size: 12px; color: rgba(255,255,255,0.22);
+            font-size: 12px; color: rgba(44,31,14,0.3);
             font-style: italic;
         }
         .strip-weather {
-            position: absolute;
-            top: 8px; right: 0;
+            flex-shrink: 0;
             display: flex; align-items: center; gap: 3px;
             font-size: 11px; font-weight: 600;
-            color: rgba(255,255,255,0.55);
+            color: rgba(44,31,14,0.48);
+            padding-right: 12px;
+            align-self: flex-start;
+            padding-top: 10px;
         }
         .strip-weather-icon { font-size: 13px; }
 
         /* ── Day view ── */
-        #viewDay { background: #18877a; }
+        #viewDay { background: var(--primary); }
 
         .day-scroll {
             padding: 28px 20px 48px;
             min-height: 100%;
         }
 
-        .day-title-section { padding-bottom: 28px; }
+        .day-title-section {
+            padding-bottom: 24px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .day-title-left {}
         .day-label {
-            font-size: 52px; font-weight: 900;
-            color: #fff; line-height: 1;
-            letter-spacing: -1.5px;
+            font-size: 13px; font-weight: 700;
+            color: rgba(44,31,14,0.48);
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .day-num-big {
+            font-size: 72px; font-weight: 900;
+            color: var(--on-primary); line-height: 0.9;
+            letter-spacing: -3px;
         }
         .day-date-sub {
-            font-size: 15px; font-weight: 600;
-            color: rgba(255,255,255,0.55);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-top: 6px;
+            font-size: 14px; font-weight: 600;
+            color: rgba(44,31,14,0.5);
+            letter-spacing: 0.5px;
+            margin-top: 8px;
         }
+
+        /* Time axis */
+        .section-label.timeline-label { margin-top: 4px; }
+        .time-slot {
+            display: flex;
+            border-bottom: 1px solid var(--primary-border);
+            min-height: 56px;
+        }
+        .time-slot.current-hour {
+            border-left: 3px solid var(--on-primary);
+            background: var(--primary-dim);
+        }
+        .time-label {
+            width: 52px; flex-shrink: 0;
+            font-size: 10px; font-weight: 600;
+            color: rgba(44,31,14,0.38);
+            padding: 10px 8px 0;
+            text-align: right;
+        }
+        .time-slot.current-hour .time-label { color: var(--on-primary); }
+        .slot-body { flex: 1; padding: 8px 12px; }
 
         .section-label {
             font-size: 10px; font-weight: 700;
-            color: rgba(255,255,255,0.45);
+            color: rgba(44,31,14,0.42);
             letter-spacing: 1.8px;
             text-transform: uppercase;
             margin: 0 0 10px;
         }
 
         .weather-card {
-            background: rgba(255,255,255,0.12);
-            border-radius: 16px;
+            background: rgba(44,31,14,0.07);
             padding: 18px 20px 20px;
             margin-bottom: 28px;
         }
@@ -268,31 +356,30 @@
         .weather-icon-big { font-size: 52px; line-height: 1; }
         .weather-temp-big {
             font-size: 28px; font-weight: 700;
-            color: #fff; line-height: 1.1;
+            color: var(--on-primary); line-height: 1.1;
         }
         .weather-cond {
             font-size: 16px; font-weight: 600;
-            color: #fff; margin-top: 2px;
+            color: var(--on-primary); margin-top: 2px;
         }
         .weather-loc {
-            font-size: 12px; color: rgba(255,255,255,0.55);
+            font-size: 12px; color: rgba(44,31,14,0.5);
             margin-top: 3px;
         }
         .weather-details {
             display: grid; grid-template-columns: 1fr 1fr;
             gap: 6px 0;
             padding-top: 14px;
-            border-top: 1px solid rgba(255,255,255,0.15);
+            border-top: 1px solid var(--primary-border);
         }
         .weather-detail-item {
             display: flex; align-items: center; gap: 6px;
-            font-size: 12px; color: rgba(255,255,255,0.7);
+            font-size: 12px; color: rgba(44,31,14,0.65);
         }
         .weather-detail-icon { font-size: 14px; }
 
         .event-card {
-            background: rgba(255,255,255,0.12);
-            border-radius: 14px;
+            background: rgba(44,31,14,0.07);
             padding: 14px 16px;
             margin-bottom: 10px;
             display: flex; gap: 12px; align-items: stretch;
@@ -305,19 +392,19 @@
         .event-info { flex: 1; min-width: 0; }
         .event-name {
             font-size: 15px; font-weight: 700;
-            color: #fff; line-height: 1.2;
+            color: var(--on-primary); line-height: 1.2;
         }
         .event-time {
-            font-size: 12px; color: rgba(255,255,255,0.6);
+            font-size: 12px; color: rgba(44,31,14,0.55);
             margin-top: 4px;
         }
         .event-loc {
-            font-size: 12px; color: rgba(255,255,255,0.45);
+            font-size: 12px; color: rgba(44,31,14,0.4);
             margin-top: 2px;
         }
         .day-empty {
             text-align: center; padding: 28px 0;
-            font-size: 13px; color: rgba(255,255,255,0.25);
+            font-size: 13px; color: rgba(44,31,14,0.28);
             font-style: italic;
         }
 
@@ -603,7 +690,19 @@
 
             <!-- ─ Week view ─ -->
             <section class="view-section" id="viewWeek">
+                <div class="week-nav-bar top-bar" onclick="shiftWeek(-7)">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:12px; height:12px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
+                    </svg>
+                    <span>上一週</span>
+                </div>
                 <div class="week-strips" id="weekStrips"></div>
+                <div class="week-nav-bar bottom-bar" onclick="shiftWeek(7)">
+                    <span>下一週</span>
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:12px; height:12px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                    </svg>
+                </div>
             </section>
 
         </div>
@@ -766,6 +865,14 @@
 
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js').catch(() => {});
+                
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        window.location.reload();
+                    }
+                });
             }
             updateNavActive();
         })();
@@ -908,17 +1015,14 @@
         }
 
         // ── Day view ──
-        const DAY_MONTHS_EN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-
         function renderDay() {
-            const d = state.viewDate;
-            const todayStr  = localDateStr(new Date());
-            const dStr      = localDateStr(d);
-            const isToday   = dStr === todayStr;
-            const tomorrow  = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-            const isTomorrow = dStr === localDateStr(tomorrow);
-            const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-            const isYesterday = dStr === localDateStr(yesterday);
+            const d        = state.viewDate;
+            const now      = new Date();
+            const todayStr = localDateStr(now);
+            const dStr     = localDateStr(d);
+            const isToday  = dStr === todayStr;
+            const tomorrow  = new Date(now); tomorrow.setDate(now.getDate() + 1);
+            const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
 
             let label;
             if (isToday)          label = '今日';
@@ -1086,6 +1190,37 @@
         }
 
         function pad(n) { return String(n).padStart(2, '0'); }
+
+        // ── FAB Menu Interactions ──
+        function toggleFabMenu() {
+            const mainBtn = document.getElementById('fabMainBtn');
+            const items = document.getElementById('fabItems');
+            if (mainBtn && items) {
+                const isOpen = items.classList.toggle('open');
+                mainBtn.classList.toggle('open', isOpen);
+                const svg = mainBtn.querySelector('svg');
+                if (svg) {
+                    svg.style.transform = isOpen ? 'rotate(45deg)' : 'none';
+                }
+            }
+        }
+
+        function selectFabAction(action) {
+            toggleFabMenu();
+            if (action === 0) switchView(0);
+            else if (action === 1) switchView(1);
+            else if (action === 2) switchView(2);
+            else if (action === 3) openSettings();
+        }
+
+        // Close FAB when clicking outside
+        document.addEventListener('click', (e) => {
+            const container = document.getElementById('fabContainer');
+            const items = document.getElementById('fabItems');
+            if (container && items && !container.contains(e.target) && items.classList.contains('open')) {
+                toggleFabMenu();
+            }
+        });
     </script>
 </body>
 </html>
