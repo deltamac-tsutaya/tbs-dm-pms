@@ -832,7 +832,11 @@
 
     <script>
         // ── Constants ──
-        const WEEKDAYS = ['日','一','二','三','四','五','六'];
+        const WEEKDAYS      = ['日','一','二','三','四','五','六'];
+        const DAY_MONTHS_EN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+        const MONTH_NAMES   = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+        const DAY_HOURS     = [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
+        const PEEK          = 0; // no peek — full-width views
 
         // ── State ──
         const state = {
@@ -845,9 +849,6 @@
         // ── Swipe tracking ──
         let touchStartX = 0, touchStartY = 0;
         let activeStrip = null; // the strip that opened the current day modal
-
-        // ── Constants ──
-        const MONTH_NAMES = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
 
         // ── Init ──
         (function init() {
@@ -1191,36 +1192,6 @@
 
         function pad(n) { return String(n).padStart(2, '0'); }
 
-        // ── FAB Menu Interactions ──
-        function toggleFabMenu() {
-            const mainBtn = document.getElementById('fabMainBtn');
-            const items = document.getElementById('fabItems');
-            if (mainBtn && items) {
-                const isOpen = items.classList.toggle('open');
-                mainBtn.classList.toggle('open', isOpen);
-                const svg = mainBtn.querySelector('svg');
-                if (svg) {
-                    svg.style.transform = isOpen ? 'rotate(45deg)' : 'none';
-                }
-            }
-        }
-
-        function selectFabAction(action) {
-            toggleFabMenu();
-            if (action === 0) switchView(0);
-            else if (action === 1) switchView(1);
-            else if (action === 2) switchView(2);
-            else if (action === 3) openSettings();
-        }
-
-        // Close FAB when clicking outside
-        document.addEventListener('click', (e) => {
-            const container = document.getElementById('fabContainer');
-            const items = document.getElementById('fabItems');
-            if (container && items && !container.contains(e.target) && items.classList.contains('open')) {
-                toggleFabMenu();
-            }
-        });
     </script>
 </body>
 </html>
