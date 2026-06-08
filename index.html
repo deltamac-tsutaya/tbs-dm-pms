@@ -60,7 +60,11 @@
             width: 100%;
             height: calc(52px + env(safe-area-inset-top));
             background: #000;
-            transition: background-color 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            opacity: 1;
+            transition: height 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                        background-color 0.32s, 
+                        opacity 0.32s;
+            overflow: hidden;
         }
         .stage-bar.bottom {
             height: calc(52px + env(safe-area-inset-bottom));
@@ -69,10 +73,21 @@
             justify-content: flex-end;
             padding: 0 20px;
             padding-bottom: env(safe-area-inset-bottom);
+            transition: height 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                        background-color 0.32s, 
+                        opacity 0.32s,
+                        padding 0.32s;
         }
-        .app-column.theme-week .stage-bar,
         .app-column.theme-day .stage-bar {
             background: var(--primary);
+        }
+        .app-column.theme-week .stage-bar {
+            height: 0 !important;
+            opacity: 0;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            border: none !important;
+            pointer-events: none;
         }
         /* ── FAB Menu ── */
         .fab-container {
@@ -84,6 +99,10 @@
             align-items: center;
             gap: 12px;
             z-index: 400;
+            transition: bottom 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .app-column.theme-week .fab-container {
+            bottom: calc(env(safe-area-inset-bottom) + 16px);
         }
 
         .fab-main {
@@ -273,6 +292,46 @@
             flex-direction: column;
             overflow: hidden;
             background: var(--primary);
+        }
+
+        .week-nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            background: linear-gradient(rgba(44, 31, 14, 0.02), rgba(44, 31, 14, 0.02)), var(--primary);
+            color: rgba(44, 31, 14, 0.45);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            user-select: none;
+            position: relative;
+            z-index: 10;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .week-nav-bar.top-bar {
+            height: calc(40px + env(safe-area-inset-top));
+            padding-top: env(safe-area-inset-top);
+            border-bottom: 1px solid var(--primary-border);
+        }
+        .week-nav-bar.bottom-bar {
+            height: calc(40px + env(safe-area-inset-bottom));
+            padding-bottom: env(safe-area-inset-bottom);
+            border-top: 1px solid var(--primary-border);
+        }
+        .week-nav-bar:hover {
+            background: linear-gradient(rgba(44, 31, 14, 0.06), rgba(44, 31, 14, 0.06)), var(--primary);
+            color: var(--on-primary);
+        }
+        .week-nav-bar:active {
+            background: linear-gradient(rgba(44, 31, 14, 0.1), rgba(44, 31, 14, 0.1)), var(--primary);
+        }
+        .week-nav-bar svg {
+            transition: transform 0.2s;
+        }
+        .week-nav-bar:hover svg {
+            transform: scale(1.15);
         }
 
         .week-strips {
@@ -577,7 +636,19 @@
 
             <!-- ─ Week view ─ -->
             <section class="view-section" id="viewWeek">
+                <div class="week-nav-bar top-bar" onclick="shiftWeek(-7)">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:12px; height:12px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
+                    </svg>
+                    <span>上一週</span>
+                </div>
                 <div class="week-strips" id="weekStrips"></div>
+                <div class="week-nav-bar bottom-bar" onclick="shiftWeek(7)">
+                    <span>下一週</span>
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:12px; height:12px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                    </svg>
+                </div>
             </section>
 
             <!-- ─ Day view ─ -->
@@ -642,7 +713,7 @@
             </div>
             <div class="settings-row">
                 <span class="settings-label">PWA 快取</span>
-                <span class="settings-val">management-v5</span>
+                <span class="settings-val">management-v7</span>
             </div>
         </div>
     </div>
@@ -715,6 +786,14 @@
 
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js').catch(() => {});
+                
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        window.location.reload();
+                    }
+                });
             }
         })();
 
