@@ -543,6 +543,71 @@
             font-style: italic;
         }
 
+        /* ── Day modal (bottom sheet, origin-aware fold) ── */
+        .day-modal-backdrop {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 10;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .day-modal-backdrop.open { opacity: 1; pointer-events: auto; }
+        .day-modal {
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            top: 100%; /* hidden below viewport; JS drives top for animation */
+            background: #18877a;
+            z-index: 11;
+            border-radius: 16px 16px 0 0;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        /* Strip that was tapped dims while modal is open */
+        .day-strip.strip-active {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        /* Modal header — identical layout to a .day-strip */
+        .day-modal-strip-header {
+            flex-shrink: 0;
+            display: flex;
+            align-items: stretch;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            position: relative;
+        }
+        .day-modal-strip-header .strip-body {
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 10px 48px 10px 0;
+        }
+        .day-modal-label {
+            font-size: 18px; font-weight: 800;
+            color: #fff; line-height: 1;
+            letter-spacing: -0.5px;
+        }
+        .day-modal-date-sub {
+            font-size: 10px; font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+        .day-modal-close {
+            position: absolute; top: 50%; right: 12px;
+            transform: translateY(-50%);
+            width: 28px; height: 28px;
+            border: none; background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            color: rgba(255,255,255,0.8); font-size: 12px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .day-modal-scroll {
+            flex: 1; overflow-y: auto;
+            padding: 20px 20px 48px;
+        }
+
         /* ── Settings overlay ── */
         .overlay-backdrop {
             position: fixed; inset: 0;
@@ -651,40 +716,48 @@
                 </div>
             </section>
 
-            <!-- ─ Day view ─ -->
-            <section class="view-section" id="viewDay">
-                <div class="day-scroll">
-                    <div class="day-title-section">
-                        <div class="day-title-left">
-                            <div class="day-label" id="dayLabel">今日</div>
-                            <div class="day-num-big" id="dayNumBig"></div>
-                            <div class="day-date-sub" id="dayDateSub"></div>
-                        </div>
-                        <div class="weather-icon-big" id="weatherIconBig">🌤</div>
-                    </div>
+        </div>
 
-                    <div class="section-label">天氣</div>
-                    <div class="weather-card">
-                        <div class="weather-card-main">
-                            <div>
-                                <div class="weather-temp-big" id="weatherTempBig">— °C</div>
-                                <div class="weather-cond" id="weatherCondText">天氣載入中</div>
-                                <div class="weather-loc">信義區・台北市</div>
-                            </div>
-                        </div>
-                        <div class="weather-details" id="weatherDetails">
-                            <div class="weather-detail-item"><span class="weather-detail-icon">🌂</span>降雨 —%</div>
-                            <div class="weather-detail-item"><span class="weather-detail-icon">☀️</span>UV —</div>
-                            <div class="weather-detail-item"><span class="weather-detail-icon">💧</span>濕度 —%</div>
-                            <div class="weather-detail-item"><span class="weather-detail-icon">💨</span>— km/h</div>
-                        </div>
-                    </div>
-
-                    <div class="section-label timeline-label">時間軸</div>
-                    <div id="dayTimeline"></div>
+        <!-- Day modal backdrop -->
+        <div class="day-modal-backdrop" id="dayModalBackdrop" onclick="closeDayModal()"></div>
+        <!-- Day modal: header mirrors the tapped strip, body unfolds below -->
+        <div class="day-modal" id="dayModal">
+            <div class="day-modal-strip-header">
+                <div class="strip-month">
+                    <span class="strip-month-label" id="modalMonthLabel"></span>
                 </div>
-            </section>
-
+                <div class="strip-date">
+                    <span class="strip-weekday" id="modalWeekday"></span>
+                    <span class="strip-num" id="modalDayNum"></span>
+                    <div class="strip-today-dot" id="modalTodayDot" style="display:none"></div>
+                </div>
+                <div class="strip-body">
+                    <span class="day-modal-label" id="dayLabel"></span>
+                    <span class="day-modal-date-sub" id="dayDateSub"></span>
+                </div>
+                <button class="day-modal-close" onclick="closeDayModal()">✕</button>
+            </div>
+            <div class="day-modal-scroll">
+                <div class="section-label">天氣</div>
+                <div class="weather-card">
+                    <div class="weather-card-main">
+                        <div class="weather-icon-big" id="weatherIconBig">🌤</div>
+                        <div>
+                            <div class="weather-temp-big" id="weatherTempBig">— °C</div>
+                            <div class="weather-cond" id="weatherCondText">天氣載入中</div>
+                            <div class="weather-loc">信義區・台北市</div>
+                        </div>
+                    </div>
+                    <div class="weather-details" id="weatherDetails">
+                        <div class="weather-detail-item"><span class="weather-detail-icon">🌂</span>降雨 —%</div>
+                        <div class="weather-detail-item"><span class="weather-detail-icon">☀️</span>UV —</div>
+                        <div class="weather-detail-item"><span class="weather-detail-icon">💧</span>濕度 —%</div>
+                        <div class="weather-detail-item"><span class="weather-detail-icon">💨</span>— km/h</div>
+                    </div>
+                </div>
+                <div class="section-label">班表行程</div>
+                <div id="dayEvents"></div>
+            </div>
         </div>
     </div>
 
@@ -713,7 +786,7 @@
             </div>
             <div class="settings-row">
                 <span class="settings-label">PWA 快取</span>
-                <span class="settings-val">management-v7</span>
+                <span class="settings-val">management-v4</span>
             </div>
         </div>
     </div>
@@ -760,7 +833,7 @@
 
         // ── State ──
         const state = {
-            view:     0,                  // 0=月 1=週 2=日
+            view:     0,                  // 0=月 1=週
             viewDate: new Date(),         // shared focused date
             calYear:  new Date().getFullYear(),
             calMonth: new Date().getMonth(), // 0-indexed
@@ -768,12 +841,12 @@
 
         // ── Swipe tracking ──
         let touchStartX = 0, touchStartY = 0;
+        let activeStrip = null; // the strip that opened the current day modal
 
         // ── Init ──
         (function init() {
             renderMonth();
             renderWeek();
-            renderDay();
             positionTrack(false);
 
             const track = document.getElementById('viewTrack');
@@ -822,7 +895,7 @@
 
         // ── View switching ──
         function switchView(idx) {
-            state.view = Math.max(0, Math.min(2, idx));
+            state.view = Math.max(0, Math.min(1, idx));
             positionTrack(true);
             
             const app = document.querySelector('.app-column');
@@ -864,7 +937,6 @@
                 el.innerHTML = `<span class="day-num">${d}</span>`;
                 el.addEventListener('click', () => {
                     state.viewDate = new Date(dateStr + 'T00:00:00');
-                    renderWeek();
                     switchView(1);
                 });
                 grid.appendChild(el);
@@ -909,8 +981,7 @@
 
                 strip.addEventListener('click', () => {
                     state.viewDate = new Date(d);
-                    renderDay();
-                    switchView(2);
+                    openDayModal(strip);
                 });
 
                 container.appendChild(strip);
@@ -927,34 +998,27 @@
             const tomorrow  = new Date(now); tomorrow.setDate(now.getDate() + 1);
             const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
 
-            // Day label
             let label;
-            if (isToday)                           label = '今日';
-            else if (dStr === localDateStr(tomorrow))  label = '明日';
-            else if (dStr === localDateStr(yesterday)) label = '昨日';
-            else label = `週${WEEKDAYS[d.getDay()]}`;
+            if (isToday)          label = '今日';
+            else if (isTomorrow)  label = '明日';
+            else if (isYesterday) label = '昨日';
+            else                  label = `週${WEEKDAYS[d.getDay()]}`;
 
-            document.getElementById('dayLabel').textContent  = label;
-            document.getElementById('dayNumBig').textContent = d.getDate();
-            document.getElementById('dayDateSub').textContent =
-                `${DAY_MONTHS_EN[d.getMonth()]} ${d.getFullYear()} · 週${WEEKDAYS[d.getDay()]}`;
+            // Strip header
+            document.getElementById('modalMonthLabel').textContent = `${d.getMonth() + 1}月`;
+            document.getElementById('modalWeekday').textContent    = WEEKDAYS[d.getDay()];
+            document.getElementById('modalDayNum').textContent     = d.getDate();
+            document.getElementById('modalTodayDot').style.display = isToday ? '' : 'none';
+            document.getElementById('dayLabel').textContent        = label;
+            document.getElementById('dayDateSub').textContent      =
+                `${d.getDate()} ${DAY_MONTHS_EN[d.getMonth()]} ${d.getFullYear()}`;
 
-            // Time axis
-            const timeline = document.getElementById('dayTimeline');
-            timeline.innerHTML = '';
-            const nowHour = now.getHours();
-            DAY_HOURS.forEach(h => {
-                const slot = document.createElement('div');
-                const isCurrent = isToday && h === nowHour;
-                slot.className = 'time-slot' + (isCurrent ? ' current-hour' : '');
-                slot.innerHTML = `
-                    <div class="time-label">${pad(h)}:00</div>
-                    <div class="slot-body"></div>`;
-                timeline.appendChild(slot);
-            });
+            // Events (placeholder)
+            document.getElementById('dayEvents').innerHTML = `<div class="day-empty">尚無班表行程</div>`;
 
-            // Always start from top so date header is visible
-            document.getElementById('viewDay').scrollTop = 0;
+            // Scroll body to top
+            const scroll = document.getElementById('dayModal').querySelector('.day-modal-scroll');
+            if (scroll) scroll.scrollTop = 0;
         }
 
         // ── Swipe gestures ──
@@ -1010,6 +1074,60 @@
                     });
                 });
             }, 200);
+        }
+
+        // ── Day modal ──
+        function openDayModal(stripEl) {
+            renderDay();
+
+            const viewport  = document.getElementById('viewViewport');
+            const vpRect    = viewport.getBoundingClientRect();
+            const sRect     = stripEl.getBoundingClientRect();
+            const originPct = ((sRect.top - vpRect.top) / vpRect.height * 100).toFixed(2) + '%';
+
+            const modal = document.getElementById('dayModal');
+            // Snap to strip's top edge (no transition)
+            modal.style.transition = 'none';
+            modal.style.top = originPct;
+            modal.offsetHeight; // force reflow
+
+            // Unfold upward to open position
+            modal.style.transition = 'top 0.36s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            modal.style.top = '15%';
+            document.getElementById('dayModalBackdrop').classList.add('open');
+
+            // Dim the source strip
+            if (activeStrip) activeStrip.classList.remove('strip-active');
+            activeStrip = stripEl;
+            stripEl.classList.add('strip-active');
+        }
+
+        function closeDayModal() {
+            const modal = document.getElementById('dayModal');
+            document.getElementById('dayModalBackdrop').classList.remove('open');
+
+            if (activeStrip) {
+                // Fold back to the strip's current position
+                const viewport  = document.getElementById('viewViewport');
+                const vpRect    = viewport.getBoundingClientRect();
+                const sRect     = activeStrip.getBoundingClientRect();
+                const originPct = ((sRect.top - vpRect.top) / vpRect.height * 100).toFixed(2) + '%';
+
+                modal.style.transition = 'top 0.28s cubic-bezier(0.55, 0, 1, 0.45)';
+                modal.style.top = originPct;
+
+                const strip = activeStrip;
+                activeStrip = null;
+                setTimeout(() => {
+                    strip.classList.remove('strip-active');
+                    modal.style.transition = 'none';
+                    modal.style.top = '100%';
+                }, 280);
+            } else {
+                modal.style.transition = 'top 0.28s cubic-bezier(0.55, 0, 1, 0.45)';
+                modal.style.top = '100%';
+                setTimeout(() => { modal.style.transition = ''; }, 280);
+            }
         }
 
         // ── Settings overlay ──
